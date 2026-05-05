@@ -56,7 +56,7 @@ class HomeView extends GetView<HomeController> {
                         'CareTrack',
                         style: TextStyle(
                           color: Color(0xFF18181B),
-                          fontSize: 27,
+                          fontSize: 19,
                           fontFamily: 'Plus Jakarta Sans',
                           fontWeight: FontWeight.w700,
                           height: 1.27,
@@ -94,7 +94,7 @@ class HomeView extends GetView<HomeController> {
                       'Selamat Pagi, Sari',
                       style: TextStyle(
                         color: Color(0xFF1C1B1C),
-                        fontSize: 28,
+                        fontSize: 21,
                         fontFamily: 'Plus Jakarta Sans',
                         fontWeight: FontWeight.w700,
                         height: 1.27,

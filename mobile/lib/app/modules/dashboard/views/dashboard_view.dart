@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../../../routes/app_pages.dart';
 import '../controllers/dashboard_controller.dart';
 
 class DashboardView extends GetView<DashboardController> {
@@ -24,7 +25,7 @@ class DashboardView extends GetView<DashboardController> {
           'Health Dashboard',
           style: TextStyle(
             color: Color(0xFF1C1917),
-            fontSize: 16,
+            fontSize: 19,
             fontFamily: 'Plus Jakarta Sans',
             fontWeight: FontWeight.w600,
             letterSpacing: -0.40,
@@ -465,7 +466,9 @@ class DashboardView extends GetView<DashboardController> {
           ],
         ),
         child: IconButton(
-          onPressed: () {},
+          onPressed: () {
+            Get.toNamed(Routes.LOG_KESEHATAN);
+          },
           icon: const Icon(Icons.add, color: Colors.white),
         ),
       ),
