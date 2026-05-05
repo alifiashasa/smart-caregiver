@@ -10,6 +10,7 @@ abstract class Routes {
   static const PATIENT_DETAIL = _Paths.PATIENT_DETAIL;
   static const DASHBOARD = _Paths.DASHBOARD;
   static const CALENDAR = _Paths.CALENDAR;
+  static const LOG_KESEHATAN = _Paths.LOG_KESEHATAN;
 }
 
 abstract class _Paths {
@@ -21,4 +22,5 @@ abstract class _Paths {
   static const PATIENT_DETAIL = '/patient-detail';
   static const DASHBOARD = '/dashboard';
   static const CALENDAR = '/calendar';
+  static const LOG_KESEHATAN = '/log-kesehatan';
 }

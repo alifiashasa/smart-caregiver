@@ -6,6 +6,8 @@ import '../modules/dashboard/bindings/dashboard_binding.dart';
 import '../modules/dashboard/views/dashboard_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
+import '../modules/log-kesehatan/bindings/log_kesehatan_binding.dart';
+import '../modules/log-kesehatan/views/log_kesehatan_view.dart';
 import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
 import '../modules/patient_detail/bindings/patient_detail_binding.dart';
@@ -54,6 +56,11 @@ class AppPages {
       page: () => const CalendarView(),
       binding: CalendarBinding(),
       transition: Transition.noTransition,
+    ),
+    GetPage(
+      name: _Paths.LOG_KESEHATAN,
+      page: () => const LogKesehatanView(),
+      binding: LogKesehatanBinding(),
     ),
   ];
 }
