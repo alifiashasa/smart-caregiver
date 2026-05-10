@@ -161,7 +161,8 @@ Profil lansia:
         sanitized_context = _sanitize_input(additional_context)
         prompt += f"\nKonteks tambahan: {sanitized_context}\n"
 
-    prompt += f"""</data_pasien>
+    prompt += """
+</data_pasien>
 
 Berdasarkan profil di atas, berikan 1 rekomendasi aktivitas yang sesuai_FORMAT JSON:
 {{
