@@ -8,7 +8,7 @@ import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Optional, List
 
-from sqlalchemy import select, and_, func
+from sqlalchemy import select, and_, func, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.enums import (
@@ -162,13 +162,9 @@ async def update_schedule(
         schedule.is_active = is_active
 
     if reminder_minutes is not None:
-        existing_alarms = select(ScheduleAlarm).where(
-            ScheduleAlarm.schedule_id == schedule_id
+        await db.execute(
+            delete(ScheduleAlarm).where(ScheduleAlarm.schedule_id == schedule_id)
         )
-        alarm_result = await db.execute(existing_alarms)
-        existing = alarm_result.scalars().all()
-        for alarm in existing:
-            await db.delete(alarm)
 
         if reminder_minutes:
             for mins in reminder_minutes:
