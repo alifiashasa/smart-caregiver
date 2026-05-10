@@ -1,20 +1,32 @@
 import asyncio
-import uuid
+import os
+import secrets
 from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import select, delete
+from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.session import AsyncSessionLocal
 from src.database.models import (
-    User, ElderlyProfile, HealthRecord, HealthThreshold,
-    Schedule, AIActivityRecommendation
+    User,
+    ElderlyProfile,
+    HealthRecord,
+    HealthThreshold,
+    Schedule,
+    AIActivityRecommendation,
 )
 from src.database.enums import (
-    MobilityLevel, ElderlyStatus, HealthStatus, HealthParameter,
-    ScheduleType, RecurrenceType, ActivityCategory, RecommendationStatus,
+    MobilityLevel,
+    ElderlyStatus,
+    HealthStatus,
+    HealthParameter,
+    ScheduleType,
+    RecurrenceType,
+    ActivityCategory,
+    RecommendationStatus,
 )
 from src.app.core.security import hash_password
+
 
 async def clear_db(session: AsyncSession):
     """Clear all data from tables before seeding."""
@@ -27,17 +39,21 @@ async def clear_db(session: AsyncSession):
     await session.commit()
     print("Database cleared.")
 
+
 async def seed_data():
     async with AsyncSessionLocal() as session:
         await clear_db(session)
 
         # 1. Create Caregiver User
+        caregiver_password = os.environ.get(
+            "SEED_CAREGIVER_PASSWORD"
+        ) or secrets.token_urlsafe(12)
         caregiver = User(
             full_name="Andi Caregiver",
             email="caregiver@example.com",
-            hashed_password=hash_password("password123"),
+            hashed_password=hash_password(caregiver_password),
             is_email_verified=True,
-            is_active=True
+            is_active=True,
         )
         session.add(caregiver)
         await session.flush()
@@ -50,7 +66,7 @@ async def seed_data():
             gender="male",
             medical_history="Hypertension, mild arthritis",
             mobility_level=MobilityLevel.INDEPENDENT,
-            status=ElderlyStatus.ACTIVE
+            status=ElderlyStatus.ACTIVE,
         )
         siti = ElderlyProfile(
             caregiver_id=caregiver.id,
@@ -59,7 +75,7 @@ async def seed_data():
             gender="female",
             medical_history="Type 2 Diabetes, osteoporosis",
             mobility_level=MobilityLevel.ASSISTED,
-            status=ElderlyStatus.ACTIVE
+            status=ElderlyStatus.ACTIVE,
         )
         session.add_all([budi, siti])
         await session.flush()
@@ -67,13 +83,37 @@ async def seed_data():
         # 3. Create Health Thresholds
         thresholds = [
             # Budi's Thresholds
-            HealthThreshold(elderly_id=budi.id, parameter=HealthParameter.SYSTOLIC_BP, min_value=90, max_value=140),
-            HealthThreshold(elderly_id=budi.id, parameter=HealthParameter.DIASTOLIC_BP, min_value=60, max_value=90),
-            HealthThreshold(elderly_id=budi.id, parameter=HealthParameter.HEART_RATE, min_value=60, max_value=100),
-            
+            HealthThreshold(
+                elderly_id=budi.id,
+                parameter=HealthParameter.SYSTOLIC_BP,
+                min_value=90,
+                max_value=140,
+            ),
+            HealthThreshold(
+                elderly_id=budi.id,
+                parameter=HealthParameter.DIASTOLIC_BP,
+                min_value=60,
+                max_value=90,
+            ),
+            HealthThreshold(
+                elderly_id=budi.id,
+                parameter=HealthParameter.HEART_RATE,
+                min_value=60,
+                max_value=100,
+            ),
             # Siti's Thresholds
-            HealthThreshold(elderly_id=siti.id, parameter=HealthParameter.BLOOD_SUGAR, min_value=70, max_value=180),
-            HealthThreshold(elderly_id=siti.id, parameter=HealthParameter.BODY_TEMPERATURE, min_value=36.0, max_value=37.5),
+            HealthThreshold(
+                elderly_id=siti.id,
+                parameter=HealthParameter.BLOOD_SUGAR,
+                min_value=70,
+                max_value=180,
+            ),
+            HealthThreshold(
+                elderly_id=siti.id,
+                parameter=HealthParameter.BODY_TEMPERATURE,
+                min_value=36.0,
+                max_value=37.5,
+            ),
         ]
         session.add_all(thresholds)
 
@@ -83,27 +123,31 @@ async def seed_data():
         for i in range(7):
             recorded_at = now - timedelta(days=i)
             # Budi's records (Stable)
-            records.append(HealthRecord(
-                elderly_id=budi.id,
-                recorded_by=caregiver.id,
-                systolic_bp=120 + (i % 5),
-                diastolic_bp=80 + (i % 3),
-                heart_rate=72 + (i % 4),
-                health_status=HealthStatus.NORMAL,
-                recorded_at=recorded_at
-            ))
+            records.append(
+                HealthRecord(
+                    elderly_id=budi.id,
+                    recorded_by=caregiver.id,
+                    systolic_bp=120 + (i % 5),
+                    diastolic_bp=80 + (i % 3),
+                    heart_rate=72 + (i % 4),
+                    health_status=HealthStatus.NORMAL,
+                    recorded_at=recorded_at,
+                )
+            )
             # Siti's records (One alert today)
             status = HealthStatus.NORMAL if i > 0 else HealthStatus.NEEDS_ATTENTION
-            sugar = 110 + (i * 5) if i > 0 else 220 # High sugar today
-            records.append(HealthRecord(
-                elderly_id=siti.id,
-                recorded_by=caregiver.id,
-                blood_sugar=sugar,
-                body_temperature=36.6,
-                health_status=status,
-                complaints="Feeling a bit dizzy" if i == 0 else None,
-                recorded_at=recorded_at
-            ))
+            sugar = 110 + (i * 5) if i > 0 else 220  # High sugar today
+            records.append(
+                HealthRecord(
+                    elderly_id=siti.id,
+                    recorded_by=caregiver.id,
+                    blood_sugar=sugar,
+                    body_temperature=36.6,
+                    health_status=status,
+                    complaints="Feeling a bit dizzy" if i == 0 else None,
+                    recorded_at=recorded_at,
+                )
+            )
         session.add_all(records)
 
         # 5. Create Schedules
@@ -115,7 +159,7 @@ async def seed_data():
                 title="Obat Darah Tinggi",
                 description="Amlodipine 5mg - 1 tablet setelah sarapan",
                 scheduled_at=now.replace(hour=8, minute=0),
-                recurrence_type=RecurrenceType.DAILY
+                recurrence_type=RecurrenceType.DAILY,
             ),
             Schedule(
                 elderly_id=siti.id,
@@ -124,8 +168,8 @@ async def seed_data():
                 title="Jalan Santai Sore",
                 description="Jalan di taman depan rumah selama 15 menit",
                 scheduled_at=now.replace(hour=16, minute=30),
-                recurrence_type=RecurrenceType.DAILY
-            )
+                recurrence_type=RecurrenceType.DAILY,
+            ),
         ]
         session.add_all(schedules)
 
@@ -138,14 +182,15 @@ async def seed_data():
             duration_minutes=15,
             frequency_suggestion="3x seminggu",
             ai_reasoning="Mengingat riwayat arthritis ringan, aktivitas low-impact sangat disarankan.",
-            status=RecommendationStatus.PENDING
+            status=RecommendationStatus.PENDING,
         )
         session.add_all([rec])
 
         await session.commit()
-        print(f"Successfully seeded data:")
-        print(f"- Caregiver: {caregiver.email} (password123)")
-        print(f"- Elderly Profiles: Budi Santoso, Siti Aminah")
+        print("Successfully seeded data:")
+        print(f"- Caregiver: {caregiver.email} ({caregiver_password})")
+        print("- Elderly Profiles: Budi Santoso, Siti Aminah")
+
 
 if __name__ == "__main__":
     asyncio.run(seed_data())
