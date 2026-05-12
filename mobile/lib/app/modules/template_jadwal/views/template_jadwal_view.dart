@@ -35,7 +35,10 @@ class TemplateJadwalView extends GetView<TemplateJadwalController> {
           children: [
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 24,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -134,7 +137,11 @@ class TemplateJadwalView extends GetView<TemplateJadwalController> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.access_time, size: 16, color: Color(0xFF77767B)),
+                    const Icon(
+                      Icons.access_time,
+                      size: 16,
+                      color: Color(0xFF77767B),
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       template.time,

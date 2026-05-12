@@ -33,9 +33,7 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
       body: Obx(() {
         if (controller.isLoading.value) {
           return const Center(
-            child: CircularProgressIndicator(
-              color: Color(0xFF192126),
-            ),
+            child: CircularProgressIndicator(color: Color(0xFF192126)),
           );
         }
 
@@ -53,7 +51,11 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
                         color: Color(0xFFBBF246),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.auto_awesome, color: Color(0xFF192126), size: 20),
+                      child: const Icon(
+                        Icons.auto_awesome,
+                        color: Color(0xFF192126),
+                        size: 20,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     const Expanded(
@@ -106,7 +108,10 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFF2F2F2),
                         borderRadius: BorderRadius.circular(8),
@@ -123,7 +128,11 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
                     ),
                     Row(
                       children: [
-                        const Icon(Icons.timer_outlined, size: 14, color: Color(0xFF77767B)),
+                        const Icon(
+                          Icons.timer_outlined,
+                          size: 14,
+                          color: Color(0xFF77767B),
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           rec['duration'],
@@ -170,7 +179,11 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
             ),
             child: TextButton.icon(
               onPressed: () => controller.approveRecommendation(rec),
-              icon: const Icon(Icons.add_task, color: Color(0xFF192126), size: 18),
+              icon: const Icon(
+                Icons.add_task,
+                color: Color(0xFF192126),
+                size: 18,
+              ),
               label: const Text(
                 'Tambahkan ke Jadwal',
                 style: TextStyle(

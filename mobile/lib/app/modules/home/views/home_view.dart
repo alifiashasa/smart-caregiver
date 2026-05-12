@@ -400,7 +400,9 @@ class HomeView extends GetView<HomeController> {
             'name': name,
             'age': age,
             'image': imagePath,
-            'gender': (name == 'Ibu Siti' || name == 'Oma Maria') ? 'Perempuan' : 'Laki-laki',
+            'gender': (name == 'Ibu Siti' || name == 'Oma Maria')
+                ? 'Perempuan'
+                : 'Laki-laki',
           },
         );
       },

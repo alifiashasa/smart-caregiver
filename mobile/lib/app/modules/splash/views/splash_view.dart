@@ -34,7 +34,9 @@ class SplashView extends GetView<SplashController> {
           Column(
             children: [
               // Spacer to position the logo on the curve's edge (Original Spacing Restored)
-              SizedBox(height: (size.height * 0.5 - 60).clamp(0.0, double.infinity)),
+              SizedBox(
+                height: (size.height * 0.5 - 60).clamp(0.0, double.infinity),
+              ),
 
               // Logo in a white circle
               Center(
@@ -54,11 +56,7 @@ class SplashView extends GetView<SplashController> {
                     ],
                   ),
                   child: const Center(
-                    child: Icon(
-                      Icons.eco,
-                      size: 60,
-                      color: Color(0xFFBBF246),
-                    ),
+                    child: Icon(Icons.eco, size: 60, color: Color(0xFFBBF246)),
                   ),
                 ),
               ),

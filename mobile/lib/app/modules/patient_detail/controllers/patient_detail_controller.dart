@@ -10,7 +10,8 @@ class PatientDetailController extends GetxController {
       'date': '24 Oktober 2026',
       'tensi': '135/88',
       'suhu': '36.5°C',
-      'notes': 'Pasien melaporkan merasa sedikit pusing setelah minum obat pagi.\nLatihan fisioterapi ditunda.\nDiberikan tambahan cairan dan dipantau selama satu jam.\nKondisi kembali normal pada pukul 10.00',
+      'notes':
+          'Pasien melaporkan merasa sedikit pusing setelah minum obat pagi.\nLatihan fisioterapi ditunda.\nDiberikan tambahan cairan dan dipantau selama satu jam.\nKondisi kembali normal pada pukul 10.00',
       'color': 0xFFE2E2E2,
       'textColor': 0xFF192126,
       'symptoms': ['Pusing Ringan', 'Kelelahan'],
@@ -51,10 +52,10 @@ class PatientDetailController extends GetxController {
 
   void changePage(int index) {
     if (currentIndex.value == index) return;
-    
+
     int previousIndex = currentIndex.value;
     currentIndex.value = index;
-    
+
     if (index == 0) {
       Get.offNamed(Routes.DASHBOARD, arguments: {'from': previousIndex});
     } else if (index == 1) {

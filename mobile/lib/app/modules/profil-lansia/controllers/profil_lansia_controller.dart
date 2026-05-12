@@ -3,22 +3,25 @@ import 'package:get/get.dart';
 import '../../../routes/app_pages.dart';
 
 class ProfilLansiaController extends GetxController {
-
   final currentIndex = 3.obs;
   final patientImage = 'assets/images/patient_ibu_siti.png'.obs;
 
   final TextEditingController namaController = TextEditingController();
   final TextEditingController umurController = TextEditingController();
   final TextEditingController jenisKelaminController = TextEditingController();
-  final TextEditingController riwayatMedisController = TextEditingController(text: 'Hipertensi ringan');
-  final TextEditingController minatHobiController = TextEditingController(text: 'Berkebun dan Membaca');
+  final TextEditingController riwayatMedisController = TextEditingController(
+    text: 'Hipertensi ringan',
+  );
+  final TextEditingController minatHobiController = TextEditingController(
+    text: 'Berkebun dan Membaca',
+  );
 
   void changePage(int index) {
     if (currentIndex.value == index) return;
-    
+
     int previousIndex = currentIndex.value;
     currentIndex.value = index;
-    
+
     final args = {
       'from': previousIndex,
       'name': namaController.text,
@@ -26,7 +29,7 @@ class ProfilLansiaController extends GetxController {
       'image': patientImage.value,
       'gender': jenisKelaminController.text,
     };
-    
+
     if (index == 0) {
       Get.offNamed(Routes.DASHBOARD, arguments: args);
     } else if (index == 1) {
@@ -48,9 +51,13 @@ class ProfilLansiaController extends GetxController {
         currentIndex.value = Get.arguments['from'];
       }
       namaController.text = Get.arguments['name'] ?? 'Ibu Siti';
-      umurController.text = (Get.arguments['age'] ?? '55 Tahun').replaceAll(' Tahun', '');
+      umurController.text = (Get.arguments['age'] ?? '55 Tahun').replaceAll(
+        ' Tahun',
+        '',
+      );
       jenisKelaminController.text = Get.arguments['gender'] ?? 'Perempuan';
-      patientImage.value = Get.arguments['image'] ?? 'assets/images/patient_ibu_siti.png';
+      patientImage.value =
+          Get.arguments['image'] ?? 'assets/images/patient_ibu_siti.png';
     } else {
       namaController.text = 'Ibu Siti';
       umurController.text = '55';

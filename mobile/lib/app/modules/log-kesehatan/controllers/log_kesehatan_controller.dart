@@ -6,15 +6,15 @@ import '../../dashboard/controllers/dashboard_controller.dart';
 class LogKesehatanController extends GetxController {
   // Input Controllers matching backend HealthRecordCreate schema
   final cholesterolController = TextEditingController(); // mg/dL
-  final tensiController = TextEditingController();       // Format: 120/80
-  final uricAcidController = TextEditingController();    // mg/dL
-  final bloodSugarController = TextEditingController();  // mg/dL
-  final bodyTempController = TextEditingController();    // °C
-  final heartRateController = TextEditingController();   // bpm
-  final spo2Controller = TextEditingController();        // %
-  final weightController = TextEditingController();      // kg
-  final notesController = TextEditingController();       // daily_notes
-  final complaintsController = TextEditingController();  // complaints
+  final tensiController = TextEditingController(); // Format: 120/80
+  final uricAcidController = TextEditingController(); // mg/dL
+  final bloodSugarController = TextEditingController(); // mg/dL
+  final bodyTempController = TextEditingController(); // °C
+  final heartRateController = TextEditingController(); // bpm
+  final spo2Controller = TextEditingController(); // %
+  final weightController = TextEditingController(); // kg
+  final notesController = TextEditingController(); // daily_notes
+  final complaintsController = TextEditingController(); // complaints
 
   @override
   void onClose() {
@@ -68,42 +68,73 @@ class LogKesehatanController extends GetxController {
       "daily_notes": notes.isNotEmpty ? notes : null,
       "complaints": complaints.isNotEmpty ? complaints : null,
     };
-    
+
     debugPrint("MOCK SUBMIT PAYLOAD: $payload");
 
     // Simulasi hasil dari Fuzzy Logic Backend
     String healthStatus = "Normal";
-    String healthMessage = "Semua indikator vital dalam batas normal. Tetap pertahankan pola makan sehat dan rutinitas aktivitas harian.";
-    
-    if ((systolicBp != null && systolicBp > 140) || (bloodSugar != null && bloodSugar > 150)) {
+    String healthMessage =
+        "Semua indikator vital dalam batas normal. Tetap pertahankan pola makan sehat dan rutinitas aktivitas harian.";
+
+    if ((systolicBp != null && systolicBp > 140) ||
+        (bloodSugar != null && bloodSugar > 150)) {
       healthStatus = "Perhatian";
-      healthMessage = "Beberapa metrik vital seperti tekanan darah atau gula darah terpantau tinggi. Pertimbangkan untuk menjadwalkan pemeriksaan lebih lanjut.";
+      healthMessage =
+          "Beberapa metrik vital seperti tekanan darah atau gula darah terpantau tinggi. Pertimbangkan untuk menjadwalkan pemeriksaan lebih lanjut.";
     }
 
-    if ((systolicBp != null && systolicBp > 180) || (bloodSugar != null && bloodSugar > 250)) {
+    if ((systolicBp != null && systolicBp > 180) ||
+        (bloodSugar != null && bloodSugar > 250)) {
       healthStatus = "Kritis";
-      healthMessage = "Kondisi terdeteksi sangat kritis! Segera hubungi tenaga medis atau dokter untuk penanganan darurat.";
+      healthMessage =
+          "Kondisi terdeteksi sangat kritis! Segera hubungi tenaga medis atau dokter untuk penanganan darurat.";
     }
 
     // Update Dashboard Metrics
     try {
       final dashboardCtrl = Get.find<DashboardController>();
-      if (cholesterolController.text.isNotEmpty) dashboardCtrl.updateHealthMetric('cholesterol', cholesterolController.text.trim());
-      if (tensiController.text.isNotEmpty) dashboardCtrl.updateHealthMetric('tensi', tensiController.text.trim());
-      if (uricAcidController.text.isNotEmpty) dashboardCtrl.updateHealthMetric('uric_acid', uricAcidController.text.trim());
-      if (bloodSugarController.text.isNotEmpty) dashboardCtrl.updateHealthMetric('blood_sugar', bloodSugarController.text.trim());
-      if (bodyTempController.text.isNotEmpty) dashboardCtrl.updateHealthMetric('body_temp', bodyTempController.text.trim());
-      if (heartRateController.text.isNotEmpty) dashboardCtrl.updateHealthMetric('heart_rate', heartRateController.text.trim());
-      if (spo2Controller.text.isNotEmpty) dashboardCtrl.updateHealthMetric('spo2', spo2Controller.text.trim());
-      if (weightController.text.isNotEmpty) dashboardCtrl.updateHealthMetric('weight', weightController.text.trim());
+      if (cholesterolController.text.isNotEmpty)
+        dashboardCtrl.updateHealthMetric(
+          'cholesterol',
+          cholesterolController.text.trim(),
+        );
+      if (tensiController.text.isNotEmpty)
+        dashboardCtrl.updateHealthMetric('tensi', tensiController.text.trim());
+      if (uricAcidController.text.isNotEmpty)
+        dashboardCtrl.updateHealthMetric(
+          'uric_acid',
+          uricAcidController.text.trim(),
+        );
+      if (bloodSugarController.text.isNotEmpty)
+        dashboardCtrl.updateHealthMetric(
+          'blood_sugar',
+          bloodSugarController.text.trim(),
+        );
+      if (bodyTempController.text.isNotEmpty)
+        dashboardCtrl.updateHealthMetric(
+          'body_temp',
+          bodyTempController.text.trim(),
+        );
+      if (heartRateController.text.isNotEmpty)
+        dashboardCtrl.updateHealthMetric(
+          'heart_rate',
+          heartRateController.text.trim(),
+        );
+      if (spo2Controller.text.isNotEmpty)
+        dashboardCtrl.updateHealthMetric('spo2', spo2Controller.text.trim());
+      if (weightController.text.isNotEmpty)
+        dashboardCtrl.updateHealthMetric(
+          'weight',
+          weightController.text.trim(),
+        );
     } catch (e) {
       debugPrint('DashboardController not found, skipping UI update');
     }
 
     // Navigasi ke halaman sukses membawa argumen hasil analisis
-    Get.offNamed(Routes.SUCCESS_LOG_KESEHATAN, arguments: {
-      "status": healthStatus,
-      "message": healthMessage,
-    });
+    Get.offNamed(
+      Routes.SUCCESS_LOG_KESEHATAN,
+      arguments: {"status": healthStatus, "message": healthMessage},
+    );
   }
 }

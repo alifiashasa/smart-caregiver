@@ -35,18 +35,23 @@ class DashboardView extends GetView<DashboardController> {
           Padding(
             padding: const EdgeInsets.only(right: 24.0),
             child: Center(
-              child: Obx(() => Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFFF5F5F4), width: 1),
-                  image: DecorationImage(
-                    image: AssetImage(controller.patientImage.value),
-                    fit: BoxFit.fill,
+              child: Obx(
+                () => Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: const Color(0xFFF5F5F4),
+                      width: 1,
+                    ),
+                    image: DecorationImage(
+                      image: AssetImage(controller.patientImage.value),
+                      fit: BoxFit.fill,
+                    ),
                   ),
                 ),
-              )),
+              ),
             ),
           ),
         ],
@@ -59,31 +64,35 @@ class DashboardView extends GetView<DashboardController> {
             children: [
               const SizedBox(height: 32),
               // Header Profile Info
-              Obx(() => Text(
-                controller.patientName.value,
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 32,
-                  fontFamily: 'Plus Jakarta Sans',
-                  fontWeight: FontWeight.w700,
-                  height: 1.25,
-                  letterSpacing: -0.64,
+              Obx(
+                () => Text(
+                  controller.patientName.value,
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 32,
+                    fontFamily: 'Plus Jakarta Sans',
+                    fontWeight: FontWeight.w700,
+                    height: 1.25,
+                    letterSpacing: -0.64,
+                  ),
                 ),
-              )),
+              ),
               const SizedBox(height: 4),
               Row(
                 children: [
-                  Obx(() => Text(
-                    '${controller.patientAge.value} • ${controller.patientGender.value}',
-                    style: const TextStyle(
-                      color: Color(0xFF4C4546),
-                      fontSize: 14,
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontWeight: FontWeight.w600,
-                      height: 1.43,
-                      letterSpacing: 0.14,
+                  Obx(
+                    () => Text(
+                      '${controller.patientAge.value} • ${controller.patientGender.value}',
+                      style: const TextStyle(
+                        color: Color(0xFF4C4546),
+                        fontSize: 14,
+                        fontFamily: 'Plus Jakarta Sans',
+                        fontWeight: FontWeight.w600,
+                        height: 1.43,
+                        letterSpacing: 0.14,
+                      ),
                     ),
-                  )),
+                  ),
                   const SizedBox(width: 12),
                   Container(
                     padding: const EdgeInsets.symmetric(
@@ -178,7 +187,10 @@ class DashboardView extends GetView<DashboardController> {
                             child: DropdownButtonHideUnderline(
                               child: DropdownButton<String>(
                                 value: controller.selectedTrendFilter.value,
-                                icon: const Icon(Icons.keyboard_arrow_down, size: 16),
+                                icon: const Icon(
+                                  Icons.keyboard_arrow_down,
+                                  size: 16,
+                                ),
                                 style: const TextStyle(
                                   color: Color(0xFF1C1917),
                                   fontSize: 12,
@@ -187,16 +199,20 @@ class DashboardView extends GetView<DashboardController> {
                                 ),
                                 onChanged: (String? newValue) {
                                   if (newValue != null) {
-                                    controller.selectedTrendFilter.value = newValue;
+                                    controller.selectedTrendFilter.value =
+                                        newValue;
                                   }
                                 },
                                 items: <String>['7 Hari', '30 Hari']
-                                    .map<DropdownMenuItem<String>>((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value),
-                                  );
-                                }).toList(),
+                                    .map<DropdownMenuItem<String>>((
+                                      String value,
+                                    ) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(value),
+                                      );
+                                    })
+                                    .toList(),
                               ),
                             ),
                           ),
@@ -340,148 +356,150 @@ class DashboardView extends GetView<DashboardController> {
               const SizedBox(height: 32),
 
               // Health Metrics List
-              Obx(() => GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 1.1,
-                ),
-                itemCount: controller.healthMetrics.length,
-                itemBuilder: (context, index) {
-                  final metric = controller.healthMetrics[index];
-                  return Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: ShapeDecoration(
-                      color: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        side: const BorderSide(
-                          width: 1,
-                          color: Color(0xFFFAFAF9),
+              Obx(
+                () => GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: 1.1,
+                  ),
+                  itemCount: controller.healthMetrics.length,
+                  itemBuilder: (context, index) {
+                    final metric = controller.healthMetrics[index];
+                    return Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: ShapeDecoration(
+                        color: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          side: const BorderSide(
+                            width: 1,
+                            color: Color(0xFFFAFAF9),
+                          ),
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                        borderRadius: BorderRadius.circular(20),
+                        shadows: const [
+                          BoxShadow(
+                            color: Color(0x07000000),
+                            blurRadius: 30,
+                            offset: Offset(0, 10),
+                            spreadRadius: 0,
+                          ),
+                        ],
                       ),
-                      shadows: const [
-                        BoxShadow(
-                          color: Color(0x07000000),
-                          blurRadius: 30,
-                          offset: Offset(0, 10),
-                          spreadRadius: 0,
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 36,
-                              height: 36,
-                              decoration: ShapeDecoration(
-                                color: metric['color'],
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 36,
+                                height: 36,
+                                decoration: ShapeDecoration(
+                                  color: metric['color'],
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Icon(
+                                    metric['icon'],
+                                    color: metric['iconColor'],
+                                    size: 18,
+                                  ),
                                 ),
                               ),
-                              child: Center(
-                                child: Icon(
-                                  metric['icon'],
-                                  color: metric['iconColor'],
-                                  size: 18,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    width: 6,
-                                    height: 6,
-                                    decoration: ShapeDecoration(
-                                      color: const Color(0xFF536250),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                          9999,
+                              Expanded(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      width: 6,
+                                      height: 6,
+                                      decoration: ShapeDecoration(
+                                        color: const Color(0xFF536250),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            9999,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  const Flexible(
-                                    child: Text(
-                                      'Normal',
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        color: Color(0xFF576755),
-                                        fontSize: 10,
-                                        fontFamily: 'Plus Jakarta Sans',
-                                        fontWeight: FontWeight.w500,
-                                        height: 1.33,
+                                    const SizedBox(width: 4),
+                                    const Flexible(
+                                      child: Text(
+                                        'Normal',
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          color: Color(0xFF576755),
+                                          fontSize: 10,
+                                          fontFamily: 'Plus Jakarta Sans',
+                                          fontWeight: FontWeight.w500,
+                                          height: 1.33,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          metric['title'],
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Color(0xFF4C4546),
-                            fontSize: 13,
-                            fontFamily: 'Plus Jakarta Sans',
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.14,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.baseline,
-                          textBaseline: TextBaseline.alphabetic,
-                          children: [
-                            Text(
-                              metric['value'],
-                              style: const TextStyle(
-                                color: Color(0xFF1B1B1B),
-                                fontSize: 20,
-                                fontFamily: 'Plus Jakarta Sans',
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: -0.24,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                metric['unit'],
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  color: Color(0xFF4C4546),
-                                  fontSize: 10,
-                                  fontFamily: 'Plus Jakarta Sans',
-                                  fontWeight: FontWeight.w500,
+                                  ],
                                 ),
                               ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            metric['title'],
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Color(0xFF4C4546),
+                              fontSize: 13,
+                              fontFamily: 'Plus Jakarta Sans',
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.14,
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              )),
+                          ),
+                          const SizedBox(height: 2),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.baseline,
+                            textBaseline: TextBaseline.alphabetic,
+                            children: [
+                              Text(
+                                metric['value'],
+                                style: const TextStyle(
+                                  color: Color(0xFF1B1B1B),
+                                  fontSize: 20,
+                                  fontFamily: 'Plus Jakarta Sans',
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: -0.24,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  metric['unit'],
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Color(0xFF4C4546),
+                                    fontSize: 10,
+                                    fontFamily: 'Plus Jakarta Sans',
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
               const SizedBox(height: 100), // Spacing buat BottomNav
             ],
           ),

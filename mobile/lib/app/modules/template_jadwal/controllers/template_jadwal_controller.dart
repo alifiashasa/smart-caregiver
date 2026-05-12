@@ -63,13 +63,19 @@ class TemplateJadwalController extends GetxController {
       for (var template in templates.where((t) => t.isEnabled.value)) {
         final timeParts = template.time.split(':');
         final now = DateTime.now();
-        final scheduledAt = DateTime(now.year, now.month, now.day, int.parse(timeParts[0]), int.parse(timeParts[1]));
+        final scheduledAt = DateTime(
+          now.year,
+          now.month,
+          now.day,
+          int.parse(timeParts[0]),
+          int.parse(timeParts[1]),
+        );
 
         String scheduleType = 'daily_activity';
         if (template.title.toLowerCase().contains('obat')) {
-            scheduleType = 'medication';
+          scheduleType = 'medication';
         } else if (template.title.toLowerCase().contains('tensi')) {
-            scheduleType = 'routine_checkup';
+          scheduleType = 'routine_checkup';
         }
 
         calendarController.addSchedule({

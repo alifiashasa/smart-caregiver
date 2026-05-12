@@ -99,10 +99,10 @@ class DashboardController extends GetxController {
 
   void changePage(int index) {
     if (currentIndex.value == index) return;
-    
+
     int previousIndex = currentIndex.value;
     currentIndex.value = index;
-    
+
     final args = {
       'from': previousIndex,
       'name': patientName.value,
@@ -110,7 +110,7 @@ class DashboardController extends GetxController {
       'image': patientImage.value,
       'gender': patientGender.value,
     };
-    
+
     if (index == 0) {
       Get.offNamed(Routes.DASHBOARD, arguments: args);
     } else if (index == 1) {

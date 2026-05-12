@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile/app/routes/app_pages.dart';
 
-
 class SplashController extends GetxController {
   @override
   void onReady() {

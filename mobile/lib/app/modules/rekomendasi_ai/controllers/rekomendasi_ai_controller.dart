@@ -16,28 +16,31 @@ class RekomendasiAiController extends GetxController {
     isLoading.value = true;
     // Simulate AI loading
     await Future.delayed(const Duration(seconds: 2));
-    
+
     recommendations.assignAll([
       {
         'title': 'Jalan Santai Pagi',
         'type': 'Fisik',
         'duration': '15 Menit',
-        'reason': 'Kadar gula darah sedikit tinggi kemarin, aktivitas fisik ringan pagi hari dapat membantu menstabilkan.',
+        'reason':
+            'Kadar gula darah sedikit tinggi kemarin, aktivitas fisik ringan pagi hari dapat membantu menstabilkan.',
       },
       {
         'title': 'Meditasi / Relaksasi',
         'type': 'Mental',
         'duration': '10 Menit',
-        'reason': 'Tensi agak fluktuatif, latihan pernapasan akan membantu menurunkan stres dan tekanan darah.',
+        'reason':
+            'Tensi agak fluktuatif, latihan pernapasan akan membantu menurunkan stres dan tekanan darah.',
       },
       {
         'title': 'Perbanyak Minum Air',
         'type': 'Hidrasi',
         'duration': 'Sepanjang Hari',
-        'reason': 'Cuaca hari ini cukup panas, pastikan lansia mendapat asupan cairan minimal 1.5 liter.',
-      }
+        'reason':
+            'Cuaca hari ini cukup panas, pastikan lansia mendapat asupan cairan minimal 1.5 liter.',
+      },
     ]);
-    
+
     isLoading.value = false;
   }
 
@@ -48,7 +51,9 @@ class RekomendasiAiController extends GetxController {
       calendarController.addSchedule({
         "title": rec['title'],
         "schedule_type": "daily_activity",
-        "scheduled_at": now.add(const Duration(hours: 1)), // Mocking adding it for 1 hour later
+        "scheduled_at": now.add(
+          const Duration(hours: 1),
+        ), // Mocking adding it for 1 hour later
         "duration_minutes": 15,
       });
     } catch (e) {

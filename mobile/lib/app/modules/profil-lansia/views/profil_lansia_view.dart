@@ -68,29 +68,37 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                   children: [
                                     Stack(
                                       children: [
-                                        Obx(() => Container(
-                                          width: 96,
-                                          height: 96,
-                                          clipBehavior: Clip.antiAlias,
-                                          decoration: ShapeDecoration(
-                                            image: DecorationImage(
-                                              image: AssetImage(controller.patientImage.value),
-                                              fit: BoxFit.fill,
+                                        Obx(
+                                          () => Container(
+                                            width: 96,
+                                            height: 96,
+                                            clipBehavior: Clip.antiAlias,
+                                            decoration: ShapeDecoration(
+                                              image: DecorationImage(
+                                                image: AssetImage(
+                                                  controller.patientImage.value,
+                                                ),
+                                                fit: BoxFit.fill,
+                                              ),
+                                              shape: RoundedRectangleBorder(
+                                                side: const BorderSide(
+                                                  width: 4,
+                                                  color: Colors.white,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(9999),
+                                              ),
+                                              shadows: const [
+                                                BoxShadow(
+                                                  color: Color(0x26A1A1AA),
+                                                  blurRadius: 16,
+                                                  offset: Offset(0, 4),
+                                                  spreadRadius: 0,
+                                                ),
+                                              ],
                                             ),
-                                            shape: RoundedRectangleBorder(
-                                              side: const BorderSide(width: 4, color: Colors.white),
-                                              borderRadius: BorderRadius.circular(9999),
-                                            ),
-                                            shadows: const [
-                                              BoxShadow(
-                                                color: Color(0x26A1A1AA),
-                                                blurRadius: 16,
-                                                offset: Offset(0, 4),
-                                                spreadRadius: 0,
-                                              )
-                                            ],
                                           ),
-                                        )),
+                                        ),
                                         Positioned(
                                           left: 64,
                                           top: 64,
@@ -100,7 +108,8 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                             decoration: ShapeDecoration(
                                               color: const Color(0xFF192126),
                                               shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(9999),
+                                                borderRadius:
+                                                    BorderRadius.circular(9999),
                                               ),
                                             ),
                                             child: Stack(
@@ -113,33 +122,48 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                                     width: 32,
                                                     height: 32,
                                                     decoration: ShapeDecoration(
-                                                      color: Colors.white.withValues(alpha: 0),
+                                                      color: Colors.white
+                                                          .withValues(alpha: 0),
                                                       shape: RoundedRectangleBorder(
-                                                        borderRadius: BorderRadius.circular(9999),
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              9999,
+                                                            ),
                                                       ),
                                                       shadows: const [
                                                         BoxShadow(
-                                                          color: Color(0x33000000),
+                                                          color: Color(
+                                                            0x33000000,
+                                                          ),
                                                           blurRadius: 4,
                                                           offset: Offset(0, 2),
                                                           spreadRadius: -2,
                                                         ),
                                                         BoxShadow(
-                                                          color: Color(0x33000000),
+                                                          color: Color(
+                                                            0x33000000,
+                                                          ),
                                                           blurRadius: 6,
                                                           offset: Offset(0, 4),
                                                           spreadRadius: -1,
-                                                        )
+                                                        ),
                                                       ],
                                                     ),
                                                   ),
                                                 ),
                                                 const Column(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
                                                   children: [
-                                                    Icon(Icons.edit, size: 16, color: Colors.white),
+                                                    Icon(
+                                                      Icons.edit,
+                                                      size: 16,
+                                                      color: Colors.white,
+                                                    ),
                                                   ],
                                                 ),
                                               ],
@@ -150,8 +174,10 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                     ),
                                     const Column(
                                       mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
                                       children: [
                                         Text(
                                           'Edit Profile',
@@ -188,7 +214,7 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                 blurRadius: 16,
                                 offset: Offset(0, 4),
                                 spreadRadius: 0,
-                              )
+                              ),
                             ],
                           ),
                           child: Column(
@@ -208,8 +234,10 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                       width: double.infinity,
                                       child: Column(
                                         mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           SizedBox(
                                             width: 310,
@@ -243,15 +271,19 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                       padding: const EdgeInsets.only(left: 4),
                                       child: const Column(
                                         mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           SizedBox(
                                             width: double.infinity,
                                             child: Column(
                                               mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 SizedBox(
                                                   width: 306,
@@ -260,18 +292,20 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                                     style: TextStyle(
                                                       color: Color(0xFF47464B),
                                                       fontSize: 12,
-                                                      fontFamily: 'Plus Jakarta Sans',
-                                                      fontWeight: FontWeight.w600,
+                                                      fontFamily:
+                                                          'Plus Jakarta Sans',
+                                                      fontWeight:
+                                                          FontWeight.w600,
                                                       height: 1.33,
                                                     ),
                                                   ),
-                                                 ),
-                                               ],
-                                             ),
-                                           ),
-                                         ],
-                                       ),
-                                     ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                     TextField(
                                       controller: controller.namaController,
                                       style: const TextStyle(
@@ -283,14 +317,28 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                       decoration: InputDecoration(
                                         filled: true,
                                         fillColor: const Color(0xFFFDF8F8),
-                                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 16,
+                                              vertical: 12,
+                                            ),
                                         enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: const BorderSide(color: Color(0xFFC8C5CB), width: 1),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: Color(0xFFC8C5CB),
+                                            width: 1,
+                                          ),
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: const BorderSide(color: Color(0xFF192126), width: 1.5),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: Color(0xFF192126),
+                                            width: 1.5,
+                                          ),
                                         ),
                                         isDense: true,
                                       ),
@@ -309,33 +357,47 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                       width: double.infinity,
                                       child: Column(
                                         mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Container(
                                             width: double.infinity,
-                                            padding: const EdgeInsets.only(left: 4),
+                                            padding: const EdgeInsets.only(
+                                              left: 4,
+                                            ),
                                             child: const Column(
                                               mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 SizedBox(
                                                   width: double.infinity,
                                                   child: Column(
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    mainAxisAlignment: MainAxisAlignment.start,
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
                                                       SizedBox(
                                                         width: 143,
                                                         child: Text(
                                                           'Umur',
                                                           style: TextStyle(
-                                                            color: Color(0xFF47464B),
+                                                            color: Color(
+                                                              0xFF47464B,
+                                                            ),
                                                             fontSize: 12,
-                                                            fontFamily: 'Plus Jakarta Sans',
-                                                            fontWeight: FontWeight.w600,
+                                                            fontFamily:
+                                                                'Plus Jakarta Sans',
+                                                            fontWeight:
+                                                                FontWeight.w600,
                                                             height: 1.33,
                                                           ),
                                                         ),
@@ -347,7 +409,8 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                             ),
                                           ),
                                           TextField(
-                                            controller: controller.umurController,
+                                            controller:
+                                                controller.umurController,
                                             keyboardType: TextInputType.number,
                                             style: const TextStyle(
                                               color: Color(0xFF1C1B1C),
@@ -357,15 +420,29 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                             ),
                                             decoration: InputDecoration(
                                               filled: true,
-                                              fillColor: const Color(0xFFFDF8F8),
-                                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                              fillColor: const Color(
+                                                0xFFFDF8F8,
+                                              ),
+                                              contentPadding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 16,
+                                                    vertical: 12,
+                                                  ),
                                               enabledBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                                borderSide: const BorderSide(color: Color(0xFFC8C5CB), width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                                borderSide: const BorderSide(
+                                                  color: Color(0xFFC8C5CB),
+                                                  width: 1,
+                                                ),
                                               ),
                                               focusedBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                                borderSide: const BorderSide(color: Color(0xFF192126), width: 1.5),
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                                borderSide: const BorderSide(
+                                                  color: Color(0xFF192126),
+                                                  width: 1.5,
+                                                ),
                                               ),
                                               isDense: true,
                                             ),
@@ -378,33 +455,47 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                       width: double.infinity,
                                       child: Column(
                                         mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Container(
                                             width: double.infinity,
-                                            padding: const EdgeInsets.only(left: 4),
+                                            padding: const EdgeInsets.only(
+                                              left: 4,
+                                            ),
                                             child: const Column(
                                               mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 SizedBox(
                                                   width: double.infinity,
                                                   child: Column(
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    mainAxisAlignment: MainAxisAlignment.start,
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
                                                       SizedBox(
                                                         width: 143,
                                                         child: Text(
                                                           'Jenis Kelamin',
                                                           style: TextStyle(
-                                                            color: Color(0xFF47464B),
+                                                            color: Color(
+                                                              0xFF47464B,
+                                                            ),
                                                             fontSize: 12,
-                                                            fontFamily: 'Plus Jakarta Sans',
-                                                            fontWeight: FontWeight.w600,
+                                                            fontFamily:
+                                                                'Plus Jakarta Sans',
+                                                            fontWeight:
+                                                                FontWeight.w600,
                                                             height: 1.33,
                                                           ),
                                                         ),
@@ -416,7 +507,8 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                             ),
                                           ),
                                           TextField(
-                                            controller: controller.jenisKelaminController,
+                                            controller: controller
+                                                .jenisKelaminController,
                                             style: const TextStyle(
                                               color: Color(0xFF1C1B1C),
                                               fontSize: 16,
@@ -425,15 +517,29 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                             ),
                                             decoration: InputDecoration(
                                               filled: true,
-                                              fillColor: const Color(0xFFFDF8F8),
-                                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                              fillColor: const Color(
+                                                0xFFFDF8F8,
+                                              ),
+                                              contentPadding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 16,
+                                                    vertical: 12,
+                                                  ),
                                               enabledBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                                borderSide: const BorderSide(color: Color(0xFFC8C5CB), width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                                borderSide: const BorderSide(
+                                                  color: Color(0xFFC8C5CB),
+                                                  width: 1,
+                                                ),
                                               ),
                                               focusedBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                                borderSide: const BorderSide(color: Color(0xFF192126), width: 1.5),
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                                borderSide: const BorderSide(
+                                                  color: Color(0xFF192126),
+                                                  width: 1.5,
+                                                ),
                                               ),
                                               isDense: true,
                                             ),
@@ -462,7 +568,7 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                 blurRadius: 16,
                                 offset: Offset(0, 4),
                                 spreadRadius: 0,
-                              )
+                              ),
                             ],
                           ),
                           child: Column(
@@ -482,8 +588,10 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                       width: double.infinity,
                                       child: Column(
                                         mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           SizedBox(
                                             width: 310,
@@ -516,15 +624,19 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                       padding: const EdgeInsets.only(left: 4),
                                       child: const Column(
                                         mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           SizedBox(
                                             width: double.infinity,
                                             child: Column(
                                               mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 SizedBox(
                                                   width: 306,
@@ -533,8 +645,10 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                                     style: TextStyle(
                                                       color: Color(0xFF47464B),
                                                       fontSize: 12,
-                                                      fontFamily: 'Plus Jakarta Sans',
-                                                      fontWeight: FontWeight.w600,
+                                                      fontFamily:
+                                                          'Plus Jakarta Sans',
+                                                      fontWeight:
+                                                          FontWeight.w600,
                                                       height: 1.33,
                                                     ),
                                                   ),
@@ -546,7 +660,8 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                       ),
                                     ),
                                     TextField(
-                                      controller: controller.riwayatMedisController,
+                                      controller:
+                                          controller.riwayatMedisController,
                                       style: const TextStyle(
                                         color: Color(0xFF1C1B1C),
                                         fontSize: 16,
@@ -556,14 +671,28 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                       decoration: InputDecoration(
                                         filled: true,
                                         fillColor: const Color(0xFFFDF8F8),
-                                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 16,
+                                              vertical: 12,
+                                            ),
                                         enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: const BorderSide(color: Color(0xFFC8C5CB), width: 1),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: Color(0xFFC8C5CB),
+                                            width: 1,
+                                          ),
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: const BorderSide(color: Color(0xFF192126), width: 1.5),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: Color(0xFF192126),
+                                            width: 1.5,
+                                          ),
                                         ),
                                         isDense: true,
                                       ),
@@ -583,33 +712,47 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                       width: double.infinity,
                                       child: Column(
                                         mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Container(
                                             width: double.infinity,
-                                            padding: const EdgeInsets.only(left: 4),
+                                            padding: const EdgeInsets.only(
+                                              left: 4,
+                                            ),
                                             child: const Column(
                                               mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 SizedBox(
                                                   width: double.infinity,
                                                   child: Column(
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    mainAxisAlignment: MainAxisAlignment.start,
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
                                                       SizedBox(
                                                         width: 306,
                                                         child: Text(
                                                           'Kondisi Fisik',
                                                           style: TextStyle(
-                                                            color: Color(0xFF47464B),
+                                                            color: Color(
+                                                              0xFF47464B,
+                                                            ),
                                                             fontSize: 12,
-                                                            fontFamily: 'Plus Jakarta Sans',
-                                                            fontWeight: FontWeight.w600,
+                                                            fontFamily:
+                                                                'Plus Jakarta Sans',
+                                                            fontWeight:
+                                                                FontWeight.w600,
                                                             height: 1.33,
                                                           ),
                                                         ),
@@ -624,15 +767,24 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                             runSpacing: 8,
                                             children: [
                                               Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 16,
+                                                      vertical: 8,
+                                                    ),
                                                 decoration: ShapeDecoration(
-                                                  color: const Color(0xFF192126),
+                                                  color: const Color(
+                                                    0xFF192126,
+                                                  ),
                                                   shape: RoundedRectangleBorder(
                                                     side: const BorderSide(
                                                       width: 1,
                                                       color: Color(0xFF192126),
                                                     ),
-                                                    borderRadius: BorderRadius.circular(9999),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          9999,
+                                                        ),
                                                   ),
                                                 ),
                                                 child: const Text(
@@ -641,7 +793,8 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                                   style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 14,
-                                                    fontFamily: 'Plus Jakarta Sans',
+                                                    fontFamily:
+                                                        'Plus Jakarta Sans',
                                                     fontWeight: FontWeight.w500,
                                                     height: 1.43,
                                                     letterSpacing: 0.14,
@@ -649,15 +802,24 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                                 ),
                                               ),
                                               Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 16,
+                                                      vertical: 8,
+                                                    ),
                                                 decoration: ShapeDecoration(
-                                                  color: const Color(0xFFFDF8F8),
+                                                  color: const Color(
+                                                    0xFFFDF8F8,
+                                                  ),
                                                   shape: RoundedRectangleBorder(
                                                     side: const BorderSide(
                                                       width: 1,
                                                       color: Color(0xFFC8C5CB),
                                                     ),
-                                                    borderRadius: BorderRadius.circular(9999),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          9999,
+                                                        ),
                                                   ),
                                                 ),
                                                 child: const Text(
@@ -666,7 +828,8 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                                   style: TextStyle(
                                                     color: Color(0xFF1C1B1C),
                                                     fontSize: 14,
-                                                    fontFamily: 'Plus Jakarta Sans',
+                                                    fontFamily:
+                                                        'Plus Jakarta Sans',
                                                     fontWeight: FontWeight.w500,
                                                     height: 1.43,
                                                     letterSpacing: 0.14,
@@ -674,15 +837,24 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                                 ),
                                               ),
                                               Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 16,
+                                                      vertical: 8,
+                                                    ),
                                                 decoration: ShapeDecoration(
-                                                  color: const Color(0xFFFDF8F8),
+                                                  color: const Color(
+                                                    0xFFFDF8F8,
+                                                  ),
                                                   shape: RoundedRectangleBorder(
                                                     side: const BorderSide(
                                                       width: 1,
                                                       color: Color(0xFFC8C5CB),
                                                     ),
-                                                    borderRadius: BorderRadius.circular(9999),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          9999,
+                                                        ),
                                                   ),
                                                 ),
                                                 child: const Text(
@@ -691,7 +863,8 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                                   style: TextStyle(
                                                     color: Color(0xFF1C1B1C),
                                                     fontSize: 14,
-                                                    fontFamily: 'Plus Jakarta Sans',
+                                                    fontFamily:
+                                                        'Plus Jakarta Sans',
                                                     fontWeight: FontWeight.w500,
                                                     height: 1.43,
                                                     letterSpacing: 0.14,
@@ -718,33 +891,47 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                       width: double.infinity,
                                       child: Column(
                                         mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Container(
                                             width: double.infinity,
-                                            padding: const EdgeInsets.only(left: 4),
+                                            padding: const EdgeInsets.only(
+                                              left: 4,
+                                            ),
                                             child: const Column(
                                               mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 SizedBox(
                                                   width: double.infinity,
                                                   child: Column(
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    mainAxisAlignment: MainAxisAlignment.start,
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
                                                       SizedBox(
                                                         width: 306,
                                                         child: Text(
                                                           'Tingkat Mobilitas',
                                                           style: TextStyle(
-                                                            color: Color(0xFF47464B),
+                                                            color: Color(
+                                                              0xFF47464B,
+                                                            ),
                                                             fontSize: 12,
-                                                            fontFamily: 'Plus Jakarta Sans',
-                                                            fontWeight: FontWeight.w600,
+                                                            fontFamily:
+                                                                'Plus Jakarta Sans',
+                                                            fontWeight:
+                                                                FontWeight.w600,
                                                             height: 1.33,
                                                           ),
                                                         ),
@@ -759,15 +946,24 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                             runSpacing: 8,
                                             children: [
                                               Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 16,
+                                                      vertical: 8,
+                                                    ),
                                                 decoration: ShapeDecoration(
-                                                  color: const Color(0xFFFDF8F8),
+                                                  color: const Color(
+                                                    0xFFFDF8F8,
+                                                  ),
                                                   shape: RoundedRectangleBorder(
                                                     side: const BorderSide(
                                                       width: 1,
                                                       color: Color(0xFFC8C5CB),
                                                     ),
-                                                    borderRadius: BorderRadius.circular(9999),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          9999,
+                                                        ),
                                                   ),
                                                 ),
                                                 child: const Text(
@@ -776,7 +972,8 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                                   style: TextStyle(
                                                     color: Color(0xFF1C1B1C),
                                                     fontSize: 14,
-                                                    fontFamily: 'Plus Jakarta Sans',
+                                                    fontFamily:
+                                                        'Plus Jakarta Sans',
                                                     fontWeight: FontWeight.w500,
                                                     height: 1.43,
                                                     letterSpacing: 0.14,
@@ -784,15 +981,24 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                                 ),
                                               ),
                                               Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 16,
+                                                      vertical: 8,
+                                                    ),
                                                 decoration: ShapeDecoration(
-                                                  color: const Color(0xFFBBF246),
+                                                  color: const Color(
+                                                    0xFFBBF246,
+                                                  ),
                                                   shape: RoundedRectangleBorder(
                                                     side: const BorderSide(
                                                       width: 1,
                                                       color: Color(0xFFBBF246),
                                                     ),
-                                                    borderRadius: BorderRadius.circular(9999),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          9999,
+                                                        ),
                                                   ),
                                                 ),
                                                 child: const Text(
@@ -801,7 +1007,8 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                                   style: TextStyle(
                                                     color: Color(0xFF192126),
                                                     fontSize: 14,
-                                                    fontFamily: 'Plus Jakarta Sans',
+                                                    fontFamily:
+                                                        'Plus Jakarta Sans',
                                                     fontWeight: FontWeight.w500,
                                                     height: 1.43,
                                                     letterSpacing: 0.14,
@@ -809,15 +1016,24 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                                 ),
                                               ),
                                               Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 16,
+                                                      vertical: 8,
+                                                    ),
                                                 decoration: ShapeDecoration(
-                                                  color: const Color(0xFFFDF8F8),
+                                                  color: const Color(
+                                                    0xFFFDF8F8,
+                                                  ),
                                                   shape: RoundedRectangleBorder(
                                                     side: const BorderSide(
                                                       width: 1,
                                                       color: Color(0xFFC8C5CB),
                                                     ),
-                                                    borderRadius: BorderRadius.circular(9999),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          9999,
+                                                        ),
                                                   ),
                                                 ),
                                                 child: const Text(
@@ -826,7 +1042,8 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                                   style: TextStyle(
                                                     color: Color(0xFF1C1B1C),
                                                     fontSize: 14,
-                                                    fontFamily: 'Plus Jakarta Sans',
+                                                    fontFamily:
+                                                        'Plus Jakarta Sans',
                                                     fontWeight: FontWeight.w500,
                                                     height: 1.43,
                                                     letterSpacing: 0.14,
@@ -834,15 +1051,24 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                                 ),
                                               ),
                                               Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 16,
+                                                      vertical: 8,
+                                                    ),
                                                 decoration: ShapeDecoration(
-                                                  color: const Color(0xFFFDF8F8),
+                                                  color: const Color(
+                                                    0xFFFDF8F8,
+                                                  ),
                                                   shape: RoundedRectangleBorder(
                                                     side: const BorderSide(
                                                       width: 1,
                                                       color: Color(0xFFC8C5CB),
                                                     ),
-                                                    borderRadius: BorderRadius.circular(9999),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          9999,
+                                                        ),
                                                   ),
                                                 ),
                                                 child: const Text(
@@ -851,7 +1077,8 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                                   style: TextStyle(
                                                     color: Color(0xFF1C1B1C),
                                                     fontSize: 14,
-                                                    fontFamily: 'Plus Jakarta Sans',
+                                                    fontFamily:
+                                                        'Plus Jakarta Sans',
                                                     fontWeight: FontWeight.w500,
                                                     height: 1.43,
                                                     letterSpacing: 0.14,
@@ -884,7 +1111,7 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                 blurRadius: 16,
                                 offset: Offset(0, 4),
                                 spreadRadius: 0,
-                              )
+                              ),
                             ],
                           ),
                           child: Column(
@@ -904,8 +1131,10 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                       width: double.infinity,
                                       child: Column(
                                         mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           SizedBox(
                                             width: 310,
@@ -939,15 +1168,19 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                       padding: const EdgeInsets.only(left: 4),
                                       child: const Column(
                                         mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           SizedBox(
                                             width: double.infinity,
                                             child: Column(
                                               mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 SizedBox(
                                                   width: 306,
@@ -956,8 +1189,10 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                                     style: TextStyle(
                                                       color: Color(0xFF47464B),
                                                       fontSize: 12,
-                                                      fontFamily: 'Plus Jakarta Sans',
-                                                      fontWeight: FontWeight.w600,
+                                                      fontFamily:
+                                                          'Plus Jakarta Sans',
+                                                      fontWeight:
+                                                          FontWeight.w600,
                                                       height: 1.33,
                                                     ),
                                                   ),
@@ -969,7 +1204,8 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                       ),
                                     ),
                                     TextField(
-                                      controller: controller.minatHobiController,
+                                      controller:
+                                          controller.minatHobiController,
                                       style: const TextStyle(
                                         color: Color(0xFF1C1B1C),
                                         fontSize: 16,
@@ -979,14 +1215,28 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                       decoration: InputDecoration(
                                         filled: true,
                                         fillColor: const Color(0xFFFDF8F8),
-                                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 16,
+                                              vertical: 12,
+                                            ),
                                         enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: const BorderSide(color: Color(0xFFC8C5CB), width: 1),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: Color(0xFFC8C5CB),
+                                            width: 1,
+                                          ),
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                          borderSide: const BorderSide(color: Color(0xFF192126), width: 1.5),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: Color(0xFF192126),
+                                            width: 1.5,
+                                          ),
                                         ),
                                         isDense: true,
                                       ),
@@ -1023,7 +1273,7 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                         blurRadius: 4,
                                         offset: Offset(0, 2),
                                         spreadRadius: 0,
-                                      )
+                                      ),
                                     ],
                                   ),
                                   child: const Center(
@@ -1055,28 +1305,42 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                       padding: const EdgeInsets.only(top: 8),
                                       child: Column(
                                         mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Container(
                                             width: double.infinity,
-                                            padding: const EdgeInsets.symmetric(vertical: 12),
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 12,
+                                            ),
                                             decoration: ShapeDecoration(
                                               shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(12),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
                                               ),
                                             ),
                                             child: const Row(
                                               mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
                                               children: [
                                                 Column(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  mainAxisAlignment: MainAxisAlignment.start,
-                                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
                                                   children: [
-                                                    Icon(Icons.delete_outline, size: 20, color: Color(0xFFBA1A1A)),
+                                                    Icon(
+                                                      Icons.delete_outline,
+                                                      size: 20,
+                                                      color: Color(0xFFBA1A1A),
+                                                    ),
                                                   ],
                                                 ),
                                                 Text(
@@ -1085,7 +1349,8 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                                   style: TextStyle(
                                                     color: Color(0xFFBA1A1A),
                                                     fontSize: 14,
-                                                    fontFamily: 'Plus Jakarta Sans',
+                                                    fontFamily:
+                                                        'Plus Jakarta Sans',
                                                     fontWeight: FontWeight.w500,
                                                     height: 1.43,
                                                     letterSpacing: 0.14,

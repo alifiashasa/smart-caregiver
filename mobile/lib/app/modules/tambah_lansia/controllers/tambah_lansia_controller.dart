@@ -5,14 +5,16 @@ class TambahLansiaController extends GetxController {
   final namaLengkap = ''.obs;
   final usia = ''.obs;
   final fotoProfilPath = ''.obs;
-  
+
   final jenisKelamin = 'Laki-laki'.obs; // Laki-laki or Perempuan
-  
+
   final riwayatMedis = ''.obs;
-  
-  final kondisiFisik = 'Mandiri'.obs; // Mandiri, Butuh Bantuan Sebagian, Butuh Bantuan Penuh
-  final mobilitas = 'Bisa Berjalan'.obs; // Bisa Berjalan, Alat Bantu, Kursi Roda, Berbaring
-  
+
+  final kondisiFisik =
+      'Mandiri'.obs; // Mandiri, Butuh Bantuan Sebagian, Butuh Bantuan Penuh
+  final mobilitas =
+      'Bisa Berjalan'.obs; // Bisa Berjalan, Alat Bantu, Kursi Roda, Berbaring
+
   final minatHobi = ''.obs;
 
   final ImagePicker _picker = ImagePicker();

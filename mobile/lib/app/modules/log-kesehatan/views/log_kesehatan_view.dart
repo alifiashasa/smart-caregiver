@@ -227,7 +227,9 @@ class LogKesehatanView extends GetView<LogKesehatanController> {
                               'Asam Urat',
                               '5.5',
                               'mg/dL',
-                              const TextInputType.numberWithOptions(decimal: true),
+                              const TextInputType.numberWithOptions(
+                                decimal: true,
+                              ),
                               controller.uricAcidController,
                             ),
                             _buildDivider(),
@@ -238,7 +240,9 @@ class LogKesehatanView extends GetView<LogKesehatanController> {
                               'Gula Darah',
                               '98.6',
                               'mg/dL',
-                              const TextInputType.numberWithOptions(decimal: true),
+                              const TextInputType.numberWithOptions(
+                                decimal: true,
+                              ),
                               controller.bloodSugarController,
                             ),
                             _buildDivider(),
@@ -249,7 +253,9 @@ class LogKesehatanView extends GetView<LogKesehatanController> {
                               'Suhu',
                               '36.5',
                               '°C',
-                              const TextInputType.numberWithOptions(decimal: true),
+                              const TextInputType.numberWithOptions(
+                                decimal: true,
+                              ),
                               controller.bodyTempController,
                             ),
                             _buildDivider(),
@@ -271,7 +277,9 @@ class LogKesehatanView extends GetView<LogKesehatanController> {
                               'Saturasi',
                               '98',
                               '%',
-                              const TextInputType.numberWithOptions(decimal: true),
+                              const TextInputType.numberWithOptions(
+                                decimal: true,
+                              ),
                               controller.spo2Controller,
                             ),
                             _buildDivider(),
@@ -369,7 +377,6 @@ class LogKesehatanView extends GetView<LogKesehatanController> {
   }
 
   // --- REUSABLE WIDGETS ---
-
 
   // 2. Fungsi diupdate untuk memuat TextField interaktif
   Widget _buildVitalRow(

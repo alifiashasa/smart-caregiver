@@ -59,7 +59,8 @@ class NotifikasiView extends GetView<NotifikasiController> {
               _buildNotificationCard(
                 name: 'Kritis - Oma Maria',
                 time: 'Baru saja',
-                description: 'Gula darah terdeteksi sangat rendah (65 mg/dL). Segera berikan penanganan!',
+                description:
+                    'Gula darah terdeteksi sangat rendah (65 mg/dL). Segera berikan penanganan!',
                 hasDot: true,
                 isCritical: true,
               ),
@@ -115,7 +116,9 @@ class NotifikasiView extends GetView<NotifikasiController> {
       decoration: BoxDecoration(
         color: const Color(0xFF384046),
         borderRadius: BorderRadius.circular(15),
-        border: isCritical ? Border.all(color: const Color(0xFFEF4444), width: 1.5) : null,
+        border: isCritical
+            ? Border.all(color: const Color(0xFFEF4444), width: 1.5)
+            : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,7 +153,9 @@ class NotifikasiView extends GetView<NotifikasiController> {
                       width: 10,
                       height: 10,
                       decoration: BoxDecoration(
-                        color: isCritical ? const Color(0xFFEF4444) : const Color(0xFFBBF246),
+                        color: isCritical
+                            ? const Color(0xFFEF4444)
+                            : const Color(0xFFBBF246),
                         shape: BoxShape.circle,
                       ),
                     ),

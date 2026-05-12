@@ -66,29 +66,31 @@ class TambahLansiaView extends GetView<TambahLansiaController> {
                     onTap: controller.pickImage,
                     child: Column(
                       children: [
-                        Obx(() => Container(
-                          width: 88,
-                          height: 88,
-                          clipBehavior: Clip.antiAlias,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF7F3F2),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: const Color(0xFFC8C5CB),
-                              width: 1,
+                        Obx(
+                          () => Container(
+                            width: 88,
+                            height: 88,
+                            clipBehavior: Clip.antiAlias,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF7F3F2),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: const Color(0xFFC8C5CB),
+                                width: 1,
+                              ),
                             ),
+                            child: controller.fotoProfilPath.value.isEmpty
+                                ? const Icon(
+                                    Icons.camera_alt_outlined,
+                                    color: Color(0xFF858387),
+                                    size: 32,
+                                  )
+                                : Image.file(
+                                    File(controller.fotoProfilPath.value),
+                                    fit: BoxFit.cover,
+                                  ),
                           ),
-                          child: controller.fotoProfilPath.value.isEmpty
-                              ? const Icon(
-                                  Icons.camera_alt_outlined,
-                                  color: Color(0xFF858387),
-                                  size: 32,
-                                )
-                              : Image.file(
-                                  File(controller.fotoProfilPath.value),
-                                  fit: BoxFit.cover,
-                                ),
-                        )),
+                        ),
                         const SizedBox(height: 8),
                         const Text(
                           'Unggah Foto Profil',

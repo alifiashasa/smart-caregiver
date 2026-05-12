@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 class LoginController extends GetxController {
   final email = ''.obs;
   final password = ''.obs;
-  
+
   final isPasswordHidden = true.obs;
 
   void togglePasswordVisibility() {
