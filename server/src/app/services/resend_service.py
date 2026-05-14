@@ -9,23 +9,25 @@ from src.app.core.config import settings
 RESEND_EMAILS_URL = "https://api.resend.com/emails"
 
 
-async def send_login_otp_email(*, to_email: str, otp_code: str, expires_in_minutes: int) -> None:
-    """Send caregiver login OTP through Resend."""
+async def send_email_verification_otp(
+    *, to_email: str, otp_code: str, expires_in_minutes: int
+) -> None:
+    """Send caregiver email verification OTP through Resend."""
     if not settings.RESEND_API_KEY:
         raise RuntimeError("Resend API key is not configured")
 
-    subject = "Smart Caregiver login OTP"
+    subject = "Smart Caregiver email verification OTP"
     text = (
-        f"Your Smart Caregiver login OTP is {otp_code}. "
+        f"Your Smart Caregiver email verification OTP is {otp_code}. "
         f"It expires in {expires_in_minutes} minutes."
     )
     html = f"""
     <div style="font-family: Arial, sans-serif; line-height: 1.5; color: #111827;">
-      <h2>Smart Caregiver Login Verification</h2>
-      <p>Use this 6-digit OTP to verify caregiver email ownership and complete login.</p>
+      <h2>Smart Caregiver Email Verification</h2>
+      <p>Use this 6-digit OTP to verify caregiver email ownership and activate your account.</p>
       <p style="font-size: 28px; font-weight: 700; letter-spacing: 6px;">{otp_code}</p>
       <p>This code expires in {expires_in_minutes} minutes.</p>
-      <p>If you did not request this login, ignore this email.</p>
+      <p>If you did not request this verification, ignore this email.</p>
     </div>
     """
 
@@ -45,4 +47,4 @@ async def send_login_otp_email(*, to_email: str, otp_code: str, expires_in_minut
         )
 
     if response.status_code >= 400:
-        raise RuntimeError("Failed to send login OTP email")
+        raise RuntimeError("Failed to send email verification OTP")

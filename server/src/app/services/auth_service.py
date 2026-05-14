@@ -2,7 +2,7 @@
 Authentication service for email/password registration and login.
 
 This service handles:
-- User registration with email + password
+- User registration with email + password + email OTP verification
 - User login verification
 - Token refresh
 """
@@ -29,22 +29,22 @@ from src.app.schemas.auth import (
     UserRegisterRequest,
     VerifyOtpRequest,
 )
-from src.app.services.resend_service import send_login_otp_email
+from src.app.services.resend_service import send_email_verification_otp
 from src.database.models.user import User
 
 
 async def register_user(
     db: AsyncSession,
     payload: UserRegisterRequest,
-) -> tuple[User, TokenResponse]:
+) -> tuple[User, LoginOtpResponse]:
     """
-    Register a new user with email + password.
+    Register caregiver, generate OTP, and send it to caregiver email.
 
-    Kept for internal compatibility. Register endpoint uses OTP flow.
+    Kept for internal compatibility with the register endpoint flow.
     Raises ValueError if email already exists.
+    Raises RuntimeError if OTP email cannot be sent.
     """
-    user = await _create_password_user(db=db, payload=payload)
-    return user, _create_token_response(user)
+    return await register_user_with_otp(db=db, payload=payload)
 
 
 async def register_user_with_otp(
@@ -58,34 +58,17 @@ async def register_user_with_otp(
     Raises RuntimeError if OTP email cannot be sent.
     """
     user = await _create_password_user(db=db, payload=payload)
-    otp_response = await _set_and_send_login_otp(user=user)
+    otp_response = await _set_and_send_email_verification_otp(user=user)
     await db.flush()
     return user, otp_response
 
 
-async def start_login_otp(
-    db: AsyncSession,
-    payload: UserLoginRequest,
-) -> tuple[User, LoginOtpResponse]:
-    """
-    Authenticate email/password, generate OTP, and send it to caregiver email.
-
-    Raises ValueError if credentials invalid.
-    Raises RuntimeError if OTP email cannot be sent.
-    """
-    user = await _get_authenticated_password_user(db=db, payload=payload)
-    otp_response = await _set_and_send_login_otp(user=user)
-    await db.flush()
-
-    return user, otp_response
-
-
-async def verify_login_otp(
+async def verify_registration_otp(
     db: AsyncSession,
     payload: VerifyOtpRequest,
-) -> tuple[User, TokenResponse]:
+) -> User:
     """
-    Verify login OTP and issue JWT tokens.
+    Verify registration OTP and activate caregiver account.
 
     Raises ValueError if OTP is invalid or expired.
     """
@@ -97,31 +80,33 @@ async def verify_login_otp(
     if user is None or not user.is_active:
         raise ValueError("Invalid or expired OTP")
 
-    if not user.login_otp_hash or not user.login_otp_expires_at:
+    if user.is_email_verified:
+        raise ValueError("Email already verified")
+
+    if not user.email_verification_token or not user.email_verification_expires_at:
         raise ValueError("Invalid or expired OTP")
 
-    expires_at = _as_aware_utc(user.login_otp_expires_at)
+    expires_at = _as_aware_utc(user.email_verification_expires_at)
     if expires_at <= datetime.now(tz=timezone.utc):
-        user.login_otp_hash = None
-        user.login_otp_expires_at = None
+        user.email_verification_token = None
+        user.email_verification_expires_at = None
         await db.flush()
         raise ValueError("Invalid or expired OTP")
 
     try:
-        otp_matches = verify_password(payload.otp, user.login_otp_hash)
+        otp_matches = verify_password(payload.otp, user.email_verification_token)
     except ValueError:
         otp_matches = False
 
     if not otp_matches:
         raise ValueError("Invalid or expired OTP")
 
-    user.login_otp_hash = None
-    user.login_otp_expires_at = None
+    user.email_verification_token = None
+    user.email_verification_expires_at = None
     user.is_email_verified = True
-    user.last_login_at = datetime.now(tz=timezone.utc)
     await db.flush()
 
-    return user, _create_token_response(user)
+    return user
 
 
 async def authenticate_user(
@@ -129,11 +114,16 @@ async def authenticate_user(
     payload: UserLoginRequest,
 ) -> tuple[User, TokenResponse]:
     """
-    Authenticate user with email/password and issue tokens.
+    Authenticate verified user with email/password and issue tokens.
 
-    Kept for internal compatibility. Password login endpoints use OTP flow.
+    Raises ValueError if credentials invalid.
+    Raises PermissionError if email has not been verified.
     """
     user = await _get_authenticated_password_user(db=db, payload=payload)
+
+    if not user.is_email_verified:
+        raise PermissionError("Email verification required")
+
     user.last_login_at = datetime.now(tz=timezone.utc)
     await db.flush()
     return user, _create_token_response(user)
@@ -214,17 +204,17 @@ async def _get_authenticated_password_user(
     return user
 
 
-async def _set_and_send_login_otp(user: User) -> LoginOtpResponse:
+async def _set_and_send_email_verification_otp(user: User) -> LoginOtpResponse:
     """Set hashed OTP on user and send raw code to caregiver email."""
     otp_code = _generate_otp_code()
-    expires_in_minutes = settings.LOGIN_OTP_EXPIRE_MINUTES
+    expires_in_minutes = settings.EMAIL_OTP_EXPIRE_MINUTES
 
-    user.login_otp_hash = hash_password(otp_code)
-    user.login_otp_expires_at = datetime.now(tz=timezone.utc) + timedelta(
+    user.email_verification_token = hash_password(otp_code)
+    user.email_verification_expires_at = datetime.now(tz=timezone.utc) + timedelta(
         minutes=expires_in_minutes
     )
 
-    await send_login_otp_email(
+    await send_email_verification_otp(
         to_email=user.email,
         otp_code=otp_code,
         expires_in_minutes=expires_in_minutes,

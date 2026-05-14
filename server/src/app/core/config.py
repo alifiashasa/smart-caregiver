@@ -9,7 +9,11 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
     # ── App ───────────────────────────────────────────────────────────────────
     APP_NAME: str = "CaregiverApp"
@@ -37,7 +41,7 @@ class Settings(BaseSettings):
     # ── Resend (Email OTP) ────────────────────────────────────────────────────
     RESEND_API_KEY: str = ""
     RESEND_FROM_EMAIL: str = "Smart Caregiver <onboarding@resend.dev>"
-    LOGIN_OTP_EXPIRE_MINUTES: int = 5
+    EMAIL_OTP_EXPIRE_MINUTES: int = 5
 
     # ── Internal API ──────────────────────────────────────────────────────────
     INTERNAL_API_KEY: str = ""

@@ -24,7 +24,7 @@ class TokenRefreshRequest(BaseModel):
 
 
 class LoginOtpResponse(BaseModel):
-    """Response after password login starts OTP challenge."""
+    """Response after registration starts email OTP challenge."""
 
     message: str
     email: EmailStr
@@ -32,7 +32,7 @@ class LoginOtpResponse(BaseModel):
 
 
 class VerifyOtpRequest(BaseModel):
-    """Verify login OTP sent to caregiver email."""
+    """Verify registration OTP sent to caregiver email."""
 
     email: EmailStr
     otp: str = Field(..., min_length=6, max_length=6, pattern=r"^\d{6}$")

@@ -3,8 +3,8 @@ Authentication Router.
 
 Endpoints:
 - POST /auth/register     → Register with email + password and send OTP
-- POST /auth/login        → Login with email + password and send OTP
-- POST /auth/verify-otp   → Verify OTP and receive JWT tokens
+- POST /auth/login        → Login with email + password
+- POST /auth/verify-otp   → Verify registration OTP and activate account
 - POST /auth/refresh      → Refresh access token
 - GET  /auth/me           → Get current user profile
 
@@ -19,6 +19,7 @@ from src.app.core.auth import get_current_user
 from src.app.core.rate_limiter import limiter
 from src.app.schemas.auth import (
     LoginOtpResponse,
+    MessageResponse,
     TokenResponse,
     TokenRefreshRequest,
     UserLoginRequest,
@@ -41,7 +42,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
     description=(
         "Creates a new caregiver account with email and password authentication, "
         "then sends a 6-digit OTP to verify caregiver email ownership. "
-        "Verify OTP to receive JWT tokens."
+        "Verify OTP once to activate the account."
     ),
 )
 @limiter.limit("5/minute")
@@ -69,12 +70,11 @@ async def register(
 
 @router.post(
     "/login",
-    response_model=LoginOtpResponse,
-    summary="Login with email + password and send OTP (form-data)",
+    response_model=TokenResponse,
+    summary="Login with email + password (form-data)",
     description=(
-        "Authenticates caregiver with email and password, then sends a 6-digit OTP "
-        "to the caregiver email. Verify OTP to receive JWT tokens. "
-        "Use form-data content type."
+        "Authenticates verified caregiver with email and password. "
+        "Returns JWT access and refresh tokens. Use form-data content type."
     ),
 )
 @limiter.limit("10/minute")
@@ -82,33 +82,33 @@ async def login_form(
     request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_db),
-) -> LoginOtpResponse:
-    """Login with email + password, then send OTP (form-data format)."""
+) -> TokenResponse:
+    """Login verified caregiver with email + password (form-data format)."""
     try:
         payload = UserLoginRequest(email=form_data.username, password=form_data.password)
-        _user, otp_response = await auth_service.start_login_otp(db=db, payload=payload)
+        _user, tokens = await auth_service.authenticate_user(db=db, payload=payload)
         await db.commit()
-        return otp_response
+        return tokens
+    except PermissionError as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(e),
+        )
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e),
             headers={"WWW-Authenticate": "Bearer"},
         )
-    except RuntimeError as e:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=str(e),
-        )
 
 
 @router.post(
     "/login/json",
-    response_model=LoginOtpResponse,
-    summary="Login with email + password and send OTP (JSON)",
+    response_model=TokenResponse,
+    summary="Login with email + password (JSON)",
     description=(
-        "Authenticates caregiver with email and password, then sends a 6-digit OTP "
-        "to the caregiver email. Verify OTP to receive JWT tokens. "
+        "Authenticates verified caregiver with email and password. "
+        "Returns JWT access and refresh tokens. "
         "Use JSON content type with 'email' and 'password' fields."
     ),
 )
@@ -117,32 +117,32 @@ async def login_json(
     request: Request,
     payload: UserLoginRequest,
     db: AsyncSession = Depends(get_db),
-) -> LoginOtpResponse:
-    """Login with email + password, then send OTP (JSON format)."""
+) -> TokenResponse:
+    """Login verified caregiver with email + password (JSON format)."""
     try:
-        _user, otp_response = await auth_service.start_login_otp(db=db, payload=payload)
+        _user, tokens = await auth_service.authenticate_user(db=db, payload=payload)
         await db.commit()
-        return otp_response
+        return tokens
+    except PermissionError as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(e),
+        )
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e),
             headers={"WWW-Authenticate": "Bearer"},
         )
-    except RuntimeError as e:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=str(e),
-        )
 
 
 @router.post(
     "/verify-otp",
-    response_model=TokenResponse,
-    summary="Verify caregiver login OTP",
+    response_model=MessageResponse,
+    summary="Verify caregiver registration OTP",
     description=(
-        "Verifies the 6-digit OTP sent to caregiver email after password login. "
-        "Returns JWT access and refresh tokens when OTP is valid."
+        "Verifies the 6-digit OTP sent to caregiver email after registration. "
+        "Activates the account when OTP is valid."
     ),
 )
 @limiter.limit("10/minute")
@@ -150,17 +150,16 @@ async def verify_otp(
     request: Request,
     payload: VerifyOtpRequest,
     db: AsyncSession = Depends(get_db),
-) -> TokenResponse:
-    """Verify login OTP and issue JWT tokens."""
+) -> MessageResponse:
+    """Verify registration OTP and activate caregiver account."""
     try:
-        _user, tokens = await auth_service.verify_login_otp(db=db, payload=payload)
+        await auth_service.verify_registration_otp(db=db, payload=payload)
         await db.commit()
-        return tokens
+        return MessageResponse(message="Email verified. Account is active.")
     except ValueError as e:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
-            headers={"WWW-Authenticate": "Bearer"},
         )
 
 
