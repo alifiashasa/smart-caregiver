@@ -2,10 +2,11 @@
 Authentication Router.
 
 Endpoints:
-- POST /auth/register     → Register with email + password
-- POST /auth/login       → Login with email + password
-- POST /auth/refresh    → Refresh access token
-- GET  /auth/me        → Get current user profile
+- POST /auth/register     → Register with email + password and send OTP
+- POST /auth/login        → Login with email + password and send OTP
+- POST /auth/verify-otp   → Verify OTP and receive JWT tokens
+- POST /auth/refresh      → Refresh access token
+- GET  /auth/me           → Get current user profile
 
 Also integrates with Google OAuth from auth_google.py.
 """
@@ -17,13 +18,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.app.core.auth import get_current_user
 from src.app.core.rate_limiter import limiter
 from src.app.schemas.auth import (
-    MessageResponse,
+    LoginOtpResponse,
     TokenResponse,
     TokenRefreshRequest,
     UserLoginRequest,
     UserMeResponse,
     UserRegisterRequest,
-    UserResponse,
+    VerifyOtpRequest,
 )
 from src.app.services import auth_service
 from src.database.models.user import User
@@ -34,12 +35,13 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post(
     "/register",
-    response_model=TokenResponse,
+    response_model=LoginOtpResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Register new account with email + password",
+    summary="Register new account with email + password and send OTP",
     description=(
-        "Creates a new user account with email and password authentication. "
-        "Returns JWT access and refresh tokens upon successful registration."
+        "Creates a new caregiver account with email and password authentication, "
+        "then sends a 6-digit OTP to verify caregiver email ownership. "
+        "Verify OTP to receive JWT tokens."
     ),
 )
 @limiter.limit("5/minute")
@@ -47,26 +49,31 @@ async def register(
     request: Request,
     payload: UserRegisterRequest,
     db: AsyncSession = Depends(get_db),
-) -> TokenResponse:
-    """Register a new user with email + password."""
+) -> LoginOtpResponse:
+    """Register a new caregiver, then send OTP."""
     try:
-        user, tokens = await auth_service.register_user(db=db, payload=payload)
+        _user, otp_response = await auth_service.register_user_with_otp(db=db, payload=payload)
         await db.commit()
-        return tokens
+        return otp_response
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=str(e),
         )
 
 
 @router.post(
     "/login",
-    response_model=TokenResponse,
-    summary="Login with email + password (form-data)",
+    response_model=LoginOtpResponse,
+    summary="Login with email + password and send OTP (form-data)",
     description=(
-        "Authenticates user with email and password. "
-        "Returns JWT access and refresh tokens upon successful login. "
+        "Authenticates caregiver with email and password, then sends a 6-digit OTP "
+        "to the caregiver email. Verify OTP to receive JWT tokens. "
         "Use form-data content type."
     ),
 )
@@ -75,28 +82,33 @@ async def login_form(
     request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_db),
-) -> TokenResponse:
-    """Login with email + password (form-data format)."""
+) -> LoginOtpResponse:
+    """Login with email + password, then send OTP (form-data format)."""
     try:
         payload = UserLoginRequest(email=form_data.username, password=form_data.password)
-        user, tokens = await auth_service.authenticate_user(db=db, payload=payload)
+        _user, otp_response = await auth_service.start_login_otp(db=db, payload=payload)
         await db.commit()
-        return tokens
+        return otp_response
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e),
             headers={"WWW-Authenticate": "Bearer"},
         )
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(e),
+        )
 
 
 @router.post(
     "/login/json",
-    response_model=TokenResponse,
-    summary="Login with email + password (JSON)",
+    response_model=LoginOtpResponse,
+    summary="Login with email + password and send OTP (JSON)",
     description=(
-        "Authenticates user with email and password. "
-        "Returns JWT access and refresh tokens upon successful login. "
+        "Authenticates caregiver with email and password, then sends a 6-digit OTP "
+        "to the caregiver email. Verify OTP to receive JWT tokens. "
         "Use JSON content type with 'email' and 'password' fields."
     ),
 )
@@ -105,10 +117,43 @@ async def login_json(
     request: Request,
     payload: UserLoginRequest,
     db: AsyncSession = Depends(get_db),
-) -> TokenResponse:
-    """Login with email + password (JSON format)."""
+) -> LoginOtpResponse:
+    """Login with email + password, then send OTP (JSON format)."""
     try:
-        user, tokens = await auth_service.authenticate_user(db=db, payload=payload)
+        _user, otp_response = await auth_service.start_login_otp(db=db, payload=payload)
+        await db.commit()
+        return otp_response
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(e),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(e),
+        )
+
+
+@router.post(
+    "/verify-otp",
+    response_model=TokenResponse,
+    summary="Verify caregiver login OTP",
+    description=(
+        "Verifies the 6-digit OTP sent to caregiver email after password login. "
+        "Returns JWT access and refresh tokens when OTP is valid."
+    ),
+)
+@limiter.limit("10/minute")
+async def verify_otp(
+    request: Request,
+    payload: VerifyOtpRequest,
+    db: AsyncSession = Depends(get_db),
+) -> TokenResponse:
+    """Verify login OTP and issue JWT tokens."""
+    try:
+        _user, tokens = await auth_service.verify_login_otp(db=db, payload=payload)
         await db.commit()
         return tokens
     except ValueError as e:

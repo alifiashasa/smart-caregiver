@@ -6,8 +6,7 @@ from datetime import datetime
 from typing import Optional
 
 import uuid
-from pydantic import BaseModel, EmailStr, Field, model_validator
-from pydantic.types import SecretStr
+from pydantic import BaseModel, EmailStr, Field
 
 
 class TokenResponse(BaseModel):
@@ -22,6 +21,21 @@ class TokenRefreshRequest(BaseModel):
     """Request to refresh access token."""
 
     refresh_token: str
+
+
+class LoginOtpResponse(BaseModel):
+    """Response after password login starts OTP challenge."""
+
+    message: str
+    email: EmailStr
+    otp_expires_in_minutes: int
+
+
+class VerifyOtpRequest(BaseModel):
+    """Verify login OTP sent to caregiver email."""
+
+    email: EmailStr
+    otp: str = Field(..., min_length=6, max_length=6, pattern=r"^\d{6}$")
 
 
 class UserRegisterRequest(BaseModel):

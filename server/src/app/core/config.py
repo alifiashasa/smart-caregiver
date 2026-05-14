@@ -34,6 +34,11 @@ class Settings(BaseSettings):
     # ── GROQ (AI Recommendations) ────────────────────────────────────────────────
     GROQ_API_KEY: str = ""
 
+    # ── Resend (Email OTP) ────────────────────────────────────────────────────
+    RESEND_API_KEY: str = ""
+    RESEND_FROM_EMAIL: str = "Smart Caregiver <onboarding@resend.dev>"
+    LOGIN_OTP_EXPIRE_MINUTES: int = 5
+
     # ── Internal API ──────────────────────────────────────────────────────────
     INTERNAL_API_KEY: str = ""
 
