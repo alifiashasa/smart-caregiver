@@ -30,11 +30,6 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
-    # ── Google OAuth ──────────────────────────────────────────────────────────
-    GOOGLE_CLIENT_ID: str
-    GOOGLE_CLIENT_SECRET: str
-    GOOGLE_REDIRECT_URI: str               # e.g. https://yourapp.com/auth/google/callback
-
     # ── GROQ (AI Recommendations) ────────────────────────────────────────────────
     GROQ_API_KEY: str = ""
 

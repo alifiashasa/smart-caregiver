@@ -191,65 +191,6 @@ class LoginView extends GetView<LoginController> {
               ),
               const SizedBox(height: 40),
 
-              // Separator
-              Row(
-                children: [
-                  Expanded(
-                    child: Divider(color: Colors.grey.shade200, thickness: 1),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      'or',
-                      style: TextStyle(
-                        fontFamily: 'Plus Jakarta Sans',
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF9E9E9E),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Divider(color: Colors.grey.shade200, thickness: 1),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 40),
-
-              // Sign up with Google
-              OutlinedButton(
-                onPressed: controller.loginWithGoogle,
-                style: OutlinedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  side: const BorderSide(color: Color(0xFFE8E8E8)),
-                  padding: const EdgeInsets.symmetric(vertical: 18),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.network(
-                      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/120px-Google_%22G%22_logo.svg.png',
-                      width: 20,
-                      height: 20,
-                      errorBuilder: (context, error, stackTrace) =>
-                          const Icon(Icons.g_mobiledata, color: Colors.black),
-                    ),
-                    const SizedBox(width: 12),
-                    const Text(
-                      'Masuk dengan Google',
-                      style: TextStyle(
-                        fontFamily: 'Plus Jakarta Sans',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
               const SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

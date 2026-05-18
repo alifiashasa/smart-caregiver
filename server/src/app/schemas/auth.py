@@ -64,7 +64,6 @@ class UserResponse(BaseModel):
     avatar_url: Optional[str] = None
     is_email_verified: bool
     has_password: bool
-    google_linked: bool
     last_login_at: Optional[datetime] = None
     created_at: datetime
 
@@ -81,7 +80,6 @@ class UserMeResponse(BaseModel):
     avatar_url: Optional[str] = None
     is_email_verified: bool
     has_password: bool
-    google_linked: bool
     last_login_at: Optional[datetime] = None
     created_at: datetime
 

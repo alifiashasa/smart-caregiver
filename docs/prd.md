@@ -20,6 +20,8 @@
 
 - Rekomendasi aktivitas untuk lansia umumnya bersifat generik dan tidak mempertimbangkan kondisi fisik, riwayat penyakit, serta minat individu masing-masing lansia.
 
+- Akses akun caregiver perlu lebih aman karena berisi data kesehatan lansia, sehingga diperlukan verifikasi identitas tambahan berbasis wajah saat registrasi dan login.
+
 #### 1.2. Tujuan
 
 - Memudahkan caregiver dalam memantau dan mencatat kondisi kesehatan harian dari banyak lansia sekaligus dalam satu platform.
@@ -27,6 +29,8 @@
 - Meningkatkan kepatuhan jadwal minum obat dan rutinitas pemeriksaan melalui sistem pengingat otomatis.
 
 - Menghadirkan rekomendasi aktivitas yang dipersonalisasi untuk setiap lansia menggunakan kecerdasan buatan (AI) berdasarkan data profil dan kondisi kesehatan.
+
+- Meningkatkan keamanan autentikasi caregiver melalui pendaftaran dan verifikasi wajah berbasis _face recognition_.
 
 2. ### _Success Metrics_
 
@@ -36,6 +40,8 @@
 
 - \[Secondary\] Tingkat adopsi fitur rekomendasi aktivitas AI (persentase rekomendasi yang di-approve dan dimasukkan ke jadwal)
 
+- \[Secondary\] Tingkat keberhasilan verifikasi wajah caregiver saat login (target: ≥95% login valid berhasil diverifikasi)
+
 3. ### _Requirements_ (Kebutuhan) Aplikasi
 
 #### 3.1 Daftar _Requirement_
@@ -43,7 +49,7 @@
 | Kode _Requirement_             | _Requirement_                                                                                                                                          |
 | :----------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Auth & Onboarding**          |                                                                                                                                                        |
-| REQ-001                        | Pengguna dapat mendaftar sebagai _Caregiver_ menggunakan email, kata sandi, dan verifikasi OTP email satu kali                                         |
+| REQ-001                        | Pengguna dapat mendaftar sebagai _Caregiver_ menggunakan email, kata sandi, verifikasi OTP email satu kali, registrasi wajah, serta _login_ menggunakan email, kata sandi, dan verifikasi wajah |
 | REQ-002                        | _Caregiver_ yang telah _login_ dapat membuat profil lansia baru yang berisi usia, riwayat penyakit, kondisi fisik, mobilitas, dan minat/hobi           |
 | REQ-003                        | _Caregiver_ dapat membuat lebih dari satu profil lansia dalam satu akun                                                                                |
 | **Pencatatan Kesehatan**       |                                                                                                                                                        |
@@ -72,7 +78,7 @@
 
 - Semua komponen di _header_
 
-- _Login_ di luar alur email/kata sandi
+- _Login_ di luar alur email/kata sandi dan verifikasi wajah
 
 - _Third-party system_ selain penyedia email OTP
 
@@ -81,8 +87,7 @@
 | _Requirement_                                                                                                                                     | Spesifikasi                                                                                                                                                                                                                                                                                                     |
 | :------------------------------------------------------------------------------------------------------------------------------------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Auth & Onboarding**                                                                                                                             |                                                                                                                                                                                                                                                                                                                 |
-| Pengguna dapat mendaftar sebagai _Caregiver_ menggunakan email, kata sandi, dan OTP email satu kali                                                | Alur registrasi: (1) Pengguna mengirim email dan kata sandi. (2) Sistem memvalidasi format email dan kecocokan kata sandi. (3) Sistem membuat akun caregiver dengan status email belum terverifikasi. (4) Sistem membuat OTP 6 digit, menyimpannya dengan masa berlaku beberapa menit, dan mengirimkannya ke email caregiver. (5) Pengguna mengirim email dan OTP ke endpoint verifikasi. (6) Jika OTP valid dan belum kedaluwarsa, sistem menandai email sebagai terverifikasi dan akun menjadi aktif. OTP digunakan hanya saat registrasi untuk memastikan email caregiver valid. |
-| _Caregiver_ dapat _login_ menggunakan email dan kata sandi setelah akun aktif                                                                     | Alur _login_: (1) _Caregiver_ yang emailnya sudah terverifikasi mengirim email dan kata sandi. (2) Jika kredensial valid dan akun aktif, sistem mengembalikan token autentikasi. Sistem tidak mengirim OTP saat _login_ normal. |
+| Pengguna dapat mendaftar sebagai _Caregiver_ menggunakan email, kata sandi, OTP email satu kali, registrasi wajah, serta _login_ menggunakan email, kata sandi, dan verifikasi wajah | Alur registrasi: (1) Pengguna mengirim email dan kata sandi. (2) Sistem memvalidasi format email dan kecocokan kata sandi. (3) Sistem membuat akun caregiver dengan status email belum terverifikasi. (4) Sistem membuat OTP 6 digit, menyimpannya dengan masa berlaku beberapa menit, dan mengirimkannya ke email caregiver. (5) Pengguna mengirim email dan OTP ke endpoint verifikasi. (6) Jika OTP valid dan belum kedaluwarsa, sistem menandai email sebagai terverifikasi. (7) Caregiver melakukan registrasi wajah dengan mengambil foto wajah. (8) InsightFace mendeteksi wajah pada foto. (9) Model membuat _embedding_ wajah. (10) Sistem menyimpan _embedding_ sebagai data wajah caregiver dan akun menjadi aktif. Foto wajah hanya digunakan untuk proses deteksi dan pembuatan _embedding_. Jika wajah tidak terdeteksi atau lebih dari satu wajah terdeteksi, sistem meminta caregiver mengambil ulang foto. Alur _login_: (1) _Caregiver_ yang emailnya sudah terverifikasi mengirim email dan kata sandi. (2) Jika kredensial valid dan akun aktif, caregiver mengambil foto wajah. (3) InsightFace mendeteksi wajah pada foto login. (4) Model membuat _embedding_ wajah login. (5) Sistem membandingkan _embedding_ register dan _embedding_ login menggunakan nilai similarity. (6) Jika similarity melewati threshold, sistem mengembalikan token autentikasi dan login berhasil. (7) Jika similarity tidak melewati threshold, login ditolak. OTP digunakan hanya saat registrasi untuk memastikan email caregiver valid dan tidak dikirim saat _login_ normal. |
 | _Caregiver_ yang telah _login_ dapat membuat profil lansia baru yang berisi usia, riwayat penyakit, kondisi fisik, mobilitas, dan minat/hobi      | Pengguna dapat mengakses form "Tambah Lansia". Komponen pada form meliputi: \- Text field Nama Lansia \- Dropdown/Text field Usia \- Text area Riwayat Penyakit \- Dropdown Kondisi Fisik \- Dropdown Mobilitas \- Text field/Tags Minat & Hobi \- Button "Simpan"                                              |
 | _Caregiver_ dapat membuat lebih dari satu profil lansia dalam satu akun                                                                           | Pada halaman beranda, pengguna dapat melihat daftar lansia yang telah ditambahkan. Terdapat tombol "Tambah Lansia" yang selalu tersedia untuk menambahkan profil lansia lainnya.                                                                                                                                |
 | **Pencatatan Kesehatan**                                                                                                                          |                                                                                                                                                                                                                                                                                                                 |

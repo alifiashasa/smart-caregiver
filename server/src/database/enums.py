@@ -1,11 +1,6 @@
 import enum
 
 
-class AuthProvider(str, enum.Enum):
-    EMAIL = "email"
-    GOOGLE = "google"
-
-
 class MobilityLevel(str, enum.Enum):
     INDEPENDENT = "independent"
     ASSISTED = "assisted"

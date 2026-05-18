@@ -15,7 +15,7 @@ from src.app.core.error_handlers import (
 )
 from src.app.core.rate_limiter import limiter
 from src.app.core.scheduler import start_scheduler, stop_scheduler
-from src.app.routers import auth_google, health, elderly
+from src.app.routers import health, elderly
 from src.app.routers import auth as auth_router
 from src.app.routers import dashboard
 from src.app.routers import notification
@@ -60,7 +60,6 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # ── Routers 
 app.include_router(auth_router.router)
-app.include_router(auth_google.router)
 app.include_router(elderly.router)
 app.include_router(health.router)
 app.include_router(dashboard.router)

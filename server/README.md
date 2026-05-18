@@ -7,7 +7,7 @@ Backend FastAPI untuk aplikasi Smart Caregiver - sistem monitoring dan perawatan
 - **Framework**: FastAPI
 - **Database**: PostgreSQL (via SQLAlchemy)
 - **Migration**: Alembic
-- **Authentication**: JWT + Google OAuth
+- **Authentication**: JWT
 - **Additional**: Fuzzy Logic System untuk risk analysis
 
 ## Fitur API
@@ -15,7 +15,6 @@ Backend FastAPI untuk aplikasi Smart Caregiver - sistem monitoring dan perawatan
 | Endpoint        | Deskripsi                             |
 | --------------- | ------------------------------------- |
 | `/auth`         | Authentication (register, login, JWT) |
-| `/auth/google`  | Google OAuth login                    |
 | `/elderly`      | CRUD data lansia                      |
 | `/health`       | Data kesehatan & rekomendasi          |
 | `/dashboard`    | Analytics & overview                  |
@@ -89,7 +88,6 @@ src/
 ├── app/
 │   ├── routers/         # API endpoints
 │   │   ├── auth.py
-│   │   ├── auth_google.py
 │   │   ├── elderly.py
 │   │   ├── health.py
 │   │   ├── dashboard.py

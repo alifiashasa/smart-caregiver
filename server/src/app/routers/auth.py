@@ -8,7 +8,6 @@ Endpoints:
 - POST /auth/refresh      → Refresh access token
 - GET  /auth/me           → Get current user profile
 
-Also integrates with Google OAuth from auth_google.py.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status

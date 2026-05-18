@@ -19,8 +19,4 @@ class LoginController extends GetxController {
       Get.snackbar('Error', 'Please fill in both email and password');
     }
   }
-
-  void loginWithGoogle() {
-    // Implement Google login logic here
-  }
 }
