@@ -197,12 +197,7 @@ class ProfilCaregiverView extends GetView<ProfilCaregiverController> {
                   text: 'Edit Profile',
                   onTap: () {},
                 ),
-                Container(height: 1, color: const Color(0xFFE5E2E1)),
-                _buildMenuItem(
-                  icon: Icons.person_add_outlined,
-                  text: 'Undang',
-                  onTap: () {},
-                ),
+
               ],
             ),
           ),

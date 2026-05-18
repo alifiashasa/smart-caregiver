@@ -29,25 +29,7 @@ class NotifikasiView extends GetView<NotifikasiController> {
             letterSpacing: -0.40,
           ),
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 24.0),
-            child: Center(
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFFF5F5F4), width: 1),
-                  image: const DecorationImage(
-                    image: AssetImage('assets/images/patient_ibu_siti.png'),
-                    fit: BoxFit.fill,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+
       ),
       body: SingleChildScrollView(
         child: Padding(

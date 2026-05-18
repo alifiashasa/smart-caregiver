@@ -19,22 +19,16 @@ class LoginView extends GetView<LoginController> {
               const SizedBox(height: 60),
 
               // Logo & Title
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset('assets/images/logo.png', height: 48),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'CareTrack',
-                    style: TextStyle(
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontSize: 28,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-                ],
+              const Text(
+                'CareTrack',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontSize: 28,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black,
+                  letterSpacing: -0.5,
+                ),
               ),
               const SizedBox(height: 24),
 

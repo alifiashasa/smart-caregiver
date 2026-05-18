@@ -35,29 +35,23 @@ class HomeView extends GetView<HomeController> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () => Get.toNamed(Routes.PROFIL_CAREGIVER),
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          clipBehavior: Clip.antiAlias,
-                          decoration: ShapeDecoration(
-                            color: const Color(0xFFE5E2E1),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(9999),
-                            ),
-                          ),
-                          child: Image.asset(
-                            'assets/images/caregiver_profile.png',
-                            fit: BoxFit.fill,
-                          ),
+                  GestureDetector(
+                    onTap: () => Get.toNamed(Routes.PROFIL_CAREGIVER),
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      clipBehavior: Clip.antiAlias,
+                      decoration: ShapeDecoration(
+                        color: const Color(0xFFE5E2E1),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(9999),
                         ),
                       ),
-                      const SizedBox(width: 16),
-                      Image.asset('assets/images/logo.png', height: 32),
-                    ],
+                      child: Image.asset(
+                        'assets/images/caregiver_profile.png',
+                        fit: BoxFit.fill,
+                      ),
+                    ),
                   ),
                   GestureDetector(
                     onTap: () => Get.toNamed(Routes.NOTIFIKASI),
@@ -427,8 +421,8 @@ class HomeView extends GetView<HomeController> {
           children: [
             // Profile Image
             Container(
-              width: 72,
-              height: 72,
+              width: 44,
+              height: 44,
               clipBehavior: Clip.antiAlias,
               decoration: const ShapeDecoration(shape: CircleBorder()),
               child: () {
@@ -492,7 +486,7 @@ class HomeView extends GetView<HomeController> {
             ),
             // Status Badge
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: ShapeDecoration(
                 color: isCritical
                     ? const Color(0xFFE4E4E7)
@@ -505,8 +499,8 @@ class HomeView extends GetView<HomeController> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 8,
-                    height: 8,
+                    width: 6,
+                    height: 6,
                     decoration: BoxDecoration(
                       color: isCritical
                           ? const Color(0xFF18181B)
@@ -514,14 +508,14 @@ class HomeView extends GetView<HomeController> {
                       shape: BoxShape.circle,
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 4),
                   Text(
                     status.toUpperCase(),
                     style: TextStyle(
                       color: isCritical
                           ? const Color(0xFF3F3F46)
                           : const Color(0xFF3F6212),
-                      fontSize: 12,
+                      fontSize: 10,
                       fontFamily: 'Plus Jakarta Sans',
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.5,

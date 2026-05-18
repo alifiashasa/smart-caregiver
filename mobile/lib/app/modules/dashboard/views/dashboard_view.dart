@@ -31,30 +31,7 @@ class DashboardView extends GetView<DashboardController> {
             letterSpacing: -0.40,
           ),
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 24.0),
-            child: Center(
-              child: Obx(
-                () => Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: const Color(0xFFF5F5F4),
-                      width: 1,
-                    ),
-                    image: DecorationImage(
-                      image: AssetImage(controller.patientImage.value),
-                      fit: BoxFit.fill,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+
       ),
       body: SingleChildScrollView(
         child: Padding(
