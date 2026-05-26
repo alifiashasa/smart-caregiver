@@ -4,6 +4,7 @@ import '../../../data/health_api.dart';
 class DetailHistoryController extends GetxController {
   final records = <Map<String, dynamic>>[].obs;
   final isLoading = false.obs;
+  final patientName = ''.obs;
   final HealthApi _api = HealthApi();
 
   int? elderlyId;
@@ -16,6 +17,7 @@ class DetailHistoryController extends GetxController {
       elderlyId = args['elderly_id'] is int
           ? args['elderly_id']
           : int.tryParse(args['elderly_id']?.toString() ?? '');
+      patientName.value = args['name'] as String? ?? '';
     }
     if (elderlyId != null) {
       loadRecords();

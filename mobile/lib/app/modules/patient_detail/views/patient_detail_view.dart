@@ -32,7 +32,14 @@ class PatientDetailView extends GetView<PatientDetailController> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
+      body: Obx(() {
+        if (controller.isLoadingRecords.value) {
+          return const Center(
+            child: CircularProgressIndicator(color: Color(0xFF192126)),
+          );
+        }
+
+        return SingleChildScrollView(
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.only(
@@ -81,7 +88,8 @@ class PatientDetailView extends GetView<PatientDetailController> {
             ],
           ),
         ),
-      ),
+      );
+      }),
       bottomNavigationBar: SafeArea(
         child: Container(
           margin: const EdgeInsets.fromLTRB(20, 0, 20, 16),
@@ -404,7 +412,11 @@ class _TimelineCardState extends State<TimelineCard> {
 
                         InkWell(
                           onTap: () {
-                            Get.toNamed(Routes.DETAIL_HISTORY);
+                            final ctrl = Get.find<PatientDetailController>();
+                            Get.toNamed(Routes.DETAIL_HISTORY, arguments: {
+                              'elderly_id': ctrl.elderlyId,
+                              'name': ctrl.patientName.value,
+                            });
                           },
                           child: const Padding(
                             padding: EdgeInsets.symmetric(vertical: 4.0),

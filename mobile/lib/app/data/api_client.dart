@@ -9,6 +9,8 @@ class ApiClient {
   static const String _accessTokenKey = 'access_token';
   static const String _refreshTokenKey = 'refresh_token';
 
+  bool _isRefreshing = false;
+
   // ---------------------------------------------------------------------------
   // Token management
   // ---------------------------------------------------------------------------
@@ -25,6 +27,11 @@ class ApiClient {
   static void clearTokens() {
     _storage.remove(_accessTokenKey);
     _storage.remove(_refreshTokenKey);
+  }
+
+  /// Clears ALL GetStorage data (tokens + any cached state).
+  static void clearAllStorage() {
+    _storage.erase();
   }
 
   // ---------------------------------------------------------------------------
@@ -51,17 +58,75 @@ class ApiClient {
     return Uri.parse('${AppConfig.baseUrl}$endpoint');
   }
 
-  Future<Map<String, dynamic>> _processResponse(http.Response response) async {
+  /// Attempt to refresh the JWT token.
+  /// Returns true if refresh succeeded and tokens were updated.
+  Future<bool> _tryRefreshToken() async {
+    if (_isRefreshing) return false;
+    _isRefreshing = true;
+
+    try {
+      final currentRefreshToken = getRefreshToken();
+      if (currentRefreshToken == null) return false;
+
+      final uri = _buildUri('/auth/refresh');
+      final response = await http
+          .post(
+            uri,
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: jsonEncode({'refresh_token': currentRefreshToken}),
+          )
+          .timeout(AppConfig.requestTimeout);
+
+      if (response.statusCode == 200) {
+        final body =
+            jsonDecode(response.body) as Map<String, dynamic>;
+        final newAccess = body['access_token'] as String?;
+        final newRefresh = body['refresh_token'] as String?;
+        if (newAccess != null && newRefresh != null) {
+          saveTokens(newAccess, newRefresh);
+          return true;
+        }
+      }
+
+      // Refresh failed — clear everything
+      clearTokens();
+      return false;
+    } catch (_) {
+      clearTokens();
+      return false;
+    } finally {
+      _isRefreshing = false;
+    }
+  }
+
+  Future<Map<String, dynamic>> _processResponse(
+    http.Response response, {
+    bool retried = false,
+  }) async {
     final body = response.body.isNotEmpty
         ? jsonDecode(response.body) as Map<String, dynamic>
         : <String, dynamic>{};
 
-    if (response.statusCode == 401) {
-      clearTokens();
+    if (response.statusCode == 401 && !retried) {
+      // Try refresh before giving up
+      final refreshed = await _tryRefreshToken();
+      if (refreshed) {
+        // Return a special signal so the caller knows to retry
+        return {
+          'error': false,
+          'statusCode': 498, // custom: token refreshed
+          'message': 'Token refreshed, retry the request',
+        };
+      }
+      // Refresh failed — caller should redirect to login
       return {
         'error': true,
         'statusCode': 401,
-        'message': body['detail'] ?? 'Unauthorized',
+        'message': body['detail'] ?? 'Sesi habis. Silakan login ulang.',
+        'session_expired': true,
       };
     }
 
@@ -69,7 +134,8 @@ class ApiClient {
       return {
         'error': true,
         'statusCode': response.statusCode,
-        'message': body['detail'] ?? body['message'] ?? 'Request failed',
+        'message':
+            body['detail'] ?? body['message'] ?? 'Permintaan gagal',
       };
     }
 
@@ -78,6 +144,38 @@ class ApiClient {
       'statusCode': response.statusCode,
       'data': body,
     };
+  }
+
+  /// Retry a request after token refresh by rebuilding headers.
+  Future<Map<String, dynamic>> _retryAuthenticated(
+    Future<http.Response> Function(Map<String, String> headers) request,
+  ) async {
+    final newToken = getAccessToken();
+    if (newToken == null) {
+      return {
+        'error': true,
+        'statusCode': 401,
+        'message': 'Sesi habis. Silakan login ulang.',
+        'session_expired': true,
+      };
+    }
+
+    final headers = <String, String>{
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $newToken',
+    };
+
+    try {
+      final response = await request(headers).timeout(AppConfig.requestTimeout);
+      return _processResponse(response, retried: true);
+    } catch (e) {
+      return {
+        'error': true,
+        'statusCode': 0,
+        'message': 'Network error: ${e.toString()}',
+      };
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -94,7 +192,17 @@ class ApiClient {
       final response = await http
           .get(uri, headers: headers)
           .timeout(AppConfig.requestTimeout);
-      return _processResponse(response);
+
+      final processed = await _processResponse(response);
+
+      // If token was refreshed, retry the original request
+      if (processed['statusCode'] == 498 && authenticated) {
+        return _retryAuthenticated(
+          (newHeaders) => http.get(uri, headers: newHeaders),
+        );
+      }
+
+      return processed;
     } catch (e) {
       return {
         'error': true,
@@ -113,9 +221,26 @@ class ApiClient {
       final uri = _buildUri(endpoint);
       final headers = _buildHeaders(authenticated: authenticated);
       final response = await http
-          .post(uri, headers: headers, body: body != null ? jsonEncode(body) : null)
+          .post(
+            uri,
+            headers: headers,
+            body: body != null ? jsonEncode(body) : null,
+          )
           .timeout(AppConfig.requestTimeout);
-      return _processResponse(response);
+
+      final processed = await _processResponse(response);
+
+      if (processed['statusCode'] == 498 && authenticated) {
+        return _retryAuthenticated(
+          (newHeaders) => http.post(
+            uri,
+            headers: newHeaders,
+            body: body != null ? jsonEncode(body) : null,
+          ),
+        );
+      }
+
+      return processed;
     } catch (e) {
       return {
         'error': true,
@@ -134,9 +259,26 @@ class ApiClient {
       final uri = _buildUri(endpoint);
       final headers = _buildHeaders(authenticated: authenticated);
       final response = await http
-          .put(uri, headers: headers, body: body != null ? jsonEncode(body) : null)
+          .put(
+            uri,
+            headers: headers,
+            body: body != null ? jsonEncode(body) : null,
+          )
           .timeout(AppConfig.requestTimeout);
-      return _processResponse(response);
+
+      final processed = await _processResponse(response);
+
+      if (processed['statusCode'] == 498 && authenticated) {
+        return _retryAuthenticated(
+          (newHeaders) => http.put(
+            uri,
+            headers: newHeaders,
+            body: body != null ? jsonEncode(body) : null,
+          ),
+        );
+      }
+
+      return processed;
     } catch (e) {
       return {
         'error': true,
@@ -155,9 +297,26 @@ class ApiClient {
       final uri = _buildUri(endpoint);
       final headers = _buildHeaders(authenticated: authenticated);
       final response = await http
-          .patch(uri, headers: headers, body: body != null ? jsonEncode(body) : null)
+          .patch(
+            uri,
+            headers: headers,
+            body: body != null ? jsonEncode(body) : null,
+          )
           .timeout(AppConfig.requestTimeout);
-      return _processResponse(response);
+
+      final processed = await _processResponse(response);
+
+      if (processed['statusCode'] == 498 && authenticated) {
+        return _retryAuthenticated(
+          (newHeaders) => http.patch(
+            uri,
+            headers: newHeaders,
+            body: body != null ? jsonEncode(body) : null,
+          ),
+        );
+      }
+
+      return processed;
     } catch (e) {
       return {
         'error': true,
@@ -177,7 +336,16 @@ class ApiClient {
       final response = await http
           .delete(uri, headers: headers)
           .timeout(AppConfig.requestTimeout);
-      return _processResponse(response);
+
+      final processed = await _processResponse(response);
+
+      if (processed['statusCode'] == 498 && authenticated) {
+        return _retryAuthenticated(
+          (newHeaders) => http.delete(uri, headers: newHeaders),
+        );
+      }
+
+      return processed;
     } catch (e) {
       return {
         'error': true,

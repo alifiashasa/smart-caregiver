@@ -101,7 +101,7 @@ class LogKesehatanView extends GetView<LogKesehatanController> {
                                     ),
                                   ),
                                   const SizedBox(width: 10),
-                                  const Column(
+                                  Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
@@ -150,7 +150,7 @@ class LogKesehatanView extends GetView<LogKesehatanController> {
                                     ),
                                   ),
                                   const SizedBox(width: 10),
-                                  const Column(
+                                  Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
@@ -164,7 +164,7 @@ class LogKesehatanView extends GetView<LogKesehatanController> {
                                       ),
                                       SizedBox(height: 2),
                                       Text(
-                                        'Ibu Siti',
+                                        controller.patientName.value,
                                         style: TextStyle(
                                           color: Color(0xFF1C1B1C),
                                           fontSize: 12,

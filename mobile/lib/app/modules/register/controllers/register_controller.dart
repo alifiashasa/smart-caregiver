@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile/app/data/auth_api.dart';
 import '../../../routes/app_pages.dart';
@@ -24,77 +25,128 @@ class RegisterController extends GetxController {
   void toggleConfirmPasswordVisibility() =>
       obscureConfirmPassword.value = !obscureConfirmPassword.value;
 
-  Future<void> register() async {
-    if (name.value.isEmpty || email.value.isEmpty || password.value.isEmpty) {
-      Get.snackbar('Error', 'Semua field harus diisi');
-      return;
+  bool _validate() {
+    if (name.value.trim().isEmpty) {
+      _showError('Nama lengkap harus diisi');
+      return false;
+    }
+    if (email.value.trim().isEmpty) {
+      _showError('Email harus diisi');
+      return false;
+    }
+    if (!GetUtils.isEmail(email.value.trim())) {
+      _showError('Format email tidak valid');
+      return false;
+    }
+    if (password.value.isEmpty) {
+      _showError('Password harus diisi');
+      return false;
+    }
+    if (password.value.length < 6) {
+      _showError('Password minimal 6 karakter');
+      return false;
     }
     if (password.value != confirmPassword.value) {
-      Get.snackbar('Error', 'Password tidak cocok');
-      return;
+      _showError('Password dan konfirmasi password tidak sama');
+      return false;
     }
-    if (password.value.length < 8) {
-      Get.snackbar('Error', 'Password minimal 8 karakter');
-      return;
-    }
+    return true;
+  }
+
+  void _showError(String message) {
+    Get.snackbar(
+      'Validasi',
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.red.shade100,
+      colorText: const Color(0xFF192126),
+      margin: const EdgeInsets.all(16),
+      borderRadius: 12,
+    );
+  }
+
+  Future<void> register() async {
+    if (!_validate()) return;
 
     isLoading.value = true;
-    try {
-      final result = await _authApi.register(
-        email: email.value.trim(),
-        password: password.value,
-        fullName: name.value.trim(),
-      );
 
-      if (result['error'] == true) {
-        Get.snackbar(
-          'Registrasi Gagal',
-          result['message'] ?? 'Terjadi kesalahan',
-        );
-        return;
-      }
+    final result = await _authApi.register(
+      email: email.value.trim(),
+      password: password.value,
+      fullName: name.value.trim(),
+    );
 
-      // Registration successful — show OTP input
-      registeredEmail.value = email.value.trim();
-      final data = result['data'] as Map<String, dynamic>?;
-      if (data != null && data['otp_expires_in_minutes'] != null) {
-        otpExpiresMinutes.value = data['otp_expires_in_minutes'] as int;
-      }
-      showOtpField.value = true;
+    isLoading.value = false;
+
+    if (result['error'] == true) {
       Get.snackbar(
-        'Kode OTP Dikirim',
-        'Cek email ${email.value.trim()} untuk kode verifikasi',
+        'Gagal Daftar',
+        result['message'] ?? 'Terjadi kesalahan',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.shade100,
+        colorText: const Color(0xFF192126),
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
       );
-    } finally {
-      isLoading.value = false;
+      return;
     }
+
+    // Registration success — show OTP verification
+    registeredEmail.value = email.value.trim();
+    showOtpField.value = true;
+    Get.snackbar(
+      'Berhasil Daftar',
+      'Kode OTP telah dikirim ke ${email.value.trim()}',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: const Color(0xFFBBF246),
+      colorText: const Color(0xFF192126),
+      margin: const EdgeInsets.all(16),
+      borderRadius: 12,
+    );
   }
 
   Future<void> verifyOtp() async {
-    if (otp.value.length != 6) {
-      Get.snackbar('Error', 'Kode OTP harus 6 digit');
+    if (otp.value.trim().isEmpty) {
+      _showError('Kode OTP harus diisi');
+      return;
+    }
+    if (otp.value.trim().length < 4) {
+      _showError('Kode OTP tidak valid');
       return;
     }
 
     isLoading.value = true;
-    try {
-      final result = await _authApi.verifyOtp(
-        email: registeredEmail.value,
-        otp: otp.value,
+
+    final result = await _authApi.verifyOtp(
+      email: registeredEmail.value,
+      otp: otp.value.trim(),
+    );
+
+    isLoading.value = false;
+
+    if (result['error'] == true) {
+      Get.snackbar(
+        'Gagal Verifikasi',
+        result['message'] ?? 'Kode OTP salah',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.shade100,
+        colorText: const Color(0xFF192126),
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
       );
-
-      if (result['error'] == true) {
-        Get.snackbar(
-          'Verifikasi Gagal',
-          result['message'] ?? 'Kode OTP salah atau kadaluarsa',
-        );
-        return;
-      }
-
-      Get.snackbar('Berhasil', 'Akun berhasil diaktifkan. Silakan masuk.');
-      Get.offAllNamed(Routes.LOGIN);
-    } finally {
-      isLoading.value = false;
+      return;
     }
+
+    Get.snackbar(
+      'Akun Aktif',
+      'Silakan login dengan akun Anda',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: const Color(0xFFBBF246),
+      colorText: const Color(0xFF192126),
+      margin: const EdgeInsets.all(16),
+      borderRadius: 12,
+    );
+
+    Get.offNamed(Routes.LOGIN);
   }
 }

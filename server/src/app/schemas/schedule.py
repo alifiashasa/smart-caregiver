@@ -8,12 +8,14 @@ from datetime import datetime
 from typing import Optional, List
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from src.database.enums import RecurrenceType, ScheduleType
 
 
 class ScheduleAlarmResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     schedule_id: UUID
     reminder_minutes: int
@@ -21,9 +23,6 @@ class ScheduleAlarmResponse(BaseModel):
     is_sent: bool
     sent_at: Optional[datetime] = None
     created_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 class ScheduleCreate(BaseModel):
@@ -58,6 +57,8 @@ class ScheduleUpdate(BaseModel):
 
 
 class ScheduleResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     elderly_id: UUID
     created_by: Optional[UUID] = None
@@ -77,9 +78,6 @@ class ScheduleResponse(BaseModel):
     alarms: List[ScheduleAlarmResponse] = []
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 class ScheduleList(BaseModel):

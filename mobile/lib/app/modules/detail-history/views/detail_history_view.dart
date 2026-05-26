@@ -95,10 +95,12 @@ class DetailHistoryView extends GetView<DetailHistoryController> {
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    const Flexible(
+                                    Obx(() => Flexible(
                                       child: Text(
-                                        'Ibu Siti • 24 Oktober 2026',
-                                        style: TextStyle(
+                                        controller.patientName.value.isNotEmpty
+                                            ? controller.patientName.value
+                                            : 'Riwayat Kesehatan',
+                                        style: const TextStyle(
                                           color: Color(0xFF4C4546),
                                           fontSize: 14,
                                           fontFamily: 'Plus Jakarta Sans',
@@ -107,7 +109,7 @@ class DetailHistoryView extends GetView<DetailHistoryController> {
                                           letterSpacing: 0.14,
                                         ),
                                       ),
-                                    ),
+                                    )),
                                     const SizedBox(width: 8),
                                     Container(
                                       padding: const EdgeInsets.symmetric(

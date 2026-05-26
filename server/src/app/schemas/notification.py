@@ -8,12 +8,14 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from src.database.enums import NotificationChannel, NotificationPriority, NotificationType
 
 
 class NotificationResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     recipient_id: UUID
     elderly_id: Optional[UUID] = None
@@ -27,9 +29,6 @@ class NotificationResponse(BaseModel):
     read_at: Optional[datetime] = None
     created_at: datetime
 
-    class Config:
-        from_attributes = True
-
 
 class NotificationList(BaseModel):
     total: int
@@ -41,6 +40,8 @@ class UnreadCountResponse(BaseModel):
 
 
 class NotificationPreferenceResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     user_id: UUID
     notification_type: NotificationType
@@ -48,9 +49,6 @@ class NotificationPreferenceResponse(BaseModel):
     push_enabled: bool
     in_app_enabled: bool
     updated_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 class NotificationPreferenceUpdate(BaseModel):

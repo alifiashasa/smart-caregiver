@@ -10,7 +10,7 @@ Separation:
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Optional
 
 from pydantic import BaseModel, Field, field_validator
@@ -35,7 +35,7 @@ class HealthRecordCreate(BaseModel):
 
     elderly_id: uuid.UUID
     recorded_at: datetime = Field(
-        default_factory=datetime.utcnow,
+        default_factory=lambda: datetime.now(timezone.utc),
         description="When the measurements were taken (not when they were entered).",
     )
 
@@ -81,7 +81,6 @@ class HealthRecordCreate(BaseModel):
     def _ensure_tz_aware(cls, v: Any) -> Any:
         """Accept naive datetimes and treat them as UTC."""
         if isinstance(v, datetime) and v.tzinfo is None:
-            from datetime import timezone
             return v.replace(tzinfo=timezone.utc)
         return v
 

@@ -18,6 +18,7 @@ class LogKesehatanController extends GetxController {
   final complaintsController = TextEditingController(); // complaints
 
   final isLoading = false.obs;
+  final patientName = ''.obs;
   final HealthApi _api = HealthApi();
 
   int? elderlyId;
@@ -30,6 +31,7 @@ class LogKesehatanController extends GetxController {
       elderlyId = args['elderly_id'] is int
           ? args['elderly_id']
           : int.tryParse(args['elderly_id']?.toString() ?? '');
+      patientName.value = args['name'] as String? ?? '';
     }
   }
 
@@ -135,40 +137,48 @@ class LogKesehatanController extends GetxController {
     // 5. Update Dashboard Metrics
     try {
       final dashboardCtrl = Get.find<DashboardController>();
-      if (cholesterolController.text.isNotEmpty)
+      if (cholesterolController.text.isNotEmpty) {
         dashboardCtrl.updateHealthMetric(
           'cholesterol',
           cholesterolController.text.trim(),
         );
-      if (tensiController.text.isNotEmpty)
+      }
+      if (tensiController.text.isNotEmpty) {
         dashboardCtrl.updateHealthMetric('tensi', tensiController.text.trim());
-      if (uricAcidController.text.isNotEmpty)
+      }
+      if (uricAcidController.text.isNotEmpty) {
         dashboardCtrl.updateHealthMetric(
           'uric_acid',
           uricAcidController.text.trim(),
         );
-      if (bloodSugarController.text.isNotEmpty)
+      }
+      if (bloodSugarController.text.isNotEmpty) {
         dashboardCtrl.updateHealthMetric(
           'blood_sugar',
           bloodSugarController.text.trim(),
         );
-      if (bodyTempController.text.isNotEmpty)
+      }
+      if (bodyTempController.text.isNotEmpty) {
         dashboardCtrl.updateHealthMetric(
           'body_temp',
           bodyTempController.text.trim(),
         );
-      if (heartRateController.text.isNotEmpty)
+      }
+      if (heartRateController.text.isNotEmpty) {
         dashboardCtrl.updateHealthMetric(
           'heart_rate',
           heartRateController.text.trim(),
         );
-      if (spo2Controller.text.isNotEmpty)
+      }
+      if (spo2Controller.text.isNotEmpty) {
         dashboardCtrl.updateHealthMetric('spo2', spo2Controller.text.trim());
-      if (weightController.text.isNotEmpty)
+      }
+      if (weightController.text.isNotEmpty) {
         dashboardCtrl.updateHealthMetric(
           'weight',
           weightController.text.trim(),
         );
+      }
     } catch (e) {
       debugPrint('DashboardController not found, skipping UI update');
     }

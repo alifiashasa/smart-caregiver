@@ -11,7 +11,7 @@ import pytest
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 
-from src.database.session import AsyncSessionLocal, get_db
+from src.database.session import AsyncSessionLocal, engine, get_db
 from src.database.models.user import User
 from src.database.models.elderly import ElderlyProfile
 from src.database.models.health import HealthRecord, HealthThreshold
@@ -39,8 +39,14 @@ async def setup_db():
             yield db
     
     app.dependency_overrides[get_db] = override_get_db
+    # Prevent scheduler lifespan from interfering with test event loops
+    original_lifespan = app.router.lifespan_context
+    app.router.lifespan_context = None
     yield
+    app.router.lifespan_context = original_lifespan
     app.dependency_overrides.clear()
+    # Dispose engine connections to prevent asyncpg event loop conflicts
+    await engine.dispose()
 
 
 # =============================================================================

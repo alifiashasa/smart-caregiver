@@ -455,7 +455,7 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
                   child: Switch.adaptive(
                     value: controller.alarmEnabled.value,
                     onChanged: controller.toggleAlarm,
-                    activeColor: const Color(0xFF192126),
+                    activeThumbColor: const Color(0xFF192126),
                     activeTrackColor: const Color(0xFFBBF246),
                     inactiveThumbColor: Colors.white,
                     inactiveTrackColor: const Color(0xFFE5E5E5),

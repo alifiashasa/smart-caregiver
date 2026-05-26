@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import Optional, List
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from src.database.enums import ActivityCategory, RecommendationStatus
 
@@ -22,6 +22,8 @@ class RecommendationGenerateRequest(BaseModel):
 
 
 class RecommendationResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     elderly_id: UUID
     activity_name: str
@@ -38,9 +40,6 @@ class RecommendationResponse(BaseModel):
     rejection_reason: Optional[str] = None
     generated_at: datetime
     created_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 class RecommendationList(BaseModel):

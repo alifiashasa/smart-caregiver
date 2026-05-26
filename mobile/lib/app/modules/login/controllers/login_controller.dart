@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile/app/data/auth_api.dart';
 import '../../../routes/app_pages.dart';
@@ -14,11 +15,60 @@ class LoginController extends GetxController {
     isPasswordHidden.value = !isPasswordHidden.value;
   }
 
-  Future<void> login() async {
-    if (email.value.isEmpty || password.value.isEmpty) {
-      Get.snackbar('Error', 'Email dan password harus diisi');
-      return;
+  bool _validate() {
+    if (email.value.trim().isEmpty) {
+      Get.snackbar(
+        'Validasi',
+        'Email harus diisi',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.shade100,
+        colorText: const Color(0xFF192126),
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+      return false;
     }
+    if (!GetUtils.isEmail(email.value.trim())) {
+      Get.snackbar(
+        'Validasi',
+        'Format email tidak valid',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.shade100,
+        colorText: const Color(0xFF192126),
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+      return false;
+    }
+    if (password.value.isEmpty) {
+      Get.snackbar(
+        'Validasi',
+        'Password harus diisi',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.shade100,
+        colorText: const Color(0xFF192126),
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+      return false;
+    }
+    if (password.value.length < 6) {
+      Get.snackbar(
+        'Validasi',
+        'Password minimal 6 karakter',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.shade100,
+        colorText: const Color(0xFF192126),
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+      return false;
+    }
+    return true;
+  }
+
+  Future<void> login() async {
+    if (!_validate()) return;
 
     isLoading.value = true;
     try {
@@ -28,16 +78,31 @@ class LoginController extends GetxController {
       );
 
       if (result['error'] == true) {
+        isLoading.value = false;
         Get.snackbar(
-          'Login Gagal',
+          'Gagal Masuk',
           result['message'] ?? 'Email atau password salah',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red.shade100,
+          colorText: const Color(0xFF192126),
+          margin: const EdgeInsets.all(16),
+          borderRadius: 12,
         );
         return;
       }
 
       Get.offAllNamed(Routes.HOME);
-    } finally {
+    } catch (e) {
       isLoading.value = false;
+      Get.snackbar(
+        'Error',
+        'Terjadi kesalahan jaringan. Coba lagi.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.shade100,
+        colorText: const Color(0xFF192126),
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
     }
   }
 }

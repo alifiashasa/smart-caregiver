@@ -1,4 +1,6 @@
 import 'api_client.dart';
+import 'package:get/get.dart';
+import '../routes/app_pages.dart';
 
 class AuthApi {
   final ApiClient _client = ApiClient();
@@ -149,8 +151,10 @@ class AuthApi {
     };
   }
 
-  /// Clears stored tokens (client-side logout).
+  /// Clears all stored data (client-side logout) and navigates to login.
   void logout() {
-    ApiClient.clearTokens();
+    ApiClient.clearAllStorage();
+    // Navigate to login — must be called from a Get context
+    Get.offAllNamed(Routes.LOGIN);
   }
 }
