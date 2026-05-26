@@ -65,3 +65,8 @@ class NotificationPreferenceList(BaseModel):
 class MarkReadResponse(BaseModel):
     success: bool
     marked_count: int = 1
+
+
+class DeviceTokenRegisterRequest(BaseModel):
+    fcm_token: str = Field(..., min_length=1)
+    platform: str = Field(default="android", pattern="^(android|ios)$")

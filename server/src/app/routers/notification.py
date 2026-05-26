@@ -22,6 +22,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.app.schemas.notification import (
+    DeviceTokenRegisterRequest,
     MarkReadResponse,
     NotificationList,
     NotificationPreferenceList,
@@ -32,6 +33,7 @@ from src.app.schemas.notification import (
 )
 from src.app.services import notification_service
 from src.app.core.auth import get_current_user
+from src.database.models.device_token import DeviceToken
 from src.database.models.user import User
 from src.database.session import get_db
 
@@ -185,3 +187,45 @@ async def update_notification_preference(
         in_app_enabled=preference.in_app_enabled,
         updated_at=preference.updated_at,
     )
+
+
+@router.post("/register-device", status_code=status.HTTP_201_CREATED)
+async def register_device(
+    payload: DeviceTokenRegisterRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Register or update FCM device token for push notifications."""
+    stmt = select(DeviceToken).where(
+        and_(
+            DeviceToken.user_id == current_user.id,
+            DeviceToken.fcm_token == payload.fcm_token,
+        )
+    )
+    result = await db.execute(stmt)
+    existing = result.scalar_one_or_none()
+
+    if existing:
+        existing.is_active = True
+        existing.platform = payload.platform
+    else:
+        # Deactivate old tokens for same platform
+        old_stmt = select(DeviceToken).where(
+            and_(
+                DeviceToken.user_id == current_user.id,
+                DeviceToken.platform == payload.platform,
+            )
+        )
+        old_result = await db.execute(old_stmt)
+        for old in old_result.scalars().all():
+            old.is_active = False
+
+        token = DeviceToken(
+            user_id=current_user.id,
+            fcm_token=payload.fcm_token,
+            platform=payload.platform,
+        )
+        db.add(token)
+
+    await db.commit()
+    return {"success": True}

@@ -10,6 +10,8 @@ from src.database.models.schedule import Schedule, ScheduleAlarm
 from src.database.models.recommendation import AIActivityRecommendation
 from src.database.models.notification import Notification, NotificationPreference
 
+from src.database.models.device_token import DeviceToken
+
 __all__ = [
     "User",
     "ElderlyProfile",
@@ -20,4 +22,5 @@ __all__ = [
     "AIActivityRecommendation",
     "Notification",
     "NotificationPreference",
+    "DeviceToken",
 ]
