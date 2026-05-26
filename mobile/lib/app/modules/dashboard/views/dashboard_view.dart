@@ -210,123 +210,96 @@ class DashboardView extends GetView<DashboardController> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    // Tempat untuk fl_chart
-                    SizedBox(
-                      height: 200,
-                      width: double.infinity,
-                      child: LineChart(
-                        LineChartData(
-                          gridData: FlGridData(
-                            show: true,
-                            drawVerticalLine: false,
-                            horizontalInterval: 25,
-                            getDrawingHorizontalLine: (value) {
-                              return FlLine(
-                                color: const Color(
-                                  0xFFA8A29E,
-                                ).withValues(alpha: 0.3),
-                                strokeWidth: 1,
-                                dashArray: [5, 5],
-                              );
-                            },
-                          ),
-                          titlesData: FlTitlesData(
-                            show: true,
-                            rightTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                            topTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                            leftTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                            bottomTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 30,
-                                interval: 1,
-                                getTitlesWidget: (value, meta) {
-                                  const style = TextStyle(
-                                    color: Color(0xFF4C4546),
-                                    fontSize: 12,
-                                    fontFamily: 'Plus Jakarta Sans',
-                                    fontWeight: FontWeight.w500,
-                                  );
-                                  Widget text;
-                                  switch (value.toInt()) {
-                                    case 0:
-                                      text = const Text('Mon', style: style);
-                                      break;
-                                    case 1:
-                                      text = const Text('Tue', style: style);
-                                      break;
-                                    case 2:
-                                      text = const Text('Wed', style: style);
-                                      break;
-                                    case 3:
-                                      text = const Text('Thu', style: style);
-                                      break;
-                                    case 4:
-                                      text = const Text('Fri', style: style);
-                                      break;
-                                    case 5:
-                                      text = const Text('Sat', style: style);
-                                      break;
-                                    case 6:
-                                      text = const Text('Sun', style: style);
-                                      break;
-                                    default:
-                                      text = const Text('', style: style);
-                                      break;
-                                  }
-                                  return SideTitleWidget(
-                                    meta: meta,
-                                    space: 8,
-                                    child: text,
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                          borderData: FlBorderData(
-                            show: true,
-                            border: const Border(
-                              bottom: BorderSide(color: Color(0xFFA8A29E)),
-                            ),
-                          ),
-                          minX: 0,
-                          maxX: 6,
-                          minY: 0,
-                          maxY: 100,
-                          lineBarsData: [
-                            LineChartBarData(
-                              spots: const [
-                                FlSpot(0, 70),
-                                FlSpot(1, 75),
-                                FlSpot(2, 65),
-                                FlSpot(3, 80),
-                                FlSpot(4, 85),
-                                FlSpot(5, 75),
-                                FlSpot(6, 90),
-                              ],
-                              isCurved: true,
-                              color: const Color(0xFFBBF246),
-                              barWidth: 3,
-                              isStrokeCapRound: true,
-                              dotData: const FlDotData(show: false),
-                              belowBarData: BarAreaData(
-                                show: true,
-                                color: const Color(
-                                  0xFFBBF246,
-                                ).withValues(alpha: 0.2),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                    // ── Trend Chart ──
+                                        const SizedBox(height: 16),
+                                        // Parameter selector
+                                        Row(
+                                          children: [
+                                            Obx(() {
+                                              final params = controller.availableParams;
+                                              final selected = controller.selectedTrendParam.value;
+                                              if (params.isEmpty) return const SizedBox.shrink();
+                                              return Container(
+                                                height: 32,
+                                                padding: const EdgeInsets.symmetric(horizontal: 8),
+                                                decoration: BoxDecoration(
+                                                  color: const Color(0xFFF5F5F4),
+                                                  borderRadius: BorderRadius.circular(8),
+                                                ),
+                                                child: DropdownButtonHideUnderline(
+                                                  child: DropdownButton<String>(
+                                                    value: params.contains(selected) ? selected : params.first,
+                                                    icon: const Icon(
+                                                      Icons.keyboard_arrow_down,
+                                                      size: 16,
+                                                    ),
+                                                    style: const TextStyle(
+                                                      color: Color(0xFF1C1917),
+                                                      fontSize: 12,
+                                                      fontFamily: 'Plus Jakarta Sans',
+                                                      fontWeight: FontWeight.w600,
+                                                    ),
+                                                    onChanged: (String? newValue) {
+                                                      if (newValue != null) {
+                                                        controller.selectedTrendParam.value = newValue;
+                                                      }
+                                                    },
+                                                    items: params
+                                                        .map<DropdownMenuItem<String>>((String value) {
+                                                          final label = DashboardController
+                                                              .trendParamLabels[value];
+                                                          return DropdownMenuItem<String>(
+                                                            value: value,
+                                                            child: Text(label ?? value),
+                                                          );
+                                                        })
+                                                        .toList(),
+                                                  ),
+                                                ),
+                                              );
+                                            }),
+                                            const Spacer(),
+                                            Obx(() {
+                                              final label = DashboardController.trendParamLabels[
+                                                  controller.selectedTrendParam.value];
+                                              return Text(
+                                                label ?? 'Gula Darah',
+                                                style: const TextStyle(
+                                                  color: Color(0xFF4C4546),
+                                                  fontSize: 13,
+                                                  fontFamily: 'Plus Jakarta Sans',
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              );
+                                            }),
+                                            const SizedBox(width: 4),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 16),
+                                        // Chart
+                                        SizedBox(
+                                          height: 200,
+                                          width: double.infinity,
+                                          child: Obx(() {
+                                            final dataPoints = controller.trendDataPoints;
+                                            if (dataPoints.isEmpty) {
+                                              return const Center(
+                                                child: Text(
+                                                  'Belum ada data tren',
+                                                  style: TextStyle(
+                                                    color: Color(0xFFA3A1A6),
+                                                    fontSize: 14,
+                                                    fontFamily: 'Plus Jakarta Sans',
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                            return _buildTrendChart(
+                                              dataPoints.cast<Map<String, dynamic>>(),
+                                              controller.selectedTrendParam.value,
+                                            );
+                                          }),
+                                        ),
                   ],
                 ),
               ),
@@ -572,6 +545,150 @@ class DashboardView extends GetView<DashboardController> {
             ],
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildTrendChart(
+    List<Map<String, dynamic>> dataPoints,
+    String param,
+  ) {
+    // Build spots from data
+    final spots = <FlSpot>[];
+    double minVal = double.infinity;
+    double maxVal = double.negativeInfinity;
+
+    for (int i = 0; i < dataPoints.length; i++) {
+      final raw = dataPoints[i][param];
+      final value = (raw is num) ? raw.toDouble() : double.tryParse(raw?.toString() ?? '');
+      if (value != null && value.isFinite) {
+        spots.add(FlSpot(i.toDouble(), value));
+        if (value < minVal) minVal = value;
+        if (value > maxVal) maxVal = value;
+      }
+    }
+
+    if (spots.isEmpty) {
+      return const Center(
+        child: Text(
+          'Belum ada data parameter ini',
+          style: TextStyle(
+            color: Color(0xFFA3A1A6),
+            fontSize: 14,
+            fontFamily: 'Plus Jakarta Sans',
+          ),
+        ),
+      );
+    }
+
+    // Add padding to range
+    final range = maxVal - minVal;
+    final padding = range > 0 ? range * 0.15 : 10;
+    final chartMinY = (minVal - padding).clamp(0, double.infinity).toDouble();
+    final chartMaxY = maxVal + padding;
+
+    // Date labels for bottom axis
+    final dateLabels = dataPoints.map((dp) {
+      try {
+        final d = DateTime.parse(dp['date'] as String);
+        final months = [
+          'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+          'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
+        ];
+        return '${d.day}/${months[d.month - 1]}';
+      } catch (_) {
+        return '';
+      }
+    }).toList();
+
+    return LineChart(
+      LineChartData(
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          horizontalInterval: (chartMaxY - chartMinY) / 4,
+          getDrawingHorizontalLine: (value) {
+            return FlLine(
+              color: const Color(0xFFA8A29E).withValues(alpha: 0.3),
+              strokeWidth: 1,
+              dashArray: [5, 5],
+            );
+          },
+        ),
+        titlesData: FlTitlesData(
+          show: true,
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          leftTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 30,
+              interval: dataPoints.length > 7 ? (dataPoints.length / 6).ceilToDouble() : 1,
+              getTitlesWidget: (value, meta) {
+                final idx = value.toInt();
+                if (idx < 0 || idx >= dateLabels.length) {
+                  return const SizedBox.shrink();
+                }
+                return SideTitleWidget(
+                  meta: meta,
+                  space: 8,
+                  child: Text(
+                    dateLabels[idx],
+                    style: const TextStyle(
+                      color: Color(0xFF4C4546),
+                      fontSize: 10,
+                      fontFamily: 'Plus Jakarta Sans',
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+        borderData: FlBorderData(
+          show: true,
+          border: const Border(
+            bottom: BorderSide(color: Color(0xFFA8A29E)),
+          ),
+        ),
+        minX: 0,
+        maxX: (spots.length - 1).toDouble(),
+        minY: chartMinY,
+        maxY: chartMaxY,
+        lineBarsData: [
+          LineChartBarData(
+            spots: spots,
+            isCurved: spots.length > 2,
+            color: const Color(0xFFBBF246),
+            barWidth: 3,
+            isStrokeCapRound: true,
+            dotData: spots.length > 14
+                ? const FlDotData(show: false)
+                : FlDotData(
+                    show: true,
+                    getDotPainter: (spot, percent, barData, index) {
+                      return FlDotCirclePainter(
+                        radius: 3,
+                        color: const Color(0xFFBBF246),
+                        strokeWidth: 2,
+                        strokeColor: Colors.white,
+                      );
+                    },
+                  ),
+            belowBarData: BarAreaData(
+              show: true,
+              color: const Color(0xFFBBF246).withValues(alpha: 0.2),
+            ),
+          ),
+        ],
       ),
     );
   }

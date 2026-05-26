@@ -541,7 +541,7 @@ class CalendarView extends GetView<CalendarController> {
                       ),
                       Obx(
                         () => Column(
-                          children: controller.mockSchedules
+                          children: controller.schedules
                               .map(
                                 (schedule) =>
                                     _buildScheduleCard(schedule, controller),
@@ -689,7 +689,7 @@ class CalendarView extends GetView<CalendarController> {
               subtitle: 'Masukkan detail kegiatan secara manual',
               onTap: () {
                 Get.back(); // close bottom sheet
-                Get.toNamed(Routes.JADWAL_LANSIA);
+                controller.navigateToAddSchedule();
               },
             ),
             const SizedBox(height: 16),
@@ -699,7 +699,9 @@ class CalendarView extends GetView<CalendarController> {
               subtitle: 'Gunakan template kegiatan yang sering dipakai',
               onTap: () {
                 Get.back();
-                Get.toNamed(Routes.TEMPLATE_JADWAL);
+                Get.toNamed(Routes.TEMPLATE_JADWAL, arguments: {
+                  'elderly_id': controller.elderlyId.value,
+                });
               },
             ),
             const SizedBox(height: 16),
@@ -711,7 +713,9 @@ class CalendarView extends GetView<CalendarController> {
               iconBgColor: const Color(0xFFBBF246),
               onTap: () {
                 Get.back();
-                Get.toNamed(Routes.REKOMENDASI_AI);
+                Get.toNamed(Routes.REKOMENDASI_AI, arguments: {
+                  'elderly_id': controller.elderlyId.value,
+                });
               },
             ),
             const SizedBox(height: 16),

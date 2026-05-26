@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../data/dashboard_api.dart';
+import '../../../data/health_api.dart';
 import '../../../routes/app_pages.dart';
 
 class DashboardController extends GetxController {
@@ -11,6 +13,14 @@ class DashboardController extends GetxController {
   final patientAge = '55 Tahun'.obs;
   final patientImage = 'assets/images/patient_ibu_siti.png'.obs;
   final patientGender = 'Perempuan'.obs;
+  final elderlyId = 0.obs;
+
+  final isLoading = false.obs;
+  final trendDataPoints = [].obs;
+  final trendSummary = {}.obs;
+
+  final DashboardApi _dashboardApi = DashboardApi();
+  final HealthApi _healthApi = HealthApi();
 
   final healthMetrics = <Map<String, dynamic>>[
     {
@@ -122,7 +132,113 @@ class DashboardController extends GetxController {
     }
   }
 
+  Future<void> loadTrends() async {
+    if (elderlyId.value == 0) return;
+
+    isLoading.value = true;
+
+    final range = selectedTrendFilter.value == '30 Hari' ? '30d' : '7d';
+
+    final result =
+        await _dashboardApi.getTrends(elderlyId.value, range: range);
+
+    isLoading.value = false;
+
+    if (result['error'] == true) {
+      return;
+    }
+
+    final data = result['data'];
+    if (data != null) {
+      if (data['data'] != null) {
+        trendDataPoints.value =
+            List<Map<String, dynamic>>.from(data['data']);
+      }
+      if (data['summary'] != null) {
+        trendSummary.value = Map<String, dynamic>.from(data['summary']);
+      }
+      _detectAvailableParams();
+    }
+  }
+
+  Future<void> loadLatestHealthRecord() async {
+    if (elderlyId.value == 0) return;
+
+    final result = await _healthApi.getRecords(elderlyId.value);
+
+    if (result['error'] == true || result['data'] == null) return;
+
+    final data = result['data'] as Map<String, dynamic>;
+    final records = data['records'] as List<dynamic>?;
+    if (records == null || records.isEmpty) return;
+
+    final latest = records.first as Map<String, dynamic>;
+
+    void updateMetric(String id, String value) {
+      if (value == '--' || value.isEmpty) return;
+      updateHealthMetric(id, value);
+    }
+
+    if (latest['systolic_bp'] != null) {
+      final sys = _formatNum(latest['systolic_bp']);
+      final dia = _formatNum(latest['diastolic_bp']);
+      updateMetric('tensi', '$sys/$dia');
+    }
+    updateMetric('cholesterol', _formatNum(latest['cholesterol']));
+    updateMetric('uric_acid', _formatNum(latest['uric_acid']));
+    updateMetric('blood_sugar', _formatNum(latest['blood_sugar']));
+    updateMetric('body_temp', _formatNum(latest['body_temperature']));
+    updateMetric('spo2', _formatNum(latest['spo2_level']));
+    updateMetric('weight', _formatNum(latest['body_weight']));
+    updateMetric('heart_rate', _formatNum(latest['heart_rate']));
+  }
+
+  String _formatNum(dynamic value) {
+    if (value == null) return '--';
+    if (value is int) return value.toString();
+    if (value is double) {
+      if (value == value.roundToDouble()) {
+        return value.toInt().toString();
+      }
+      return value.toStringAsFixed(1);
+    }
+    return value.toString();
+  }
+
   final count = 0.obs;
+
+  // ── Trend chart parameter selector ──
+  final selectedTrendParam = 'blood_sugar'.obs;
+  final availableParams = <String>[].obs;
+
+  static const Map<String, String> trendParamLabels = {
+    'systolic_bp': 'Tensi Sistolik',
+    'diastolic_bp': 'Tensi Diastolik',
+    'blood_sugar': 'Gula Darah',
+    'heart_rate': 'Detak Jantung',
+    'body_temperature': 'Suhu',
+    'body_weight': 'Berat Badan',
+    'cholesterol': 'Kolesterol',
+    'uric_acid': 'Asam Urat',
+    'spo2_level': 'Saturasi',
+  };
+
+  /// Detect which parameters actually have data in the current dataPoints
+  void _detectAvailableParams() {
+    final params = <String>{};
+    for (final dp in trendDataPoints) {
+      for (final entry in trendParamLabels.keys) {
+        if (dp[entry] != null) {
+          params.add(entry);
+        }
+      }
+    }
+    availableParams.value = params.toList();
+    if (params.isNotEmpty && !params.contains(selectedTrendParam.value)) {
+      selectedTrendParam.value = params.first;
+    }
+  }
+
   @override
   void onInit() {
     super.onInit();
@@ -142,7 +258,17 @@ class DashboardController extends GetxController {
       if (Get.arguments['gender'] != null) {
         patientGender.value = Get.arguments['gender'];
       }
+      if (Get.arguments['elderly_id'] != null) {
+        elderlyId.value = Get.arguments['elderly_id'];
+      }
     }
+
+    if (elderlyId.value != 0) {
+      loadTrends();
+      loadLatestHealthRecord();
+    }
+
+    ever(selectedTrendFilter, (_) => loadTrends());
   }
 
   @override

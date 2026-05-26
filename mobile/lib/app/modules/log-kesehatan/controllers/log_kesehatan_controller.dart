@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../data/health_api.dart';
 import '../../../routes/app_pages.dart';
 import '../../dashboard/controllers/dashboard_controller.dart';
 
@@ -16,6 +17,22 @@ class LogKesehatanController extends GetxController {
   final notesController = TextEditingController(); // daily_notes
   final complaintsController = TextEditingController(); // complaints
 
+  final isLoading = false.obs;
+  final HealthApi _api = HealthApi();
+
+  int? elderlyId;
+
+  @override
+  void onInit() {
+    super.onInit();
+    if (Get.arguments != null && Get.arguments is Map) {
+      final args = Get.arguments as Map;
+      elderlyId = args['elderly_id'] is int
+          ? args['elderly_id']
+          : int.tryParse(args['elderly_id']?.toString() ?? '');
+    }
+  }
+
   @override
   void onClose() {
     cholesterolController.dispose();
@@ -31,7 +48,7 @@ class LogKesehatanController extends GetxController {
     super.onClose();
   }
 
-  void submitHealthRecord() {
+  Future<void> submitHealthRecord() async {
     // 1. Parsing Tensi to systolic_bp and diastolic_bp
     double? systolicBp;
     double? diastolicBp;
@@ -54,43 +71,68 @@ class LogKesehatanController extends GetxController {
     final notes = notesController.text.trim();
     final complaints = complaintsController.text.trim();
 
-    // In a real app we would send this payload to backend via API
-    final payload = {
-      "systolic_bp": systolicBp,
-      "diastolic_bp": diastolicBp,
-      "heart_rate": heartRate,
-      "spo2_level": spo2,
-      "blood_sugar": bloodSugar,
-      "cholesterol": cholesterol,
-      "uric_acid": uricAcid,
-      "body_weight": weight,
-      "body_temperature": bodyTemp,
-      "daily_notes": notes.isNotEmpty ? notes : null,
-      "complaints": complaints.isNotEmpty ? complaints : null,
-    };
+    // 3. Call API
+    isLoading.value = true;
 
-    debugPrint("MOCK SUBMIT PAYLOAD: $payload");
+    final result = await _api.createRecord(
+      elderlyId: elderlyId ?? 0,
+      systolicBp: systolicBp,
+      diastolicBp: diastolicBp,
+      heartRate: heartRate,
+      spo2Level: spo2,
+      bloodSugar: bloodSugar,
+      cholesterol: cholesterol,
+      uricAcid: uricAcid,
+      bodyWeight: weight,
+      bodyTemperature: bodyTemp,
+      dailyNotes: notes.isNotEmpty ? notes : null,
+      complaints: complaints.isNotEmpty ? complaints : null,
+    );
 
-    // Simulasi hasil dari Fuzzy Logic Backend
+    isLoading.value = false;
+
+    // 4. Parse response for success page
     String healthStatus = "Normal";
     String healthMessage =
         "Semua indikator vital dalam batas normal. Tetap pertahankan pola makan sehat dan rutinitas aktivitas harian.";
 
-    if ((systolicBp != null && systolicBp > 140) ||
-        (bloodSugar != null && bloodSugar > 150)) {
-      healthStatus = "Perhatian";
-      healthMessage =
-          "Beberapa metrik vital seperti tekanan darah atau gula darah terpantau tinggi. Pertimbangkan untuk menjadwalkan pemeriksaan lebih lanjut.";
+    if (result['error'] == true) {
+      Get.snackbar(
+        'Gagal',
+        'Gagal menyimpan data kesehatan. Periksa koneksi Anda.',
+        backgroundColor: Colors.red.shade100,
+        duration: const Duration(seconds: 3),
+      );
+
+      // Fallback: mock analysis so user still sees result
+      if ((systolicBp != null && systolicBp > 180) ||
+          (bloodSugar != null && bloodSugar > 250)) {
+        healthStatus = "Kritis";
+        healthMessage =
+            "Kondisi terdeteksi sangat kritis! Segera hubungi tenaga medis atau dokter untuk penanganan darurat.";
+      } else if ((systolicBp != null && systolicBp > 140) ||
+          (bloodSugar != null && bloodSugar > 150)) {
+        healthStatus = "Perhatian";
+        healthMessage =
+            "Beberapa metrik vital seperti tekanan darah atau gula darah terpantau tinggi. Pertimbangkan untuk menjadwalkan pemeriksaan lebih lanjut.";
+      }
+    } else {
+      final data = result['data'] as Map<String, dynamic>?;
+      if (data != null) {
+        healthStatus =
+            (data['health_status'] as String?)?.capitalizeFirst ?? healthStatus;
+
+        final fuzzy = data['fuzzy_analysis'] as Map<String, dynamic>?;
+        if (fuzzy != null) {
+          final status = fuzzy['final_status'] as String?;
+          if (status != null) {
+            healthStatus = status.toString().capitalizeFirst ?? healthStatus;
+          }
+        }
+      }
     }
 
-    if ((systolicBp != null && systolicBp > 180) ||
-        (bloodSugar != null && bloodSugar > 250)) {
-      healthStatus = "Kritis";
-      healthMessage =
-          "Kondisi terdeteksi sangat kritis! Segera hubungi tenaga medis atau dokter untuk penanganan darurat.";
-    }
-
-    // Update Dashboard Metrics
+    // 5. Update Dashboard Metrics
     try {
       final dashboardCtrl = Get.find<DashboardController>();
       if (cholesterolController.text.isNotEmpty)
@@ -131,7 +173,7 @@ class LogKesehatanController extends GetxController {
       debugPrint('DashboardController not found, skipping UI update');
     }
 
-    // Navigasi ke halaman sukses membawa argumen hasil analisis
+    // 6. Navigate to success page
     Get.offNamed(
       Routes.SUCCESS_LOG_KESEHATAN,
       arguments: {"status": healthStatus, "message": healthMessage},

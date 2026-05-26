@@ -9,12 +9,12 @@ class JadwalLansiaController extends GetxController {
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
 
-  final selectedType = 'medication'.obs;
+  final selectedType = 'medication'.obs; // medication | routine_checkup | daily_activity
   final selectedDate = DateTime.now().obs;
   final selectedTime = TimeOfDay.now().obs;
-  final selectedRecurrence = 'NONE'.obs;
+  final selectedRecurrence = 'NONE'.obs; // NONE | DAILY | WEEKLY | MONTHLY
   final alarmEnabled = true.obs;
-  final reminderMinutes = 15.obs;
+  final reminderMinutes = 15.obs; // default 15 min before
   final isLoading = false.obs;
   final selectedTypeLabel = 'Medis'.obs;
 
@@ -118,8 +118,9 @@ class JadwalLansiaController extends GetxController {
           ? descriptionController.text.trim()
           : null,
       durationMinutes: 30,
-      recurrenceType:
-          selectedRecurrence.value != 'NONE' ? selectedRecurrence.value : null,
+      recurrenceType: selectedRecurrence.value != 'NONE'
+          ? selectedRecurrence.value
+          : null,
       reminderMinutes: alarmEnabled.value ? [reminderMinutes.value] : [],
     );
 

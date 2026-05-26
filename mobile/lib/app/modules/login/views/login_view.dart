@@ -152,35 +152,32 @@ class LoginView extends GetView<LoginController> {
               const SizedBox(height: 32),
 
               // Continue Button
-              ElevatedButton(
-                onPressed: controller.login,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFBBF246), // Light green
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+              Obx(
+                () => ElevatedButton(
+                  onPressed: controller.isLoading.value ? null : controller.login,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFBBF246), // Light green
+                    foregroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    elevation: 0,
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  elevation: 0,
-                ),
-                child: const Stack(
-                  children: [
-                    Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Masuk',
-                        style: TextStyle(
-                          fontFamily: 'Plus Jakarta Sans',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                  child: controller.isLoading.value
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                        )
+                      : const Text(
+                          'Masuk',
+                          style: TextStyle(
+                            fontFamily: 'Plus Jakarta Sans',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Padding(padding: EdgeInsets.only(right: 8.0)),
-                    ),
-                  ],
                 ),
               ),
               const SizedBox(height: 40),

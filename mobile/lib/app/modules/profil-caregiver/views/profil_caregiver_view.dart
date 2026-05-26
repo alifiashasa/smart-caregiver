@@ -144,28 +144,36 @@ class ProfilCaregiverView extends GetView<ProfilCaregiverController> {
                 ],
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Sri Setyani',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Color(0xFF1C1B1C),
-                  fontSize: 24,
-                  fontFamily: 'Plus Jakarta Sans',
-                  fontWeight: FontWeight.w600,
-                  height: 1.33,
-                  letterSpacing: -0.24,
+              Obx(
+                () => Text(
+                  controller.fullName.value.isNotEmpty
+                      ? controller.fullName.value
+                      : 'Sri Setyani',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Color(0xFF1C1B1C),
+                    fontSize: 24,
+                    fontFamily: 'Plus Jakarta Sans',
+                    fontWeight: FontWeight.w600,
+                    height: 1.33,
+                    letterSpacing: -0.24,
+                  ),
                 ),
               ),
               const SizedBox(height: 4),
-              const Text(
-                'Srisetyani77@gmail.com',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Color(0xFF47464B),
-                  fontSize: 16,
-                  fontFamily: 'Plus Jakarta Sans',
-                  fontWeight: FontWeight.w400,
-                  height: 1.50,
+              Obx(
+                () => Text(
+                  controller.email.value.isNotEmpty
+                      ? controller.email.value
+                      : 'Srisetyani77@gmail.com',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Color(0xFF47464B),
+                    fontSize: 16,
+                    fontFamily: 'Plus Jakarta Sans',
+                    fontWeight: FontWeight.w400,
+                    height: 1.50,
+                  ),
                 ),
               ),
             ],

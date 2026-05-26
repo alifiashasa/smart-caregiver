@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../data/elderly_api.dart';
 
 class TambahLansiaController extends GetxController {
   final namaLengkap = ''.obs;
@@ -17,6 +18,9 @@ class TambahLansiaController extends GetxController {
 
   final minatHobi = ''.obs;
 
+  final isLoading = false.obs;
+
+  final ElderlyApi _api = ElderlyApi();
   final ImagePicker _picker = ImagePicker();
 
   Future<void> pickImage() async {
@@ -30,12 +34,56 @@ class TambahLansiaController extends GetxController {
     }
   }
 
-  void simpan() {
+  Future<void> simpan() async {
     if (namaLengkap.value.isEmpty || usia.value.isEmpty) {
       Get.snackbar('Error', 'Nama dan Usia harus diisi');
       return;
     }
-    // Save logic implementation here
+
+    final usiaInt = int.tryParse(usia.value);
+    if (usiaInt == null) {
+      Get.snackbar('Error', 'Usia harus berupa angka');
+      return;
+    }
+
+    isLoading.value = true;
+
+    final gender = jenisKelamin.value == 'Laki-laki' ? 'male' : 'female';
+
+    String? mobilityLevel;
+    switch (mobilitas.value) {
+      case 'Bisa Berjalan':
+        mobilityLevel = 'independent';
+        break;
+      case 'Alat Bantu':
+        mobilityLevel = 'assisted';
+        break;
+      case 'Kursi Roda':
+        mobilityLevel = 'wheelchair';
+        break;
+      case 'Berbaring':
+        mobilityLevel = 'bedridden';
+        break;
+    }
+
+    final result = await _api.create(
+      fullName: namaLengkap.value,
+      age: usiaInt,
+      gender: gender,
+      photoUrl: fotoProfilPath.value.isNotEmpty ? fotoProfilPath.value : null,
+      medicalHistory: riwayatMedis.value.isNotEmpty ? riwayatMedis.value : null,
+      physicalCondition: kondisiFisik.value.isNotEmpty ? kondisiFisik.value : null,
+      mobilityLevel: mobilityLevel,
+      hobbiesInterests: minatHobi.value.isNotEmpty ? minatHobi.value : null,
+    );
+
+    isLoading.value = false;
+
+    if (result['error'] == true) {
+      Get.snackbar('Error', result['message'] ?? 'Gagal menyimpan data');
+      return;
+    }
+
     Get.back();
     Get.snackbar('Sukses', 'Data Lansia berhasil ditambahkan');
   }
