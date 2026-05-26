@@ -34,6 +34,11 @@ from src.main import app
 
 @pytest_asyncio.fixture(autouse=True)
 async def setup_db():
+    # Disable FCM push during tests
+    import os as _os
+    _os.environ["FCM_DISABLED"] = "true"
+    from src.app.core.config import settings as _settings
+    _settings.FCM_DISABLED = True
     async def override_get_db():
         async with AsyncSessionLocal() as db:
             yield db

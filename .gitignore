@@ -35,6 +35,9 @@ Thumbs.db
 dist/
 build/
 
+# Firebase service account keys (secrets)
+config/*firebase-adminsdk*.json
+
 # Mobile specific (jika ada)
 mobile/node_modules/
 mobile/dist/
