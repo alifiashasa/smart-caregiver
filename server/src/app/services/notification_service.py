@@ -25,6 +25,8 @@ from src.database.models.elderly import ElderlyProfile
 from src.database.models.notification import Notification, NotificationPreference
 from src.database.models.user import User
 
+from src.app.core.fcm_push import send_push_notification, send_to_user
+
 
 async def create_notification(
     db: AsyncSession,
@@ -66,6 +68,22 @@ async def create_notification(
     )
     db.add(notification)
     await db.flush()
+
+    # Send push notification if FCM is configured
+    priority_str = "high" if priority == NotificationPriority.HIGH else "normal"
+    await send_to_user(
+        db=db,
+        user_id=recipient_id,
+        title=title,
+        body=body,
+        data={
+            "notification_id": str(notification.id),
+            "type": str(notification_type.value),
+            "elderly_id": str(elderly_id) if elderly_id else "",
+        },
+        priority=priority_str,
+    )
+
     return notification
 
 
@@ -140,6 +158,24 @@ async def create_health_record_notification(
         notifications.append(notification)
 
     await db.flush()
+
+    # Send push notifications for each created notification
+    priority_str = "high" if is_critical else "normal"
+    for notification in notifications:
+        await send_to_user(
+            db=db,
+            user_id=notification.recipient_id,
+            title=notification.title,
+            body=notification.body,
+            data={
+                "notification_id": str(notification.id),
+                "type": str(notification_type.value),
+                "elderly_id": str(elderly_id),
+                "health_status": health_status,
+            },
+            priority=priority_str,
+        )
+
     return [n.id for n in notifications]
 
 

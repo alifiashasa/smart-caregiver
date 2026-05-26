@@ -44,5 +44,12 @@ class Settings(BaseSettings):
     # ── CORS ──────────────────────────────────────────────────────────────────
     ALLOWED_ORIGINS: list[str] = ["http://localhost:3000"]
 
+    # ── FCM Push Notifications ────────────────────────────────────────────────
+    # Path to Firebase Admin SDK service account JSON key
+    # Download from: Firebase Console → Project Settings → Service Accounts
+    FCM_CREDENTIALS_PATH: str = ""
+    # If set to true, firebase-admin will be skipped (dev/test mode)
+    FCM_DISABLED: bool = False
+
 
 settings = Settings()  # type: ignore[call-arg]
