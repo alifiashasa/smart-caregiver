@@ -54,12 +54,6 @@ class UserLoginRequest(BaseModel):
     password: str
 
 
-class GoogleLoginRequest(BaseModel):
-    """Google OAuth login request."""
-
-    id_token: str
-
-
 class UserResponse(BaseModel):
     """User public profile response."""
 

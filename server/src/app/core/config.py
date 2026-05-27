@@ -51,10 +51,5 @@ class Settings(BaseSettings):
     # If set to true, firebase-admin will be skipped (dev/test mode)
     FCM_DISABLED: bool = False
 
-    # ── Google OAuth ───────────────────────────────────────────────────────────
-    # Get from: Google Cloud Console → APIs & Services → Credentials → OAuth 2.0
-    GOOGLE_CLIENT_ID: str = ""
-    GOOGLE_CLIENT_SECRET: str = ""
-
 
 settings = Settings()  # type: ignore[call-arg]

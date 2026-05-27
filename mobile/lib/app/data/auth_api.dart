@@ -98,35 +98,6 @@ class AuthApi {
     };
   }
 
-  /// POST /auth/google/login
-  /// On success saves the access & refresh tokens and returns the response data.
-  Future<Map<String, dynamic>> loginWithGoogle({
-    required String idToken,
-  }) async {
-    final response = await _client.post(
-      '/auth/google/login',
-      body: {'id_token': idToken},
-    );
-
-    if (response['error'] == true) {
-      return response;
-    }
-
-    final data = response['data'] as Map<String, dynamic>;
-    final accessToken = data['access_token'] as String?;
-    final refreshToken = data['refresh_token'] as String?;
-
-    if (accessToken != null && refreshToken != null) {
-      ApiClient.saveTokens(accessToken, refreshToken);
-    }
-
-    return {
-      'error': false,
-      'statusCode': response['statusCode'],
-      'data': data,
-    };
-  }
-
   /// GET /auth/me — requires authentication.
   Future<Map<String, dynamic>> getMe() async {
     final response = await _client.get('/auth/me', authenticated: true);
