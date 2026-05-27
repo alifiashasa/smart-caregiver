@@ -65,20 +65,14 @@ async def test_login_invalid_credentials(client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_weekly_summary_internal_job():
-    """Internal weekly summary job should work (internal endpoint).
-    
-    Uses inline client to avoid event-loop interaction with autouse fixtures.
-    """
-    transport = ASGITransport(app=app)
-    async with AsyncClient(
-        transport=transport,
-        base_url="http://test",
+async def test_weekly_summary_internal_job(http_client: AsyncClient):
+    """Internal weekly summary job should work (internal endpoint)."""
+    response = await http_client.post(
+        "/internal/jobs/send-weekly-summary",
         headers={"X-API-Key": "test-internal-api-key"},
-    ) as client:
-        response = await client.post("/internal/jobs/send-weekly-summary")
-        # May return 200 (success) or 500 (if no data)
-        assert response.status_code in [200, 500]
+    )
+    # May return 200 (success) or 500 (if no data)
+    assert response.status_code in [200, 500]
 
 
 @pytest.mark.asyncio

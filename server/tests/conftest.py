@@ -50,8 +50,17 @@ async def setup_db():
     yield
     app.router.lifespan_context = original_lifespan
     app.dependency_overrides.clear()
-    # Dispose engine connections to prevent asyncpg event loop conflicts
-    await engine.dispose()
+
+
+@pytest_asyncio.fixture(scope="module", autouse=True)
+async def dispose_engine_after_module():
+    """Dispose engine connections after all tests in the module finish.
+    Prevents asyncpg connection from a previous module's event loop
+    leaking into the next module's loop.
+    """
+    yield
+    from src.database.session import engine as _engine
+    await _engine.dispose()
 
 
 # =============================================================================
