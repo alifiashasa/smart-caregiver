@@ -139,7 +139,7 @@ class RegisterController extends GetxController {
 
     Get.snackbar(
       'Akun Aktif',
-      'Silakan login dengan akun Anda',
+      'Silakan daftarkan wajah untuk verifikasi login',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: const Color(0xFFBBF246),
       colorText: const Color(0xFF192126),
@@ -147,6 +147,6 @@ class RegisterController extends GetxController {
       borderRadius: 12,
     );
 
-    Get.offNamed(Routes.LOGIN);
+    Get.offNamed(Routes.FACE_REGISTER);
   }
 }

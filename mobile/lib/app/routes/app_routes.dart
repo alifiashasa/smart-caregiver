@@ -22,6 +22,8 @@ abstract class Routes {
   static const REKOMENDASI_AI = _Paths.REKOMENDASI_AI;
   static const SUCCESS_LOG_KESEHATAN = _Paths.SUCCESS_LOG_KESEHATAN;
   static const REGISTER = _Paths.REGISTER;
+  static const FACE_REGISTER = _Paths.FACE_REGISTER;
+  static const FACE_VERIFY = _Paths.FACE_VERIFY;
 }
 
 abstract class _Paths {
@@ -44,4 +46,6 @@ abstract class _Paths {
   static const REKOMENDASI_AI = '/rekomendasi-ai';
   static const SUCCESS_LOG_KESEHATAN = '/success-log-kesehatan';
   static const REGISTER = '/register';
+  static const FACE_REGISTER = '/face-register';
+  static const FACE_VERIFY = '/face-verify';
 }
