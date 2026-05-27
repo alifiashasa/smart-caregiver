@@ -51,6 +51,16 @@ source .venv/bin/activate  # Untuk Mac/Linux
 pip install -r requirements.txt
 ```
 
+Catatan untuk dependency face recognition di macOS/Python 3.12: OpenCV dipin ke versi wheel binary yang sudah teruji. Jika instalasi OpenCV mencoba build dari source atau terasa macet, pakai perintah eksplisit ini:
+
+```bash
+python -m pip install --only-binary=:all: \
+  opencv-python-headless==4.10.0.84 \
+  opencv-python==4.10.0.84 \
+  onnxruntime==1.19.2 \
+  insightface==1.0.1
+```
+
 ### 3. Database Migration
 
 Jalankan migrasi untuk membuat tabel di database:

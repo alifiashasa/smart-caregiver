@@ -27,9 +27,12 @@ structlog>=24.0.0
 firebase-admin>=6.6.0
 
 # Face Recognition (InsightFace buffalo_l)
-insightface>=0.7.3
-opencv-python-headless>=4.8.0
-onnxruntime>=1.14.0
+# Pin OpenCV to macOS/Python 3.12 binary wheels. Unpinned 4.12 may fall back to
+# source builds and stall during install on this project setup.
+insightface==1.0.1
+opencv-python-headless==4.10.0.84
+opencv-python==4.10.0.84
+onnxruntime==1.19.2
 
 # Testing
 pytest>=8.0.0
