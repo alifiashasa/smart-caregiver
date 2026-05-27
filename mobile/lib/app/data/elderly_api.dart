@@ -26,17 +26,15 @@ class ElderlyApi {
       body: {
         'full_name': fullName,
         'age': age,
-        if (gender != null) 'gender': gender,
-        if (photoUrl != null) 'photo_url': photoUrl,
-        if (medicalHistory != null) 'medical_history': medicalHistory,
-        if (physicalCondition != null) 'physical_condition': physicalCondition,
-        if (mobilityLevel != null) 'mobility_level': mobilityLevel,
-        if (hobbiesInterests != null) 'hobbies_interests': hobbiesInterests,
-        if (allergies != null) 'allergies': allergies,
-        if (emergencyContactName != null)
-          'emergency_contact_name': emergencyContactName,
-        if (emergencyContactPhone != null)
-          'emergency_contact_phone': emergencyContactPhone,
+        'gender': ?gender,
+        'photo_url': ?photoUrl,
+        'medical_history': ?medicalHistory,
+        'physical_condition': ?physicalCondition,
+        'mobility_level': ?mobilityLevel,
+        'hobbies_interests': ?hobbiesInterests,
+        'allergies': ?allergies,
+        'emergency_contact_name': ?emergencyContactName,
+        'emergency_contact_phone': ?emergencyContactPhone,
       },
       authenticated: true,
     );

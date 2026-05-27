@@ -101,9 +101,9 @@ class NotificationApi {
       '/notification-preferences',
       body: {
         'notification_type': notificationType,
-        if (emailEnabled != null) 'email_enabled': emailEnabled,
-        if (pushEnabled != null) 'push_enabled': pushEnabled,
-        if (inAppEnabled != null) 'in_app_enabled': inAppEnabled,
+        'email_enabled': ?emailEnabled,
+        'push_enabled': ?pushEnabled,
+        'in_app_enabled': ?inAppEnabled,
       },
       authenticated: true,
     );

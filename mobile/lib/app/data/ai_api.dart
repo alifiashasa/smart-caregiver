@@ -86,7 +86,7 @@ class AiApi {
       '/elderly/$elderlyId/recommendations/$recommendationId/approve',
       body: {
         'scheduled_at': scheduledAt,
-        if (durationMinutes != null) 'duration_minutes': durationMinutes,
+        'duration_minutes': ?durationMinutes,
         if (reminderMinutes != null && reminderMinutes.isNotEmpty)
           'reminder_minutes': reminderMinutes,
       },

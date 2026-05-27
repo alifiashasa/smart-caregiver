@@ -22,11 +22,11 @@ class ScheduleApi {
         'title': title,
         'schedule_type': scheduleType,
         'scheduled_at': scheduledAt.toIso8601String(),
-        if (durationMinutes != null) 'duration_minutes': durationMinutes,
+        'duration_minutes': ?durationMinutes,
         if (description != null && description.isNotEmpty)
           'description': description,
-        if (recurrenceType != null) 'recurrence_type': recurrenceType,
-        if (recurrenceRule != null) 'recurrence_rule': recurrenceRule,
+        'recurrence_type': ?recurrenceType,
+        'recurrence_rule': ?recurrenceRule,
         if (recurrenceEndAt != null)
           'recurrence_end_at': recurrenceEndAt.toIso8601String(),
         if (reminderMinutes != null && reminderMinutes.isNotEmpty)
