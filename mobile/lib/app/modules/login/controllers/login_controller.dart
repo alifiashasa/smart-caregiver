@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mobile/app/data/auth_api.dart';
 import '../../../routes/app_pages.dart';
 
@@ -8,6 +9,7 @@ class LoginController extends GetxController {
   final password = ''.obs;
   final isPasswordHidden = true.obs;
   final isLoading = false.obs;
+  final isGoogleLoading = false.obs;
 
   final AuthApi _authApi = AuthApi();
 
@@ -97,6 +99,63 @@ class LoginController extends GetxController {
       Get.snackbar(
         'Error',
         'Terjadi kesalahan jaringan. Coba lagi.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.shade100,
+        colorText: const Color(0xFF192126),
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+    }
+  }
+
+  Future<void> loginWithGoogle() async {
+    isGoogleLoading.value = true;
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) {
+        isGoogleLoading.value = false;
+        return; // User cancelled
+      }
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      if (googleAuth.idToken == null) {
+        isGoogleLoading.value = false;
+        Get.snackbar(
+          'Error',
+          'Gagal mendapatkan token Google',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red.shade100,
+          colorText: const Color(0xFF192126),
+          margin: const EdgeInsets.all(16),
+          borderRadius: 12,
+        );
+        return;
+      }
+
+      final result =
+          await _authApi.loginWithGoogle(idToken: googleAuth.idToken!);
+
+      if (result['error'] == true) {
+        isGoogleLoading.value = false;
+        Get.snackbar(
+          'Gagal Masuk',
+          result['message'] ?? 'Gagal login dengan Google',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red.shade100,
+          colorText: const Color(0xFF192126),
+          margin: const EdgeInsets.all(16),
+          borderRadius: 12,
+        );
+        return;
+      }
+
+      Get.offAllNamed(Routes.HOME);
+    } catch (e) {
+      isGoogleLoading.value = false;
+      Get.snackbar(
+        'Error',
+        'Terjadi kesalahan. Coba lagi.',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red.shade100,
         colorText: const Color(0xFF192126),
