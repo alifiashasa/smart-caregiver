@@ -5,6 +5,70 @@ import '../controllers/success_log_kesehatan_controller.dart';
 class SuccessLogKesehatanView extends GetView<SuccessLogKesehatanController> {
   const SuccessLogKesehatanView({super.key});
 
+  Color _statusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'critical':
+      case 'kritis':
+        return const Color(0xFFD32F2F);
+      case 'warning':
+      case 'perhatian':
+        return const Color(0xFFE6A817);
+      default:
+        return const Color(0xFF6A9963);
+    }
+  }
+
+  Color _scoreColor(double score) {
+    if (score >= 50) return const Color(0xFFD32F2F);
+    if (score >= 35) return const Color(0xFFE6A817);
+    return const Color(0xFF6A9963);
+  }
+
+  Widget _analysisCard(String label, double score) {
+    final color = _scoreColor(score);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE5E5E5)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(
+                color: Color(0xFF1C1B1C),
+                fontSize: 14,
+                fontFamily: 'Plus Jakarta Sans',
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(9999),
+            ),
+            child: Text(
+              score.toStringAsFixed(1),
+              style: TextStyle(
+                color: color,
+                fontSize: 13,
+                fontFamily: 'Plus Jakarta Sans',
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,74 +127,92 @@ class SuccessLogKesehatanView extends GetView<SuccessLogKesehatanController> {
               ),
               const SizedBox(height: 40),
 
-              // Health Status Card
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF9F9F9),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFE5E5E5)),
-                ),
-                child: Column(
-                  children: [
-                    const Text(
-                      'STATUS KESEHATAN SAAT INI',
-                      style: TextStyle(
-                        color: Color(0xFF77767B),
-                        fontSize: 11,
-                        fontFamily: 'Plus Jakarta Sans',
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.5,
+              // Analysis Card
+              Obx(() {
+                final statusColor = _statusColor(controller.healthStatus.value);
+
+                return Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF9F9F9),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFE5E5E5)),
+                  ),
+                  child: Column(
+                    children: [
+                      const Text(
+                        'HASIL ANALISIS',
+                        style: TextStyle(
+                          color: Color(0xFF77767B),
+                          fontSize: 11,
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFBBF246),
-                        borderRadius: BorderRadius.circular(9999),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.sentiment_satisfied_alt,
-                            color: Colors.black,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            Get.arguments?['status'] ?? 'Normal',
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 14,
-                              fontFamily: 'Plus Jakarta Sans',
-                              fontWeight: FontWeight.w700,
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: statusColor,
+                          borderRadius: BorderRadius.circular(9999),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.sentiment_satisfied_alt,
+                              color: Colors.white,
+                              size: 20,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 8),
+                            Text(
+                              controller.healthStatus.value,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontFamily: 'Plus Jakarta Sans',
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      Get.arguments?['message'] ??
-                          'Tensi dan gula darah dalam batas normal. Tetap pertahankan pola makan sehat dan aktivitas fisik ringan.',
-                      style: const TextStyle(
-                        color: Color(0xFF1C1B1C),
-                        fontSize: 14,
-                        fontFamily: 'Plus Jakarta Sans',
-                        fontWeight: FontWeight.w500,
-                        height: 1.4,
+                      const SizedBox(height: 16),
+                      Text(
+                        controller.healthMessage.value,
+                        style: const TextStyle(
+                          color: Color(0xFF1C1B1C),
+                          fontSize: 14,
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontWeight: FontWeight.w500,
+                          height: 1.4,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
+                      const SizedBox(height: 20),
+                      _analysisCard(
+                        'Kardiovaskular',
+                        controller.fuzzyCardioScore.value,
+                      ),
+                      const SizedBox(height: 10),
+                      _analysisCard(
+                        'Metabolik',
+                        controller.fuzzyMetabolicScore.value,
+                      ),
+                      const SizedBox(height: 10),
+                      _analysisCard(
+                        'Infeksi',
+                        controller.fuzzyInfectionScore.value,
+                      ),
+                    ],
+                  ),
+                );
+              }),
 
               const Spacer(),
 

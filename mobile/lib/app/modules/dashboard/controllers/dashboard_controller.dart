@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../data/dashboard_api.dart';
+import '../../../data/elderly_api.dart';
 import '../../../data/health_api.dart';
 import '../../../routes/app_pages.dart';
 
@@ -20,6 +21,7 @@ class DashboardController extends GetxController {
   final trendSummary = {}.obs;
 
   final DashboardApi _dashboardApi = DashboardApi();
+  final ElderlyApi _elderlyApi = ElderlyApi();
   final HealthApi _healthApi = HealthApi();
 
   final healthMetrics = <Map<String, dynamic>>[
@@ -29,7 +31,7 @@ class DashboardController extends GetxController {
       'icon': Icons.water_drop_outlined,
       'iconColor': const Color(0xFFE65100),
       'title': 'Kolesterol',
-      'value': '180',
+      'value': '-',
       'unit': 'mg/dL',
     },
     {
@@ -38,7 +40,7 @@ class DashboardController extends GetxController {
       'icon': Icons.bloodtype_outlined,
       'iconColor': const Color(0xFF2E7D32),
       'title': 'Tensi',
-      'value': '120/80',
+      'value': '-',
       'unit': 'mmHg',
     },
     {
@@ -47,7 +49,7 @@ class DashboardController extends GetxController {
       'icon': Icons.science_outlined,
       'iconColor': const Color(0xFF424242),
       'title': 'Asam Urat',
-      'value': '5.5',
+      'value': '-',
       'unit': 'mg/dL',
     },
     {
@@ -56,7 +58,7 @@ class DashboardController extends GetxController {
       'icon': Icons.opacity,
       'iconColor': const Color(0xFFC62828),
       'title': 'Gula Darah',
-      'value': '110',
+      'value': '-',
       'unit': 'mg/dL',
     },
     {
@@ -65,7 +67,7 @@ class DashboardController extends GetxController {
       'icon': Icons.thermostat_outlined,
       'iconColor': const Color(0xFFEF6C00),
       'title': 'Suhu',
-      'value': '36.5',
+      'value': '-',
       'unit': '°C',
     },
     {
@@ -74,7 +76,7 @@ class DashboardController extends GetxController {
       'icon': Icons.air,
       'iconColor': const Color(0xFF1565C0),
       'title': 'Saturasi',
-      'value': '98',
+      'value': '-',
       'unit': '%',
     },
     {
@@ -83,7 +85,7 @@ class DashboardController extends GetxController {
       'icon': Icons.monitor_weight_outlined,
       'iconColor': const Color(0xFF4E342E),
       'title': 'Berat Badan',
-      'value': '70',
+      'value': '-',
       'unit': 'kg',
     },
     {
@@ -92,7 +94,7 @@ class DashboardController extends GetxController {
       'icon': Icons.favorite_border,
       'iconColor': const Color(0xFFC62828),
       'title': 'Detak Jantung',
-      'value': '72',
+      'value': '-',
       'unit': 'bpm',
     },
   ].obs;
@@ -119,6 +121,7 @@ class DashboardController extends GetxController {
       'age': patientAge.value,
       'image': patientImage.value,
       'gender': patientGender.value,
+      'elderly_id': elderlyId.value,
     };
 
     if (index == 0) {
@@ -132,15 +135,30 @@ class DashboardController extends GetxController {
     }
   }
 
-  Future<void> loadTrends() async {
+  Future<void> loadTrends() => _loadTrends();
+
+  Future<void> _loadPatientProfile(int id) async {
+    final result = await _elderlyApi.getById(id);
+
+    if (result['error'] == true || result['data'] == null) return;
+
+    final data = result['data'] as Map<String, dynamic>;
+    patientName.value = data['full_name'] ?? patientName.value;
+    patientAge.value = data['age'] != null
+        ? '${data['age']} Tahun'
+        : patientAge.value;
+    patientGender.value = data['gender'] ?? patientGender.value;
+    patientImage.value = data['photo_url'] ?? patientImage.value;
+  }
+
+  Future<void> _loadTrends() async {
     if (elderlyId.value == 0) return;
 
     isLoading.value = true;
 
     final range = selectedTrendFilter.value == '30 Hari' ? '30d' : '7d';
 
-    final result =
-        await _dashboardApi.getTrends(elderlyId.value, range: range);
+    final result = await _dashboardApi.getTrends(elderlyId.value, range: range);
 
     isLoading.value = false;
 
@@ -150,9 +168,14 @@ class DashboardController extends GetxController {
 
     final data = result['data'];
     if (data != null) {
-      if (data['data'] != null) {
-        trendDataPoints.value =
-            List<Map<String, dynamic>>.from(data['data']);
+      if (data['data_points'] != null) {
+        trendDataPoints.value = (data['data_points'] as List<dynamic>)
+            .map(
+              (point) => _normalizeTrendDataPoint(
+                Map<String, dynamic>.from(point as Map),
+              ),
+            )
+            .toList();
       }
       if (data['summary'] != null) {
         trendSummary.value = Map<String, dynamic>.from(data['summary']);
@@ -161,10 +184,12 @@ class DashboardController extends GetxController {
     }
   }
 
-  Future<void> loadLatestHealthRecord() async {
+  Future<void> loadLatestHealthRecord() => _loadLatestRecord();
+
+  Future<void> _loadLatestRecord() async {
     if (elderlyId.value == 0) return;
 
-    final result = await _healthApi.getRecords(elderlyId.value);
+    final result = await _healthApi.getRecords(elderlyId.value, limit: 1);
 
     if (result['error'] == true || result['data'] == null) return;
 
@@ -174,35 +199,53 @@ class DashboardController extends GetxController {
 
     final latest = records.first as Map<String, dynamic>;
 
-    void updateMetric(String id, String value) {
-      if (value == '--' || value.isEmpty) return;
-      updateHealthMetric(id, value);
+    if (latest['systolic_bp'] != null && latest['diastolic_bp'] != null) {
+      final sys = '${latest['systolic_bp']}';
+      final dia = '${latest['diastolic_bp']}';
+      updateHealthMetric('tensi', '$sys/$dia');
     }
-
-    if (latest['systolic_bp'] != null) {
-      final sys = _formatNum(latest['systolic_bp']);
-      final dia = _formatNum(latest['diastolic_bp']);
-      updateMetric('tensi', '$sys/$dia');
-    }
-    updateMetric('cholesterol', _formatNum(latest['cholesterol']));
-    updateMetric('uric_acid', _formatNum(latest['uric_acid']));
-    updateMetric('blood_sugar', _formatNum(latest['blood_sugar']));
-    updateMetric('body_temp', _formatNum(latest['body_temperature']));
-    updateMetric('spo2', _formatNum(latest['spo2_level']));
-    updateMetric('weight', _formatNum(latest['body_weight']));
-    updateMetric('heart_rate', _formatNum(latest['heart_rate']));
+    _updateMetricFromRecord(latest, 'cholesterol', 'cholesterol');
+    _updateMetricFromRecord(latest, 'uric_acid', 'uric_acid');
+    _updateMetricFromRecord(latest, 'blood_sugar', 'blood_sugar');
+    _updateMetricFromRecord(latest, 'body_temp', 'body_temperature');
+    _updateMetricFromRecord(latest, 'spo2', 'spo2_level');
+    _updateMetricFromRecord(latest, 'weight', 'body_weight');
+    _updateMetricFromRecord(latest, 'heart_rate', 'heart_rate');
   }
 
-  String _formatNum(dynamic value) {
-    if (value == null) return '--';
-    if (value is int) return value.toString();
-    if (value is double) {
-      if (value == value.roundToDouble()) {
-        return value.toInt().toString();
-      }
-      return value.toStringAsFixed(1);
+  void _updateMetricFromRecord(
+    Map<String, dynamic> record,
+    String metricId,
+    String field,
+  ) {
+    final value = record[field];
+    if (value != null) {
+      updateHealthMetric(metricId, '$value');
     }
-    return value.toString();
+  }
+
+  Map<String, dynamic> _normalizeTrendDataPoint(Map<String, dynamic> point) {
+    final normalized = <String, dynamic>{'date': point['date']};
+    final records = point['records'];
+    if (records is! List || records.isEmpty) return normalized;
+
+    for (final param in trendParamLabels.keys) {
+      final values = records
+          .map((record) => record is Map ? record[param] : null)
+          .map(
+            (value) => value is num
+                ? value.toDouble()
+                : double.tryParse(value?.toString() ?? ''),
+          )
+          .whereType<double>()
+          .toList();
+      if (values.isNotEmpty) {
+        final total = values.reduce((a, b) => a + b);
+        normalized[param] = total / values.length;
+      }
+    }
+
+    return normalized;
   }
 
   final count = 0.obs;
@@ -259,16 +302,23 @@ class DashboardController extends GetxController {
         patientGender.value = Get.arguments['gender'];
       }
       if (Get.arguments['elderly_id'] != null) {
-        elderlyId.value = Get.arguments['elderly_id'];
+        elderlyId.value = Get.arguments['elderly_id'] is int
+            ? Get.arguments['elderly_id']
+            : int.tryParse(Get.arguments['elderly_id'].toString()) ?? 0;
       }
     }
 
     if (elderlyId.value != 0) {
-      loadTrends();
-      loadLatestHealthRecord();
+      _loadDashboardData();
     }
 
     ever(selectedTrendFilter, (_) => loadTrends());
+  }
+
+  Future<void> _loadDashboardData() async {
+    await _loadPatientProfile(elderlyId.value);
+    await _loadLatestRecord();
+    await _loadTrends();
   }
 
   @override

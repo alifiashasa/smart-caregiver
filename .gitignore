@@ -41,3 +41,4 @@ config/*firebase-adminsdk*.json
 # Mobile specific (jika ada)
 mobile/node_modules/
 mobile/dist/
+server/config/

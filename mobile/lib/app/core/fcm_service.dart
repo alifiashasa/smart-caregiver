@@ -33,23 +33,24 @@ class FcmService {
     }
 
     // Init local notifications for foreground display
-    const androidSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
       requestSoundPermission: false,
     );
     await _localNotifications.initialize(
-      const InitializationSettings(
-        android: androidSettings,
-        iOS: iosSettings,
-      ),
+      const InitializationSettings(android: androidSettings, iOS: iosSettings),
       onDidReceiveNotificationResponse: _onLocalNotificationTap,
     );
 
     // Get FCM token
     _token = await _messaging.getToken();
+    if (_token != null) {
+      _registerToken(_token!);
+    }
 
     // Listen for token refresh
     _messaging.onTokenRefresh.listen((newToken) {
@@ -78,16 +79,21 @@ class FcmService {
     if (accessToken == null) return; // Not logged in
 
     final client = ApiClient();
-    await client.post(
-      '/notifications/register-device',
-      body: {'fcm_token': token, 'platform': 'android'},
-      authenticated: true,
-    );
+    try {
+      await client.post(
+        '/notifications/register-device',
+        body: {'fcm_token': token, 'platform': 'android'},
+        authenticated: true,
+      );
+    } catch (_) {
+      // Push token registration is best-effort.
+    }
   }
 
   /// Show local notification for foreground messages
   Future<void> _onForegroundMessage(RemoteMessage message) async {
-    final title = message.notification?.title ?? message.data['title'] ?? 'Notifikasi';
+    final title =
+        message.notification?.title ?? message.data['title'] ?? 'Notifikasi';
     final body = message.notification?.body ?? message.data['body'] ?? '';
 
     const androidDetails = AndroidNotificationDetails(
@@ -129,9 +135,7 @@ class FcmService {
       case 'critical_alert':
       case 'health_recorded':
         if (elderlyId != null) {
-          Get.toNamed(Routes.DASHBOARD, arguments: {
-            'elderly_id': elderlyId,
-          });
+          Get.toNamed(Routes.DASHBOARD, arguments: {'elderly_id': elderlyId});
         }
         break;
       case 'alarm_reminder':

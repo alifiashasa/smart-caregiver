@@ -97,6 +97,9 @@ class LogKesehatanController extends GetxController {
     String healthStatus = "Normal";
     String healthMessage =
         "Semua indikator vital dalam batas normal. Tetap pertahankan pola makan sehat dan rutinitas aktivitas harian.";
+    double fuzzyCardioScore = 0.0;
+    double fuzzyMetabolicScore = 0.0;
+    double fuzzyInfectionScore = 0.0;
 
     if (result['error'] == true) {
       Get.snackbar(
@@ -131,6 +134,10 @@ class LogKesehatanController extends GetxController {
             healthStatus = status.toString().capitalizeFirst ?? healthStatus;
           }
         }
+
+        fuzzyCardioScore = _readScore(data['cardio_score']);
+        fuzzyMetabolicScore = _readScore(data['metabolic_score']);
+        fuzzyInfectionScore = _readScore(data['infection_score']);
       }
     }
 
@@ -186,7 +193,18 @@ class LogKesehatanController extends GetxController {
     // 6. Navigate to success page
     Get.offNamed(
       Routes.SUCCESS_LOG_KESEHATAN,
-      arguments: {"status": healthStatus, "message": healthMessage},
+      arguments: {
+        "status": healthStatus,
+        "message": healthMessage,
+        "cardio_score": fuzzyCardioScore,
+        "metabolic_score": fuzzyMetabolicScore,
+        "infection_score": fuzzyInfectionScore,
+      },
     );
+  }
+
+  double _readScore(dynamic value) {
+    if (value is num) return value.toDouble();
+    return double.tryParse(value?.toString() ?? '') ?? 0.0;
   }
 }
