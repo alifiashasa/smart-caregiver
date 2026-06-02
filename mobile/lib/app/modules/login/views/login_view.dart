@@ -58,7 +58,11 @@ class LoginView extends GetView<LoginController> {
               const SizedBox(height: 8),
               TextFormField(
                 onChanged: (val) => controller.email.value = val,
+                autocorrect: false,
+                enableSuggestions: false,
+                textCapitalization: TextCapitalization.none,
                 keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
                 style: const TextStyle(
                   fontFamily: 'Plus Jakarta Sans',
                   fontSize: 16,
@@ -103,7 +107,12 @@ class LoginView extends GetView<LoginController> {
               Obx(
                 () => TextFormField(
                   onChanged: (val) => controller.password.value = val,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  textCapitalization: TextCapitalization.none,
                   obscureText: controller.isPasswordHidden.value,
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) => controller.login(),
                   style: const TextStyle(
                     fontFamily: 'Plus Jakarta Sans',
                     fontSize: 16,
@@ -154,7 +163,9 @@ class LoginView extends GetView<LoginController> {
               // Continue Button
               Obx(
                 () => ElevatedButton(
-                  onPressed: controller.isLoading.value ? null : controller.login,
+                  onPressed: controller.isLoading.value
+                      ? null
+                      : controller.login,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFBBF246), // Light green
                     foregroundColor: Colors.black,
@@ -168,7 +179,10 @@ class LoginView extends GetView<LoginController> {
                       ? const SizedBox(
                           height: 20,
                           width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.black,
+                          ),
                         )
                       : const Text(
                           'Masuk',

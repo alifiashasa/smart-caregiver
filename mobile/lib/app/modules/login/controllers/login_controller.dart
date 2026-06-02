@@ -75,8 +75,8 @@ class LoginController extends GetxController {
     isLoading.value = true;
     try {
       final result = await _authApi.login(
-        email: email.value.trim(),
-        password: password.value,
+        email: email.value.trim().toLowerCase(),
+        password: password.value.trim(),
       );
 
       if (result['error'] == true) {
@@ -112,8 +112,7 @@ class LoginController extends GetxController {
   Future<void> _checkFaceStatusAndNavigate() async {
     try {
       final statusResult = await _faceApi.faceStatus();
-      final faceRegistered =
-          statusResult['data']?['face_registered'] == true;
+      final faceRegistered = statusResult['data']?['face_registered'] == true;
       if (faceRegistered) {
         isLoading.value = false;
         Get.offNamed(Routes.FACE_VERIFY);

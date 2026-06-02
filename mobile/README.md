@@ -47,6 +47,15 @@ Untuk mode development dengan hot reload:
 flutter run -d <device_id>
 ```
 
+> **Override API Base URL** — gunakan `--dart-define`:
+> ```bash
+> flutter run --dart-define=API_BASE_URL=http://192.168.1.100:8000
+> flutter run -d <device_id> --dart-define=API_BASE_URL=https://api.staging.smartcaregiver.com
+> ```
+> Nilai ini digunakan saat kompilasi. Jika tidak diset, fallback ke:
+> - **Android emulator**: `http://10.0.2.2:8000`
+> - **Lainnya** (iOS sim, web, real device): `http://localhost:8000`
+
 ### Build APK
 ```bash
 flutter build apk --debug
@@ -80,7 +89,17 @@ lib/
 
 ## Konfigurasi
 
-Sesuaikan API base URL di `lib/app/core/config.dart` sesuai environment:
+API base URL dibaca dari compile-time constant `API_BASE_URL` via `--dart-define`.
 
-- **Development**: `http://localhost:8000`
-- **Production**: URL server production
+```bash
+# Development (default)
+flutter run
+
+# Staging
+flutter run --dart-define=API_BASE_URL=https://api.staging.smartcaregiver.com
+
+# Production
+flutter build apk --dart-define=API_BASE_URL=https://api.smartcaregiver.com
+```
+
+Lihat `lib/app/core/config.dart` untuk detail fallback per platform.

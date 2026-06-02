@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -57,14 +56,14 @@ class FaceVerifyView extends GetView<FaceVerifyController> {
 
               // Image preview
               Obx(() {
-                final image = controller.capturedImage.value;
-                if (image != null) {
+                final bytes = controller.capturedImageBytes.value;
+                if (bytes != null) {
                   return Container(
                     height: 300,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
                       image: DecorationImage(
-                        image: FileImage(image),
+                        image: MemoryImage(bytes),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -157,7 +156,7 @@ class FaceVerifyView extends GetView<FaceVerifyController> {
               }),
 
               // Action buttons
-              if (controller.capturedImage.value == null) ...[
+              if (controller.capturedImageBytes.value == null) ...[
                 ElevatedButton.icon(
                   onPressed: () => _pickImage(ImageSource.camera),
                   style: ElevatedButton.styleFrom(
@@ -183,8 +182,10 @@ class FaceVerifyView extends GetView<FaceVerifyController> {
                 Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () => _pickImage(ImageSource.camera),
+                      child: Obx(() => OutlinedButton.icon(
+                        onPressed: controller.isLoading.value
+                            ? null
+                            : () => _pickImage(ImageSource.camera),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Colors.black,
                           side: const BorderSide(color: Color(0xFFE8E8E8)),
@@ -202,7 +203,7 @@ class FaceVerifyView extends GetView<FaceVerifyController> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                      ),
+                      )),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -274,7 +275,7 @@ class FaceVerifyView extends GetView<FaceVerifyController> {
       imageQuality: 90,
     );
     if (picked != null) {
-      controller.setImage(File(picked.path));
+      controller.setImage(picked);
     }
   }
 }

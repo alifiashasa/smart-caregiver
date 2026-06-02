@@ -1,4 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import '../data/api_client.dart';
@@ -19,6 +20,8 @@ class FcmService {
 
   /// Initialize FCM: permissions, token, handlers
   Future<void> init() async {
+    if (kIsWeb) return; // FCM not supported on web
+
     // Request notification permissions (Android 13+)
     final notifSettings = await _messaging.requestPermission(
       alert: true,

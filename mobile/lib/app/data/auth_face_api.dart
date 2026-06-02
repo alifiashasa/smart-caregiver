@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
+import 'dart:typed_data';
 import 'api_client.dart';
 
 class AuthFaceApi {
@@ -8,10 +8,9 @@ class AuthFaceApi {
   /// POST /auth/face/register
   /// Uploads a face image (base64) to register the caregiver's face.
   Future<Map<String, dynamic>> registerFace({
-    required File imageFile,
+    required Uint8List imageBytes,
   }) async {
-    final bytes = await imageFile.readAsBytes();
-    final base64Image = base64Encode(bytes);
+    final base64Image = base64Encode(imageBytes);
 
     final response = await _client.post(
       '/auth/face/register',
@@ -35,10 +34,9 @@ class AuthFaceApi {
   /// POST /auth/face/verify
   /// Uploads a face image (base64) to verify against registered embedding.
   Future<Map<String, dynamic>> verifyFace({
-    required File imageFile,
+    required Uint8List imageBytes,
   }) async {
-    final bytes = await imageFile.readAsBytes();
-    final base64Image = base64Encode(bytes);
+    final base64Image = base64Encode(imageBytes);
 
     final response = await _client.post(
       '/auth/face/verify',

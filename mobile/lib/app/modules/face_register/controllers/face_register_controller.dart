@@ -1,6 +1,7 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mobile/app/data/auth_face_api.dart';
 import 'package:mobile/app/routes/app_pages.dart';
 
@@ -8,28 +9,23 @@ class FaceRegisterController extends GetxController {
   final AuthFaceApi _faceApi = AuthFaceApi();
   final isLoading = false.obs;
   final isRegistered = false.obs;
-  final capturedImage = Rx<File?>(null);
+  final capturedImageBytes = Rx<Uint8List?>(null);
   final errorMessage = ''.obs;
 
-  void setImage(File file) {
-    capturedImage.value = file;
+  Future<void> setImage(XFile file) async {
+    capturedImageBytes.value = await file.readAsBytes();
     errorMessage.value = '';
   }
 
   void clearImage() {
-    capturedImage.value = null;
+    capturedImageBytes.value = null;
     errorMessage.value = '';
   }
 
   Future<void> registerFace() async {
-    final image = capturedImage.value;
-    if (image == null) {
+    final imageBytes = capturedImageBytes.value;
+    if (imageBytes == null) {
       errorMessage.value = 'Ambil foto wajah terlebih dahulu';
-      return;
-    }
-
-    if (!image.existsSync()) {
-      errorMessage.value = 'File gambar tidak ditemukan';
       return;
     }
 
@@ -37,7 +33,7 @@ class FaceRegisterController extends GetxController {
     errorMessage.value = '';
 
     try {
-      final result = await _faceApi.registerFace(imageFile: image);
+      final result = await _faceApi.registerFace(imageBytes: imageBytes);
 
       if (result['error'] == true) {
         errorMessage.value = result['message'] ?? 'Gagal mendaftarkan wajah';

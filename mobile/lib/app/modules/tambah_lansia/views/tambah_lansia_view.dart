@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -79,14 +77,14 @@ class TambahLansiaView extends GetView<TambahLansiaController> {
                                 width: 1,
                               ),
                             ),
-                            child: controller.fotoProfilPath.value.isEmpty
+                            child: controller.fotoProfilBytes.value == null
                                 ? const Icon(
                                     Icons.camera_alt_outlined,
                                     color: Color(0xFF858387),
                                     size: 32,
                                   )
-                                : Image.file(
-                                    File(controller.fotoProfilPath.value),
+                                : Image.memory(
+                                    controller.fotoProfilBytes.value!,
                                     fit: BoxFit.cover,
                                   ),
                           ),

@@ -1,6 +1,7 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mobile/app/data/auth_face_api.dart';
 import 'package:mobile/app/routes/app_pages.dart';
 
@@ -8,29 +9,24 @@ class FaceVerifyController extends GetxController {
   final AuthFaceApi _faceApi = AuthFaceApi();
   final isLoading = false.obs;
   final isVerified = false.obs;
-  final capturedImage = Rx<File?>(null);
+  final capturedImageBytes = Rx<Uint8List?>(null);
   final errorMessage = ''.obs;
   final similarity = 0.0.obs;
 
-  void setImage(File file) {
-    capturedImage.value = file;
+  Future<void> setImage(XFile file) async {
+    capturedImageBytes.value = await file.readAsBytes();
     errorMessage.value = '';
   }
 
   void clearImage() {
-    capturedImage.value = null;
+    capturedImageBytes.value = null;
     errorMessage.value = '';
   }
 
   Future<void> verifyFace() async {
-    final image = capturedImage.value;
-    if (image == null) {
+    final imageBytes = capturedImageBytes.value;
+    if (imageBytes == null) {
       errorMessage.value = 'Ambil foto wajah terlebih dahulu';
-      return;
-    }
-
-    if (!image.existsSync()) {
-      errorMessage.value = 'File gambar tidak ditemukan';
       return;
     }
 
@@ -38,7 +34,7 @@ class FaceVerifyController extends GetxController {
     errorMessage.value = '';
 
     try {
-      final result = await _faceApi.verifyFace(imageFile: image);
+      final result = await _faceApi.verifyFace(imageBytes: imageBytes);
 
       if (result['error'] == true) {
         errorMessage.value = result['message'] ?? 'Verifikasi wajah gagal';

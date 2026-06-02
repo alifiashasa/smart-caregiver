@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../data/elderly_api.dart';
@@ -6,6 +7,7 @@ class TambahLansiaController extends GetxController {
   final namaLengkap = ''.obs;
   final usia = ''.obs;
   final fotoProfilPath = ''.obs;
+  final fotoProfilBytes = Rx<Uint8List?>(null);
 
   final jenisKelamin = 'Laki-laki'.obs; // Laki-laki or Perempuan
 
@@ -28,6 +30,7 @@ class TambahLansiaController extends GetxController {
       final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
       if (image != null) {
         fotoProfilPath.value = image.path;
+        fotoProfilBytes.value = await image.readAsBytes();
       }
     } catch (e) {
       Get.snackbar('Error', 'Gagal memilih gambar: $e');

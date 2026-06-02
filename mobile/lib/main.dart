@@ -10,13 +10,17 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-  // Initialize FCM (non-blocking — app works without push)
-  FcmService().init();
+  // Initialize Firebase (may not be configured for web)
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    // Initialize FCM (non-blocking — app works without push)
+    FcmService().init();
+  } catch (e) {
+    // Firebase/FCM not available on this platform (e.g. web)
+    debugPrint('Firebase init skipped: \$e');
+  }
 
   runApp(
     GetMaterialApp(

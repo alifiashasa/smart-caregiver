@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -57,14 +56,14 @@ class FaceRegisterView extends GetView<FaceRegisterController> {
 
               // Camera preview / captured image
               Obx(() {
-                final image = controller.capturedImage.value;
-                if (image != null) {
+                final bytes = controller.capturedImageBytes.value;
+                if (bytes != null) {
                   return Container(
                     height: 300,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
                       image: DecorationImage(
-                        image: FileImage(image),
+                        image: MemoryImage(bytes),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -126,7 +125,7 @@ class FaceRegisterView extends GetView<FaceRegisterController> {
               }),
 
               // Action buttons
-              if (controller.capturedImage.value == null) ...[
+              if (controller.capturedImageBytes.value == null) ...[
                 ElevatedButton.icon(
                   onPressed: () => _pickImage(ImageSource.camera),
                   style: ElevatedButton.styleFrom(
@@ -152,8 +151,10 @@ class FaceRegisterView extends GetView<FaceRegisterController> {
                 Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () => _pickImage(ImageSource.camera),
+                      child: Obx(() => OutlinedButton.icon(
+                        onPressed: controller.isLoading.value
+                            ? null
+                            : () => _pickImage(ImageSource.camera),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Colors.black,
                           side: const BorderSide(color: Color(0xFFE8E8E8)),
@@ -171,7 +172,7 @@ class FaceRegisterView extends GetView<FaceRegisterController> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                      ),
+                      )),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -243,7 +244,7 @@ class FaceRegisterView extends GetView<FaceRegisterController> {
       imageQuality: 90,
     );
     if (picked != null) {
-      controller.setImage(File(picked.path));
+      controller.setImage(picked);
     }
   }
 }
