@@ -56,7 +56,7 @@ class FaceRegisterView extends GetView<FaceRegisterController> {
 
               // Camera preview / captured image
               Obx(() {
-                final bytes = controller.capturedImageBytes.value;
+                final bytes = controller.capturedImageBytes;
                 if (bytes != null) {
                   return Container(
                     height: 300,
@@ -103,7 +103,7 @@ class FaceRegisterView extends GetView<FaceRegisterController> {
 
               // Error message
               Obx(() {
-                if (controller.errorMessage.value.isEmpty) {
+                if (controller.errorMessage.isEmpty) {
                   return const SizedBox.shrink();
                 }
                 return Container(
@@ -114,7 +114,7 @@ class FaceRegisterView extends GetView<FaceRegisterController> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    controller.errorMessage.value,
+                    controller.errorMessage,
                     style: TextStyle(
                       fontFamily: 'Plus Jakarta Sans',
                       fontSize: 13,
@@ -125,7 +125,7 @@ class FaceRegisterView extends GetView<FaceRegisterController> {
               }),
 
               // Action buttons
-              if (controller.capturedImageBytes.value == null) ...[
+              if (controller.capturedImageBytes == null) ...[
                 ElevatedButton.icon(
                   onPressed: () => _pickImage(ImageSource.camera),
                   style: ElevatedButton.styleFrom(
@@ -152,7 +152,7 @@ class FaceRegisterView extends GetView<FaceRegisterController> {
                   children: [
                     Expanded(
                       child: Obx(() => OutlinedButton.icon(
-                        onPressed: controller.isLoading.value
+                        onPressed: controller.isLoading
                             ? null
                             : () => _pickImage(ImageSource.camera),
                         style: OutlinedButton.styleFrom(
@@ -177,7 +177,7 @@ class FaceRegisterView extends GetView<FaceRegisterController> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Obx(() => ElevatedButton(
-                        onPressed: controller.isLoading.value
+                        onPressed: controller.isLoading
                             ? null
                             : controller.registerFace,
                         style: ElevatedButton.styleFrom(
@@ -189,7 +189,7 @@ class FaceRegisterView extends GetView<FaceRegisterController> {
                           padding: const EdgeInsets.symmetric(vertical: 20),
                           elevation: 0,
                         ),
-                        child: controller.isLoading.value
+                        child: controller.isLoading
                             ? const SizedBox(
                                 height: 20,
                                 width: 20,

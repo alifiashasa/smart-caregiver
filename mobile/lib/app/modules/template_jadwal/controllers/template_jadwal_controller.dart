@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../data/schedule_api.dart';
+import '../../../core/logger.dart';
+import '../../../data/repositories/schedule_repository.dart';
 
 class TemplateJadwal {
   final String id;
@@ -21,9 +22,18 @@ class TemplateJadwal {
 }
 
 class TemplateJadwalController extends GetxController {
-  final ScheduleApi _api = ScheduleApi();
-  final templates = <TemplateJadwal>[].obs;
-  final isLoading = false.obs;
+  final ScheduleRepository _scheduleRepository;
+
+  TemplateJadwalController({required ScheduleRepository scheduleRepository})
+      : _scheduleRepository = scheduleRepository;
+
+  // ── Reactive state ──
+  final _templates = <TemplateJadwal>[].obs;
+  final _isLoading = false.obs;
+
+  // ── Public getters ──
+  List<TemplateJadwal> get templates => _templates;
+  bool get isLoading => _isLoading.value;
 
   @override
   void onInit() {
@@ -32,7 +42,7 @@ class TemplateJadwalController extends GetxController {
   }
 
   void _loadTemplates() {
-    templates.addAll([
+    _templates.addAll([
       TemplateJadwal(
         id: '1',
         title: 'Cek Tensi Darah',
@@ -65,33 +75,43 @@ class TemplateJadwalController extends GetxController {
     ]);
   }
 
-  int? get _elderlyId {
+  String? get _elderlyId {
     if (Get.arguments != null && Get.arguments is Map) {
       final args = Get.arguments as Map;
-      if (args['elderly_id'] is int) return args['elderly_id'];
-      return int.tryParse(args['elderly_id']?.toString() ?? '');
+      log.info('TemplateJadwalController._elderlyId', data: {
+        'args_keys': args.keys.toList(),
+        'elderly_id_raw': args['elderly_id'],
+      });
+      final id = args['elderly_id']?.toString();
+      return (id != null && id.isNotEmpty) ? id : null;
     }
+    log.info('TemplateJadwalController._elderlyId: no args');
     return null;
   }
 
   Future<void> saveTemplateSchedule() async {
     final elderlyId = _elderlyId;
     if (elderlyId == null) {
-      Get.snackbar('Error', 'Data lansia tidak ditemukan');
+      Get.snackbar(
+        'Error',
+        'Data lansia tidak ditemukan. Silakan pilih lansia dari halaman utama.',
+        backgroundColor: const Color(0xFFFFDAD6),
+        colorText: const Color(0xFF1C1B1C),
+      );
       return;
     }
 
     final enabledTemplates =
-        templates.where((t) => t.isEnabled.value).toList();
+        _templates.where((t) => t.isEnabled.value).toList();
     if (enabledTemplates.isEmpty) {
       Get.snackbar('Info', 'Pilih minimal satu template');
       return;
     }
 
-    isLoading.value = true;
+    _isLoading.value = true;
     int successCount = 0;
 
-    for (var template in enabledTemplates) {
+    for (final template in enabledTemplates) {
       final timeParts = template.time.split(':');
       final now = DateTime.now();
       final scheduledAt = DateTime(
@@ -102,7 +122,7 @@ class TemplateJadwalController extends GetxController {
         int.parse(timeParts[1]),
       );
 
-      final result = await _api.create(
+      final result = await _scheduleRepository.create(
         elderlyId: elderlyId,
         title: template.title,
         scheduleType: template.scheduleType,
@@ -117,7 +137,7 @@ class TemplateJadwalController extends GetxController {
       }
     }
 
-    isLoading.value = false;
+    _isLoading.value = false;
 
     Get.back(result: successCount > 0);
 

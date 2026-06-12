@@ -1,30 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../data/dashboard_api.dart';
-import '../../../data/elderly_api.dart';
-import '../../../data/health_api.dart';
+import '../../../data/repositories/dashboard_repository.dart';
 import '../../../routes/app_pages.dart';
 
 class DashboardController extends GetxController {
-  final currentIndex = 0.obs;
-  final selectedTrendFilter = '7 Hari'.obs;
+  final DashboardRepository _dashboardRepository;
+
+  DashboardController({required DashboardRepository dashboardRepository})
+      : _dashboardRepository = dashboardRepository;
+
+  // ── Reactive state ──
+  final _currentIndex = 0.obs;
+  final _selectedTrendFilter = '7 Hari'.obs;
 
   // Patient Data
-  final patientName = 'Ibu Siti'.obs;
-  final patientAge = '55 Tahun'.obs;
-  final patientImage = 'assets/images/patient_ibu_siti.png'.obs;
-  final patientGender = 'Perempuan'.obs;
-  final elderlyId = 0.obs;
+  final _patientName = 'Ibu Siti'.obs;
+  final _patientAge = '55 Tahun'.obs;
+  final _patientImage = 'assets/images/patient_ibu_siti.png'.obs;
+  final _patientGender = 'Perempuan'.obs;
+  final _elderlyId = ''.obs;
 
-  final isLoading = false.obs;
-  final trendDataPoints = [].obs;
-  final trendSummary = {}.obs;
+  final _isLoading = false.obs;
+  final _trendDataPoints = [].obs;
+  final _trendSummary = <String, dynamic>{}.obs;
 
-  final DashboardApi _dashboardApi = DashboardApi();
-  final ElderlyApi _elderlyApi = ElderlyApi();
-  final HealthApi _healthApi = HealthApi();
-
-  final healthMetrics = <Map<String, dynamic>>[
+  final _healthMetrics = <Map<String, dynamic>>[
     {
       'id': 'cholesterol',
       'color': const Color(0xFFFDDCC9),
@@ -99,29 +99,52 @@ class DashboardController extends GetxController {
     },
   ].obs;
 
+  // ── Trend chart params ──
+  final _selectedTrendParam = 'blood_sugar'.obs;
+  final _availableParams = <String>[].obs;
+
+  // ── Public getters ──
+  int get currentIndex => _currentIndex.value;
+  String get selectedTrendFilter => _selectedTrendFilter.value;
+  String get patientName => _patientName.value;
+  String get patientAge => _patientAge.value;
+  String get patientImage => _patientImage.value;
+  String get patientGender => _patientGender.value;
+  String get elderlyId => _elderlyId.value;
+  bool get isLoading => _isLoading.value;
+  List get trendDataPoints => _trendDataPoints;
+  Map<String, dynamic> get trendSummary => _trendSummary;
+  List<Map<String, dynamic>> get healthMetrics => _healthMetrics;
+  String get selectedTrendParam => _selectedTrendParam.value;
+  List<String> get availableParams => _availableParams;
+
+  set currentIndex(int value) => _currentIndex.value = value;
+  set selectedTrendFilter(String value) => _selectedTrendFilter.value = value;
+  set selectedTrendParam(String value) => _selectedTrendParam.value = value;
+
   void updateHealthMetric(String id, String newValue) {
     if (newValue.isEmpty) return;
-    final index = healthMetrics.indexWhere((element) => element['id'] == id);
+    final index = _healthMetrics.indexWhere((element) => element['id'] == id);
     if (index != -1) {
-      final item = Map<String, dynamic>.from(healthMetrics[index]);
+      final item = Map<String, dynamic>.from(_healthMetrics[index]);
       item['value'] = newValue;
-      healthMetrics[index] = item;
+      _healthMetrics[index] = item;
     }
   }
 
   void changePage(int index) {
-    if (currentIndex.value == index) return;
+    if (_currentIndex.value == index) return;
 
-    int previousIndex = currentIndex.value;
-    currentIndex.value = index;
+    int previousIndex = _currentIndex.value;
+    _currentIndex.value = index;
 
     final args = {
       'from': previousIndex,
-      'name': patientName.value,
-      'age': patientAge.value,
-      'image': patientImage.value,
-      'gender': patientGender.value,
-      'elderly_id': elderlyId.value,
+      'name': _patientName.value,
+      'age': _patientAge.value,
+      'image': _patientImage.value,
+      'gender': _patientGender.value,
+      'elderly_id': _elderlyId.value,
     };
 
     if (index == 0) {
@@ -137,48 +160,44 @@ class DashboardController extends GetxController {
 
   Future<void> loadTrends() => _loadTrends();
 
-  Future<void> _loadPatientProfile(int id) async {
-    final result = await _elderlyApi.getById(id);
+  Future<void> _loadPatientProfile(String id) async {
+    final result = await _dashboardRepository.getElderlyProfile(id);
 
     if (result['error'] == true || result['data'] == null) return;
 
     final data = result['data'] as Map<String, dynamic>;
-    patientName.value = data['full_name'] ?? patientName.value;
-    patientAge.value = data['age'] != null
-        ? '${data['age']} Tahun'
-        : patientAge.value;
-    patientGender.value = data['gender'] ?? patientGender.value;
-    patientImage.value = data['photo_url'] ?? patientImage.value;
+    _patientName.value = data['full_name'] ?? _patientName.value;
+    _patientAge.value =
+        data['age'] != null ? '${data['age']} Tahun' : _patientAge.value;
+    _patientGender.value = data['gender'] ?? _patientGender.value;
+    _patientImage.value = data['photo_url'] ?? _patientImage.value;
   }
 
   Future<void> _loadTrends() async {
-    if (elderlyId.value == 0) return;
+    if (_elderlyId.value.isEmpty) return;
 
-    isLoading.value = true;
+    _isLoading.value = true;
 
-    final range = selectedTrendFilter.value == '30 Hari' ? '30d' : '7d';
+    final range = _selectedTrendFilter.value == '30 Hari' ? '30d' : '7d';
 
-    final result = await _dashboardApi.getTrends(elderlyId.value, range: range);
+    final result =
+        await _dashboardRepository.getTrends(_elderlyId.value, range: range);
 
-    isLoading.value = false;
+    _isLoading.value = false;
 
-    if (result['error'] == true) {
-      return;
-    }
+    if (result['error'] == true) return;
 
     final data = result['data'];
     if (data != null) {
       if (data['data_points'] != null) {
-        trendDataPoints.value = (data['data_points'] as List<dynamic>)
-            .map(
-              (point) => _normalizeTrendDataPoint(
-                Map<String, dynamic>.from(point as Map),
-              ),
-            )
+        _trendDataPoints.value = (data['data_points'] as List<dynamic>)
+            .map((point) => _normalizeTrendDataPoint(
+                  Map<String, dynamic>.from(point as Map),
+                ))
             .toList();
       }
       if (data['summary'] != null) {
-        trendSummary.value = Map<String, dynamic>.from(data['summary']);
+        _trendSummary.value = Map<String, dynamic>.from(data['summary']);
       }
       _detectAvailableParams();
     }
@@ -187,9 +206,10 @@ class DashboardController extends GetxController {
   Future<void> loadLatestHealthRecord() => _loadLatestRecord();
 
   Future<void> _loadLatestRecord() async {
-    if (elderlyId.value == 0) return;
+    if (_elderlyId.value.isEmpty) return;
 
-    final result = await _healthApi.getRecords(elderlyId.value, limit: 1);
+    final result =
+        await _dashboardRepository.getLatestHealthRecord(_elderlyId.value, limit: 1);
 
     if (result['error'] == true || result['data'] == null) return;
 
@@ -229,7 +249,7 @@ class DashboardController extends GetxController {
     final records = point['records'];
     if (records is! List || records.isEmpty) return normalized;
 
-    for (final param in trendParamLabels.keys) {
+    for (final param in _trendParamLabels.keys) {
       final values = records
           .map((record) => record is Map ? record[param] : null)
           .map(
@@ -248,13 +268,7 @@ class DashboardController extends GetxController {
     return normalized;
   }
 
-  final count = 0.obs;
-
-  // ── Trend chart parameter selector ──
-  final selectedTrendParam = 'blood_sugar'.obs;
-  final availableParams = <String>[].obs;
-
-  static const Map<String, String> trendParamLabels = {
+  static const Map<String, String> _trendParamLabels = {
     'systolic_bp': 'Tensi Sistolik',
     'diastolic_bp': 'Tensi Diastolik',
     'blood_sugar': 'Gula Darah',
@@ -266,19 +280,20 @@ class DashboardController extends GetxController {
     'spo2_level': 'Saturasi',
   };
 
-  /// Detect which parameters actually have data in the current dataPoints
+  static Map<String, String> get trendParamLabels => _trendParamLabels;
+
   void _detectAvailableParams() {
     final params = <String>{};
-    for (final dp in trendDataPoints) {
-      for (final entry in trendParamLabels.keys) {
+    for (final dp in _trendDataPoints) {
+      for (final entry in _trendParamLabels.keys) {
         if (dp[entry] != null) {
           params.add(entry);
         }
       }
     }
-    availableParams.value = params.toList();
-    if (params.isNotEmpty && !params.contains(selectedTrendParam.value)) {
-      selectedTrendParam.value = params.first;
+    _availableParams.value = params.toList();
+    if (params.isNotEmpty && !params.contains(_selectedTrendParam.value)) {
+      _selectedTrendParam.value = params.first;
     }
   }
 
@@ -287,46 +302,46 @@ class DashboardController extends GetxController {
     super.onInit();
     if (Get.arguments != null && Get.arguments is Map) {
       if (Get.arguments['from'] != null) {
-        currentIndex.value = Get.arguments['from'];
+        _currentIndex.value = Get.arguments['from'];
       }
       if (Get.arguments['name'] != null) {
-        patientName.value = Get.arguments['name'];
+        _patientName.value = Get.arguments['name'];
       }
       if (Get.arguments['age'] != null) {
-        patientAge.value = Get.arguments['age'];
+        _patientAge.value = Get.arguments['age'];
       }
       if (Get.arguments['image'] != null) {
-        patientImage.value = Get.arguments['image'];
+        _patientImage.value = Get.arguments['image'];
       }
       if (Get.arguments['gender'] != null) {
-        patientGender.value = Get.arguments['gender'];
+        _patientGender.value = Get.arguments['gender'];
       }
       if (Get.arguments['elderly_id'] != null) {
-        elderlyId.value = Get.arguments['elderly_id'] is int
-            ? Get.arguments['elderly_id']
-            : int.tryParse(Get.arguments['elderly_id'].toString()) ?? 0;
+        _elderlyId.value = Get.arguments['elderly_id'].toString();
       }
     }
 
-    if (elderlyId.value != 0) {
+    if (_elderlyId.value.isNotEmpty) {
       _loadDashboardData();
     }
 
-    ever(selectedTrendFilter, (_) => loadTrends());
+    ever(_selectedTrendFilter, (_) => loadTrends());
   }
 
   Future<void> _loadDashboardData() async {
-    await _loadPatientProfile(elderlyId.value);
-    await _loadLatestRecord();
-    await _loadTrends();
+    if (_elderlyId.value.isNotEmpty) {
+      await _loadPatientProfile(_elderlyId.value);
+      await _loadLatestRecord();
+      await _loadTrends();
+    }
   }
 
   @override
   void onReady() {
     super.onReady();
-    if (currentIndex.value != 0) {
+    if (_currentIndex.value != 0) {
       Future.delayed(const Duration(milliseconds: 10), () {
-        currentIndex.value = 0;
+        _currentIndex.value = 0;
       });
     }
   }

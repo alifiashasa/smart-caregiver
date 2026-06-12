@@ -112,7 +112,7 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
                                     _buildTypeChip(
                                       'Medis',
                                       Icons.medical_services,
-                                      controller.selectedType.value ==
+                                      controller.selectedType ==
                                           'medication',
                                       () => controller.selectType(
                                           'medication', 'Medis'),
@@ -120,7 +120,7 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
                                     _buildTypeChip(
                                       'Pemeriksaan',
                                       Icons.assignment,
-                                      controller.selectedType.value ==
+                                      controller.selectedType ==
                                           'routine_checkup',
                                       () => controller.selectType(
                                           'routine_checkup', 'Pemeriksaan'),
@@ -128,7 +128,7 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
                                     _buildTypeChip(
                                       'Aktivitas',
                                       Icons.directions_run,
-                                      controller.selectedType.value ==
+                                      controller.selectedType ==
                                           'daily_activity',
                                       () => controller.selectType(
                                           'daily_activity', 'Aktivitas'),
@@ -195,14 +195,14 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
                           const SizedBox(height: 48),
                           Obx(
                             () => GestureDetector(
-                              onTap: controller.isLoading.value
+                              onTap: controller.isLoading
                                   ? null
                                   : controller.saveSchedule,
                               child: Container(
                                 width: double.infinity,
                                 height: 48,
                                 decoration: ShapeDecoration(
-                                  color: controller.isLoading.value
+                                  color: controller.isLoading
                                       ? const Color(0xFF999999)
                                       : const Color(0xFF192126),
                                   shape: RoundedRectangleBorder(
@@ -217,7 +217,7 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
                                   ],
                                 ),
                                 child: Center(
-                                  child: controller.isLoading.value
+                                  child: controller.isLoading
                                       ? const SizedBox(
                                           width: 24,
                                           height: 24,
@@ -379,7 +379,7 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
 
   Widget _buildAlarmSection() {
     return GestureDetector(
-      onTap: () => controller.toggleAlarm(!controller.alarmEnabled.value),
+      onTap: () => controller.toggleAlarm(!controller.alarmEnabled),
       child: Obx(() => Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),
@@ -453,7 +453,7 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
                   width: 44,
                   height: 24,
                   child: Switch.adaptive(
-                    value: controller.alarmEnabled.value,
+                    value: controller.alarmEnabled,
                     onChanged: controller.toggleAlarm,
                     activeThumbColor: const Color(0xFF192126),
                     activeTrackColor: const Color(0xFFBBF246),
@@ -470,7 +470,7 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
       context: Get.context!,
-      initialDate: controller.selectedDate.value,
+      initialDate: controller.selectedDate,
       firstDate: DateTime.now().subtract(const Duration(days: 30)),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
@@ -482,7 +482,7 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
   Future<void> _pickTime() async {
     final picked = await showTimePicker(
       context: Get.context!,
-      initialTime: controller.selectedTime.value,
+      initialTime: controller.selectedTime,
     );
     if (picked != null) {
       controller.selectTime(picked);
@@ -516,7 +516,7 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
                 final value = opt['value'] as String;
                 final label = opt['label'] as String;
                 final isSelected =
-                    controller.selectedRecurrence.value == value;
+                    controller.selectedRecurrence == value;
                 return ListTile(
                   title: Text(
                     label,

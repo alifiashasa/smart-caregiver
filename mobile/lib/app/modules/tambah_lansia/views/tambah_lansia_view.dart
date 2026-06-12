@@ -77,14 +77,14 @@ class TambahLansiaView extends GetView<TambahLansiaController> {
                                 width: 1,
                               ),
                             ),
-                            child: controller.fotoProfilBytes.value == null
+                            child: controller.fotoProfilBytes == null
                                 ? const Icon(
                                     Icons.camera_alt_outlined,
                                     color: Color(0xFF858387),
                                     size: 32,
                                   )
                                 : Image.memory(
-                                    controller.fotoProfilBytes.value!,
+                                    controller.fotoProfilBytes!,
                                     fit: BoxFit.cover,
                                   ),
                           ),
@@ -109,7 +109,7 @@ class TambahLansiaView extends GetView<TambahLansiaController> {
                 const SizedBox(height: 4),
                 _buildTextField(
                   hint: 'Masukkan nama lengkap',
-                  onChanged: (val) => controller.namaLengkap.value = val,
+                  onChanged: (val) => controller.namaLengkap = val,
                 ),
                 const SizedBox(height: 12),
 
@@ -118,7 +118,7 @@ class TambahLansiaView extends GetView<TambahLansiaController> {
                 _buildTextField(
                   hint: 'Contoh: 75',
                   keyboardType: TextInputType.number,
-                  onChanged: (val) => controller.usia.value = val,
+                  onChanged: (val) => controller.usia = val,
                 ),
                 const SizedBox(height: 12),
 
@@ -160,7 +160,7 @@ class TambahLansiaView extends GetView<TambahLansiaController> {
                 _buildTextField(
                   hint: 'contoh: hipertensi, diabetes',
                   maxLines: 3,
-                  onChanged: (val) => controller.riwayatMedis.value = val,
+                  onChanged: (val) => controller.riwayatMedis = val,
                 ),
                 const SizedBox(height: 12),
 
@@ -244,7 +244,7 @@ class TambahLansiaView extends GetView<TambahLansiaController> {
                 _buildTextField(
                   hint: 'contoh: musik, berkebun, membaca',
                   maxLines: 3,
-                  onChanged: (val) => controller.minatHobi.value = val,
+                  onChanged: (val) => controller.minatHobi = val,
                 ),
                 const SizedBox(height: 8),
                 const Row(

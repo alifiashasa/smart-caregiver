@@ -5,7 +5,7 @@ class ScheduleApi {
 
   /// POST /elderly/{elderlyId}/schedules
   Future<Map<String, dynamic>> create({
-    required int elderlyId,
+    required String elderlyId,
     required String title,
     required String scheduleType,
     required DateTime scheduledAt,
@@ -48,7 +48,7 @@ class ScheduleApi {
 
   /// GET /elderly/{elderlyId}/schedules
   Future<Map<String, dynamic>> getSchedules(
-    int elderlyId, {
+    String elderlyId, {
     String? scheduleType,
     bool? isActive,
     String? fromDate,

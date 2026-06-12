@@ -1,10 +1,13 @@
 import 'package:get/get.dart';
 import 'package:mobile/app/data/api_client.dart';
-import 'package:mobile/app/data/auth_api.dart';
+import 'package:mobile/app/data/repositories/auth_repository.dart';
 import 'package:mobile/app/routes/app_pages.dart';
 
 class SplashController extends GetxController {
-  final AuthApi _authApi = AuthApi();
+  final AuthRepository _authRepository;
+
+  SplashController({required AuthRepository authRepository})
+      : _authRepository = authRepository;
 
   @override
   void onReady() {
@@ -13,30 +16,31 @@ class SplashController extends GetxController {
   }
 
   Future<void> _checkSession() async {
-    // Brief delay to show splash
-    await Future.delayed(const Duration(milliseconds: 1500));
+    try {
+      await Future.delayed(const Duration(milliseconds: 1500));
 
-    final token = ApiClient.getAccessToken();
-    if (token == null) {
-      Get.offAllNamed(Routes.LOGIN);
-      return;
-    }
+      if (!_authRepository.isLoggedIn) {
+        Get.offAllNamed(Routes.LOGIN);
+        return;
+      }
 
-    // Validate token by calling /auth/me
-    final result = await _authApi.getMe();
+      final result = await _authRepository.getMe();
 
-    if (result['error'] == false) {
-      // Token valid — user is authenticated
-      Get.offAllNamed(Routes.HOME);
-    } else {
-      // Token expired or invalid — try refresh
-      final refreshResult = await _authApi.refreshToken();
-      if (refreshResult['error'] == false) {
+      if (result['error'] == false) {
         Get.offAllNamed(Routes.HOME);
       } else {
-        ApiClient.clearTokens();
-        Get.offAllNamed(Routes.LOGIN);
+        final refreshResult = await _authRepository.refreshToken();
+        if (refreshResult['error'] == false) {
+          Get.offAllNamed(Routes.HOME);
+        } else {
+          ApiClient.clearTokens();
+          Get.offAllNamed(Routes.LOGIN);
+        }
       }
+    } catch (_) {
+      // If anything unexpected fails, go to login
+      ApiClient.clearTokens();
+      Get.offAllNamed(Routes.LOGIN);
     }
   }
 }

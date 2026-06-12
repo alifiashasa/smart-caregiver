@@ -1,86 +1,76 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mobile/app/data/auth_api.dart';
-import 'package:mobile/app/data/auth_face_api.dart';
-import '../../../routes/app_pages.dart';
+import 'package:mobile/app/data/repositories/auth_repository.dart';
+import 'package:mobile/app/routes/app_pages.dart';
 
 class LoginController extends GetxController {
-  final email = ''.obs;
-  final password = ''.obs;
-  final isPasswordHidden = true.obs;
-  final isLoading = false.obs;
+  final AuthRepository _authRepository;
 
-  final AuthApi _authApi = AuthApi();
-  final AuthFaceApi _faceApi = AuthFaceApi();
+  LoginController({required AuthRepository authRepository})
+      : _authRepository = authRepository;
 
-  void togglePasswordVisibility() {
-    isPasswordHidden.value = !isPasswordHidden.value;
-  }
+  // ── Reactive state ──
+  final _email = ''.obs;
+  final _password = ''.obs;
+  final _isPasswordHidden = true.obs;
+  final _isLoading = false.obs;
+
+  // ── Public getters ──
+  String get email => _email.value;
+  String get password => _password.value;
+  bool get isPasswordHidden => _isPasswordHidden.value;
+  bool get isLoading => _isLoading.value;
+
+  set email(String value) => _email.value = value;
+  set password(String value) => _password.value = value;
+
+  void togglePasswordVisibility() =>
+      _isPasswordHidden.value = !_isPasswordHidden.value;
 
   bool _validate() {
-    if (email.value.trim().isEmpty) {
-      Get.snackbar(
-        'Validasi',
-        'Email harus diisi',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.shade100,
-        colorText: const Color(0xFF192126),
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
-      );
+    if (_email.value.trim().isEmpty) {
+      _showError('Email harus diisi');
       return false;
     }
-    if (!GetUtils.isEmail(email.value.trim())) {
-      Get.snackbar(
-        'Validasi',
-        'Format email tidak valid',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.shade100,
-        colorText: const Color(0xFF192126),
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
-      );
+    if (!GetUtils.isEmail(_email.value.trim())) {
+      _showError('Format email tidak valid');
       return false;
     }
-    if (password.value.isEmpty) {
-      Get.snackbar(
-        'Validasi',
-        'Password harus diisi',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.shade100,
-        colorText: const Color(0xFF192126),
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
-      );
+    if (_password.value.isEmpty) {
+      _showError('Password harus diisi');
       return false;
     }
-    if (password.value.length < 6) {
-      Get.snackbar(
-        'Validasi',
-        'Password minimal 6 karakter',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.shade100,
-        colorText: const Color(0xFF192126),
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
-      );
+    if (_password.value.length < 6) {
+      _showError('Password minimal 6 karakter');
       return false;
     }
     return true;
   }
 
+  void _showError(String message) {
+    Get.snackbar(
+      'Validasi',
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.red.shade100,
+      colorText: const Color(0xFF192126),
+      margin: const EdgeInsets.all(16),
+      borderRadius: 12,
+    );
+  }
+
   Future<void> login() async {
     if (!_validate()) return;
 
-    isLoading.value = true;
+    _isLoading.value = true;
     try {
-      final result = await _authApi.login(
-        email: email.value.trim().toLowerCase(),
-        password: password.value.trim(),
+      final result = await _authRepository.login(
+        email: _email.value.trim().toLowerCase(),
+        password: _password.value.trim(),
       );
 
       if (result['error'] == true) {
-        isLoading.value = false;
+        _isLoading.value = false;
         Get.snackbar(
           'Gagal Masuk',
           result['message'] ?? 'Email atau password salah',
@@ -93,10 +83,9 @@ class LoginController extends GetxController {
         return;
       }
 
-      // Login succeeded — check if face is registered
       await _checkFaceStatusAndNavigate();
     } catch (e) {
-      isLoading.value = false;
+      _isLoading.value = false;
       Get.snackbar(
         'Error',
         'Terjadi kesalahan jaringan. Coba lagi.',
@@ -111,18 +100,17 @@ class LoginController extends GetxController {
 
   Future<void> _checkFaceStatusAndNavigate() async {
     try {
-      final statusResult = await _faceApi.faceStatus();
-      final faceRegistered = statusResult['data']?['face_registered'] == true;
+      final statusResult = await _authRepository.faceStatus();
+      final faceRegistered =
+          statusResult['data']?['face_registered'] == true;
+      _isLoading.value = false;
       if (faceRegistered) {
-        isLoading.value = false;
         Get.offNamed(Routes.FACE_VERIFY);
       } else {
-        isLoading.value = false;
         Get.offAllNamed(Routes.HOME);
       }
     } catch (_) {
-      isLoading.value = false;
-      // If face status check fails, still let user in
+      _isLoading.value = false;
       Get.offAllNamed(Routes.HOME);
     }
   }

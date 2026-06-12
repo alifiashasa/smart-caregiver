@@ -56,7 +56,7 @@ class FaceVerifyView extends GetView<FaceVerifyController> {
 
               // Image preview
               Obx(() {
-                final bytes = controller.capturedImageBytes.value;
+                final bytes = controller.capturedImageBytes;
                 if (bytes != null) {
                   return Container(
                     height: 300,
@@ -103,15 +103,15 @@ class FaceVerifyView extends GetView<FaceVerifyController> {
 
               // Similarity score
               Obx(() {
-                if (controller.similarity.value == 0.0) {
+                if (controller.similarity == 0.0) {
                   return const SizedBox.shrink();
                 }
-                final pct = (controller.similarity.value * 100).toStringAsFixed(0);
+                final pct = (controller.similarity * 100).toStringAsFixed(0);
                 return Container(
                   padding: const EdgeInsets.all(12),
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: controller.isVerified.value
+                    color: controller.isVerified
                         ? Colors.green.shade50
                         : Colors.orange.shade50,
                     borderRadius: BorderRadius.circular(12),
@@ -123,7 +123,7 @@ class FaceVerifyView extends GetView<FaceVerifyController> {
                       fontFamily: 'Plus Jakarta Sans',
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: controller.isVerified.value
+                      color: controller.isVerified
                           ? Colors.green.shade800
                           : Colors.orange.shade800,
                     ),
@@ -133,7 +133,7 @@ class FaceVerifyView extends GetView<FaceVerifyController> {
 
               // Error message
               Obx(() {
-                if (controller.errorMessage.value.isEmpty) {
+                if (controller.errorMessage.isEmpty) {
                   return const SizedBox.shrink();
                 }
                 return Container(
@@ -144,7 +144,7 @@ class FaceVerifyView extends GetView<FaceVerifyController> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    controller.errorMessage.value,
+                    controller.errorMessage,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: 'Plus Jakarta Sans',
@@ -156,7 +156,7 @@ class FaceVerifyView extends GetView<FaceVerifyController> {
               }),
 
               // Action buttons
-              if (controller.capturedImageBytes.value == null) ...[
+              if (controller.capturedImageBytes == null) ...[
                 ElevatedButton.icon(
                   onPressed: () => _pickImage(ImageSource.camera),
                   style: ElevatedButton.styleFrom(
@@ -183,7 +183,7 @@ class FaceVerifyView extends GetView<FaceVerifyController> {
                   children: [
                     Expanded(
                       child: Obx(() => OutlinedButton.icon(
-                        onPressed: controller.isLoading.value
+                        onPressed: controller.isLoading
                             ? null
                             : () => _pickImage(ImageSource.camera),
                         style: OutlinedButton.styleFrom(
@@ -208,7 +208,7 @@ class FaceVerifyView extends GetView<FaceVerifyController> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Obx(() => ElevatedButton(
-                        onPressed: controller.isLoading.value
+                        onPressed: controller.isLoading
                             ? null
                             : controller.verifyFace,
                         style: ElevatedButton.styleFrom(
@@ -220,7 +220,7 @@ class FaceVerifyView extends GetView<FaceVerifyController> {
                           padding: const EdgeInsets.symmetric(vertical: 20),
                           elevation: 0,
                         ),
-                        child: controller.isLoading.value
+                        child: controller.isLoading
                             ? const SizedBox(
                                 height: 20,
                                 width: 20,

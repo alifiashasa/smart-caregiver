@@ -43,7 +43,7 @@ class DashboardView extends GetView<DashboardController> {
               // Header Profile Info
               Obx(
                 () => Text(
-                  controller.patientName.value,
+                  controller.patientName,
                   style: const TextStyle(
                     color: Colors.black,
                     fontSize: 32,
@@ -59,7 +59,7 @@ class DashboardView extends GetView<DashboardController> {
                 children: [
                   Obx(
                     () => Text(
-                      '${controller.patientAge.value} • ${controller.patientGender.value}',
+                      '${controller.patientAge} • ${controller.patientGender}',
                       style: const TextStyle(
                         color: Color(0xFF4C4546),
                         fontSize: 14,
@@ -163,7 +163,7 @@ class DashboardView extends GetView<DashboardController> {
                             ),
                             child: DropdownButtonHideUnderline(
                               child: DropdownButton<String>(
-                                value: controller.selectedTrendFilter.value,
+                                value: controller.selectedTrendFilter,
                                 icon: const Icon(
                                   Icons.keyboard_arrow_down,
                                   size: 16,
@@ -176,7 +176,7 @@ class DashboardView extends GetView<DashboardController> {
                                 ),
                                 onChanged: (String? newValue) {
                                   if (newValue != null) {
-                                    controller.selectedTrendFilter.value =
+                                    controller.selectedTrendFilter =
                                         newValue;
                                   }
                                 },
@@ -199,7 +199,7 @@ class DashboardView extends GetView<DashboardController> {
                     const SizedBox(height: 4),
                     Obx(
                       () => Text(
-                        'Stabilitas fisik keseluruhan selama ${controller.selectedTrendFilter.value}',
+                        'Stabilitas fisik keseluruhan selama ${controller.selectedTrendFilter}',
                         style: const TextStyle(
                           color: Color(0xFF4C4546),
                           fontSize: 14,
@@ -217,7 +217,7 @@ class DashboardView extends GetView<DashboardController> {
                                           children: [
                                             Obx(() {
                                               final params = controller.availableParams;
-                                              final selected = controller.selectedTrendParam.value;
+                                              final selected = controller.selectedTrendParam;
                                               if (params.isEmpty) return const SizedBox.shrink();
                                               return Container(
                                                 height: 32,
@@ -241,7 +241,7 @@ class DashboardView extends GetView<DashboardController> {
                                                     ),
                                                     onChanged: (String? newValue) {
                                                       if (newValue != null) {
-                                                        controller.selectedTrendParam.value = newValue;
+                                                        controller.selectedTrendParam = newValue;
                                                       }
                                                     },
                                                     items: params
@@ -261,7 +261,7 @@ class DashboardView extends GetView<DashboardController> {
                                             const Spacer(),
                                             Obx(() {
                                               final label = DashboardController.trendParamLabels[
-                                                  controller.selectedTrendParam.value];
+                                                  controller.selectedTrendParam];
                                               return Text(
                                                 label ?? 'Gula Darah',
                                                 style: const TextStyle(
@@ -296,7 +296,7 @@ class DashboardView extends GetView<DashboardController> {
                                             }
                                             return _buildTrendChart(
                                               dataPoints.cast<Map<String, dynamic>>(),
-                                              controller.selectedTrendParam.value,
+                                              controller.selectedTrendParam,
                                             );
                                           }),
                                         ),
@@ -476,7 +476,10 @@ class DashboardView extends GetView<DashboardController> {
         ),
         child: IconButton(
           onPressed: () {
-            Get.toNamed(Routes.LOG_KESEHATAN);
+            Get.toNamed(Routes.LOG_KESEHATAN, arguments: {
+              'elderly_id': controller.elderlyId,
+              'name': controller.patientName,
+            });
           },
           icon: const Icon(Icons.add, color: Colors.white),
         ),
@@ -511,7 +514,7 @@ class DashboardView extends GetView<DashboardController> {
   }
 
   Widget _buildNavItem(int index, IconData icon, String label) {
-    bool isSelected = controller.currentIndex.value == index;
+    bool isSelected = controller.currentIndex == index;
     return GestureDetector(
       onTap: () => controller.changePage(index),
       child: AnimatedContainer(

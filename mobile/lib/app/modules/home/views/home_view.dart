@@ -13,7 +13,13 @@ class HomeView extends GetView<HomeController> {
     return Scaffold(
       backgroundColor: const Color(0xFFFDF8F8),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Get.toNamed(Routes.TAMBAH_LANSIA),
+        onPressed: () async {
+                  final result = await Get.toNamed(Routes.TAMBAH_LANSIA);
+                  if (result == true) {
+                    controller.loadElderly();
+                    controller.loadUnreadCount();
+                  }
+                },
         backgroundColor: const Color(0xFF18181B),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         elevation: 8,
@@ -72,7 +78,7 @@ class HomeView extends GetView<HomeController> {
                             ),
                           ),
                           Obx(() {
-                            final count = controller.unreadCount.value;
+                            final count = controller.unreadCount;
                             if (count <= 0) return const SizedBox.shrink();
                             return Positioned(
                               top: -2,
@@ -110,7 +116,7 @@ class HomeView extends GetView<HomeController> {
 
             Expanded(
               child: Obx(() {
-                if (controller.isLoading.value) {
+                if (controller.isLoading) {
                   return const Center(
                     child: CircularProgressIndicator(color: Color(0xFF192126)),
                   );

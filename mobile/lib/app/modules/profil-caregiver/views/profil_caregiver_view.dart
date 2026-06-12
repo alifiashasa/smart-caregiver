@@ -146,9 +146,9 @@ class ProfilCaregiverView extends GetView<ProfilCaregiverController> {
               const SizedBox(height: 16),
               Obx(
                 () => Text(
-                  controller.fullName.value.isNotEmpty
-                      ? controller.fullName.value
-                      : 'Sri Setyani',
+                  controller.fullName.isNotEmpty
+                      ? controller.fullName
+                      : 'Memuat...',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: Color(0xFF1C1B1C),
@@ -163,9 +163,7 @@ class ProfilCaregiverView extends GetView<ProfilCaregiverController> {
               const SizedBox(height: 4),
               Obx(
                 () => Text(
-                  controller.email.value.isNotEmpty
-                      ? controller.email.value
-                      : 'Srisetyani77@gmail.com',
+                  controller.email,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: Color(0xFF47464B),

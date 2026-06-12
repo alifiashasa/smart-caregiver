@@ -5,7 +5,7 @@ class AiApi {
 
   /// POST /elderly/{elderlyId}/recommendations/generate
   Future<Map<String, dynamic>> generateRecommendation({
-    required int elderlyId,
+    required String elderlyId,
     String? additionalContext,
   }) async {
     final response = await _client.post(
@@ -28,7 +28,7 @@ class AiApi {
 
   /// GET /elderly/{elderlyId}/recommendations
   Future<Map<String, dynamic>> getRecommendations(
-    int elderlyId, {
+    String elderlyId, {
     String? status,
     int limit = 20,
     int offset = 0,
@@ -57,7 +57,7 @@ class AiApi {
 
   /// GET /elderly/{elderlyId}/recommendations/{id}
   Future<Map<String, dynamic>> getRecommendation(
-    int elderlyId,
+    String elderlyId,
     String recommendationId,
   ) async {
     final response = await _client.get(
@@ -76,7 +76,7 @@ class AiApi {
 
   /// POST /elderly/{elderlyId}/recommendations/{id}/approve
   Future<Map<String, dynamic>> approveRecommendation({
-    required int elderlyId,
+    required String elderlyId,
     required String recommendationId,
     required String scheduledAt,
     int? durationMinutes,
@@ -104,7 +104,7 @@ class AiApi {
 
   /// POST /elderly/{elderlyId}/recommendations/{id}/reject
   Future<Map<String, dynamic>> rejectRecommendation({
-    required int elderlyId,
+    required String elderlyId,
     required String recommendationId,
     String? reason,
   }) async {

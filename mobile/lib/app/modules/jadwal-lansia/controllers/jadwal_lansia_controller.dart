@@ -1,28 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../data/schedule_api.dart';
+import '../../../data/repositories/schedule_repository.dart';
 
 class JadwalLansiaController extends GetxController {
-  final ScheduleApi _api = ScheduleApi();
+  final ScheduleRepository _scheduleRepository;
 
-  // ── Form state ──
+  JadwalLansiaController({required ScheduleRepository scheduleRepository})
+      : _scheduleRepository = scheduleRepository;
+
+  // ── Form controllers ──
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
 
-  final selectedType = 'medication'.obs;
-  final selectedDate = DateTime.now().obs;
-  final selectedTime = TimeOfDay.now().obs;
-  final selectedRecurrence = 'NONE'.obs;
-  final alarmEnabled = true.obs;
-  final reminderMinutes = 15.obs;
-  final isLoading = false.obs;
-  final selectedTypeLabel = 'Medis'.obs;
+  // ── Reactive state ──
+  final _selectedType = 'medication'.obs;
+  final _selectedDate = DateTime.now().obs;
+  final _selectedTime = TimeOfDay.now().obs;
+  final _selectedRecurrence = 'NONE'.obs;
+  final _alarmEnabled = true.obs;
+  final _reminderMinutes = 15.obs;
+  final _isLoading = false.obs;
+  final _selectedTypeLabel = 'Medis'.obs;
+
+  // ── Public getters ──
+  String get selectedType => _selectedType.value;
+  DateTime get selectedDate => _selectedDate.value;
+  TimeOfDay get selectedTime => _selectedTime.value;
+  String get selectedRecurrence => _selectedRecurrence.value;
+  bool get alarmEnabled => _alarmEnabled.value;
+  int get reminderMinutes => _reminderMinutes.value;
+  bool get isLoading => _isLoading.value;
+  String get selectedTypeLabel => _selectedTypeLabel.value;
 
   // ── Type options ──
   static const typeOptions = [
     {'value': 'medication', 'label': 'Medis', 'icon': Icons.medical_services},
-    {'value': 'routine_checkup', 'label': 'Pemeriksaan', 'icon': Icons.assignment},
-    {'value': 'daily_activity', 'label': 'Aktivitas', 'icon': Icons.directions_run},
+    {
+      'value': 'routine_checkup',
+      'label': 'Pemeriksaan',
+      'icon': Icons.assignment,
+    },
+    {
+      'value': 'daily_activity',
+      'label': 'Aktivitas',
+      'icon': Icons.directions_run,
+    },
   ];
 
   static const recurrenceOptions = [
@@ -34,19 +56,19 @@ class JadwalLansiaController extends GetxController {
 
   // ── Computed display ──
   String get dateDisplay {
-    final d = selectedDate.value;
+    final d = _selectedDate.value;
     return '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
   }
 
   String get timeDisplay {
-    final t = selectedTime.value;
+    final t = _selectedTime.value;
     final hour = t.hourOfPeriod;
     final period = t.period == DayPeriod.am ? 'AM' : 'PM';
     return '${hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')} $period';
   }
 
   String get recurrenceLabel {
-    final r = selectedRecurrence.value;
+    final r = _selectedRecurrence.value;
     for (final opt in recurrenceOptions) {
       if (opt['value'] == r) return opt['label'] as String;
     }
@@ -55,31 +77,20 @@ class JadwalLansiaController extends GetxController {
 
   // ── Actions ──
   void selectType(String value, String label) {
-    selectedType.value = value;
-    selectedTypeLabel.value = label;
+    _selectedType.value = value;
+    _selectedTypeLabel.value = label;
   }
 
-  void selectDate(DateTime date) {
-    selectedDate.value = date;
-  }
+  void selectDate(DateTime date) => _selectedDate.value = date;
+  void selectTime(TimeOfDay time) => _selectedTime.value = time;
+  void selectRecurrence(String value) => _selectedRecurrence.value = value;
+  void toggleAlarm(bool enabled) => _alarmEnabled.value = enabled;
 
-  void selectTime(TimeOfDay time) {
-    selectedTime.value = time;
-  }
-
-  void selectRecurrence(String value) {
-    selectedRecurrence.value = value;
-  }
-
-  void toggleAlarm(bool enabled) {
-    alarmEnabled.value = enabled;
-  }
-
-  int? get _elderlyId {
+  String? get _elderlyId {
     if (Get.arguments != null && Get.arguments is Map) {
       final args = Get.arguments as Map;
-      if (args['elderly_id'] is int) return args['elderly_id'];
-      return int.tryParse(args['elderly_id']?.toString() ?? '');
+      final id = args['elderly_id']?.toString();
+      return (id != null && id.isNotEmpty) ? id : null;
     }
     return null;
   }
@@ -97,33 +108,28 @@ class JadwalLansiaController extends GetxController {
       return;
     }
 
-    final t = selectedTime.value;
-    final d = selectedDate.value;
-    final scheduledAt = DateTime(
-      d.year,
-      d.month,
-      d.day,
-      t.hour,
-      t.minute,
-    );
+    final t = _selectedTime.value;
+    final d = _selectedDate.value;
+    final scheduledAt = DateTime(d.year, d.month, d.day, t.hour, t.minute);
 
-    isLoading.value = true;
+    _isLoading.value = true;
 
-    final result = await _api.create(
+    final result = await _scheduleRepository.create(
       elderlyId: elderlyId,
       title: title,
-      scheduleType: selectedType.value,
+      scheduleType: _selectedType.value,
       scheduledAt: scheduledAt,
       description: descriptionController.text.trim().isNotEmpty
           ? descriptionController.text.trim()
           : null,
       durationMinutes: 30,
-      recurrenceType:
-          selectedRecurrence.value != 'NONE' ? selectedRecurrence.value : null,
-      reminderMinutes: alarmEnabled.value ? [reminderMinutes.value] : [],
+      recurrenceType: _selectedRecurrence.value != 'NONE'
+          ? _selectedRecurrence.value
+          : null,
+      reminderMinutes: _alarmEnabled.value ? [_reminderMinutes.value] : [],
     );
 
-    isLoading.value = false;
+    _isLoading.value = false;
 
     if (result['error'] == true) {
       Get.snackbar('Error', result['message'] ?? 'Gagal menyimpan jadwal');

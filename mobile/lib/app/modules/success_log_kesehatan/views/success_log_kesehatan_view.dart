@@ -74,13 +74,13 @@ class SuccessLogKesehatanView extends GetView<SuccessLogKesehatanController> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Spacer(),
+              const SizedBox(height: 40),
 
               // Success Icon
               Container(
@@ -129,7 +129,7 @@ class SuccessLogKesehatanView extends GetView<SuccessLogKesehatanController> {
 
               // Analysis Card
               Obx(() {
-                final statusColor = _statusColor(controller.healthStatus.value);
+                final statusColor = _statusColor(controller.healthStatus);
 
                 return Container(
                   width: double.infinity,
@@ -171,7 +171,7 @@ class SuccessLogKesehatanView extends GetView<SuccessLogKesehatanController> {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              controller.healthStatus.value,
+                              controller.healthStatus,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
@@ -184,7 +184,7 @@ class SuccessLogKesehatanView extends GetView<SuccessLogKesehatanController> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        controller.healthMessage.value,
+                        controller.healthMessage,
                         style: const TextStyle(
                           color: Color(0xFF1C1B1C),
                           fontSize: 14,
@@ -197,33 +197,31 @@ class SuccessLogKesehatanView extends GetView<SuccessLogKesehatanController> {
                       const SizedBox(height: 20),
                       _analysisCard(
                         'Kardiovaskular',
-                        controller.fuzzyCardioScore.value,
+                        controller.fuzzyCardioScore,
                       ),
                       const SizedBox(height: 10),
                       _analysisCard(
                         'Metabolik',
-                        controller.fuzzyMetabolicScore.value,
+                        controller.fuzzyMetabolicScore,
                       ),
                       const SizedBox(height: 10),
                       _analysisCard(
                         'Infeksi',
-                        controller.fuzzyInfectionScore.value,
+                        controller.fuzzyInfectionScore,
                       ),
                     ],
                   ),
                 );
               }),
 
-              const Spacer(),
+              const SizedBox(height: 32),
 
               // Back Button
               SizedBox(
                 width: double.infinity,
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Get.back(); // Or offAllNamed depending on app flow
-                  },
+                  onPressed: controller.goToDashboard,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF192126),
                     shape: RoundedRectangleBorder(
@@ -242,7 +240,7 @@ class SuccessLogKesehatanView extends GetView<SuccessLogKesehatanController> {
                   ),
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 40),
             ],
           ),
         ),

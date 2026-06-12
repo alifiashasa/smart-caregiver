@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     INTERNAL_API_KEY: str = ""
 
     # ── CORS ──────────────────────────────────────────────────────────────────
-    ALLOWED_ORIGINS: list[str] = ["http://localhost:3000"]
+    ALLOWED_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:8000"]
 
     # ── FCM Push Notifications ────────────────────────────────────────────────
     # Path to Firebase Admin SDK service account JSON key

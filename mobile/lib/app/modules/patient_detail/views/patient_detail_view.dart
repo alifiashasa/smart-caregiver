@@ -33,7 +33,7 @@ class PatientDetailView extends GetView<PatientDetailController> {
         ),
       ),
       body: Obx(() {
-        if (controller.isLoadingRecords.value) {
+        if (controller.isLoadingRecords) {
           return const Center(
             child: CircularProgressIndicator(color: Color(0xFF192126)),
           );
@@ -117,7 +117,7 @@ class PatientDetailView extends GetView<PatientDetailController> {
   }
 
   Widget _buildNavItem(int index, IconData icon, String label) {
-    bool isSelected = controller.currentIndex.value == index;
+    bool isSelected = controller.currentIndex == index;
     return GestureDetector(
       onTap: () => controller.changePage(index),
       child: AnimatedContainer(
@@ -415,7 +415,7 @@ class _TimelineCardState extends State<TimelineCard> {
                             final ctrl = Get.find<PatientDetailController>();
                             Get.toNamed(Routes.DETAIL_HISTORY, arguments: {
                               'elderly_id': ctrl.elderlyId,
-                              'name': ctrl.patientName.value,
+                              'name': ctrl.patientName,
                             });
                           },
                           child: const Padding(

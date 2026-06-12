@@ -33,7 +33,7 @@ class DetailHistoryView extends GetView<DetailHistoryController> {
       ),
       body: SafeArea(
         child: Obx(() {
-          if (controller.isLoading.value) {
+          if (controller.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
@@ -156,8 +156,8 @@ class DetailHistoryView extends GetView<DetailHistoryController> {
               children: [
                 Obx(() => Flexible(
                       child: Text(
-                        controller.patientName.value.isNotEmpty
-                            ? controller.patientName.value
+                        controller.patientName.isNotEmpty
+                            ? controller.patientName
                             : 'Riwayat Kesehatan',
                         style: const TextStyle(
                           color: Color(0xFF4C4546),
@@ -270,18 +270,18 @@ class DetailHistoryView extends GetView<DetailHistoryController> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           IconButton(
-            onPressed: controller.selectedIndex.value > 0
+            onPressed: controller.selectedIndex > 0
                 ? () => controller.selectRecord(
-                    controller.selectedIndex.value - 1)
+                    controller.selectedIndex - 1)
                 : null,
             icon: const Icon(Icons.chevron_left),
-            color: controller.selectedIndex.value > 0
+            color: controller.selectedIndex > 0
                 ? const Color(0xFF1C1B1C)
                 : Colors.grey.shade300,
           ),
           const SizedBox(width: 8),
           Text(
-            '${controller.selectedIndex.value + 1} / ${controller.records.length}',
+            '${controller.selectedIndex + 1} / ${controller.records.length}',
             style: const TextStyle(
               fontSize: 14,
               fontFamily: 'Plus Jakarta Sans',
@@ -291,13 +291,13 @@ class DetailHistoryView extends GetView<DetailHistoryController> {
           ),
           const SizedBox(width: 8),
           IconButton(
-            onPressed: controller.selectedIndex.value <
+            onPressed: controller.selectedIndex <
                     controller.records.length - 1
                 ? () => controller.selectRecord(
-                    controller.selectedIndex.value + 1)
+                    controller.selectedIndex + 1)
                 : null,
             icon: const Icon(Icons.chevron_right),
-            color: controller.selectedIndex.value <
+            color: controller.selectedIndex <
                     controller.records.length - 1
                 ? const Color(0xFF1C1B1C)
                 : Colors.grey.shade300,

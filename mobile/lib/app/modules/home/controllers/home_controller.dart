@@ -1,15 +1,28 @@
 import 'package:get/get.dart';
-import '../../../data/dashboard_api.dart';
-import '../../../data/notification_api.dart';
+import '../../../core/logger.dart';
+import '../../../data/repositories/dashboard_repository.dart';
+import '../../../data/repositories/notification_repository.dart';
 import '../../../routes/app_pages.dart';
 
 class HomeController extends GetxController {
-  final elderlyList = <Map<String, dynamic>>[].obs;
-  final isLoading = false.obs;
-  final unreadCount = 0.obs;
+  final DashboardRepository _dashboardRepository;
+  final NotificationRepository _notificationRepository;
 
-  final DashboardApi _dashboardApi = DashboardApi();
-  final NotificationApi _notificationApi = NotificationApi();
+  HomeController({
+    required DashboardRepository dashboardRepository,
+    required NotificationRepository notificationRepository,
+  })  : _dashboardRepository = dashboardRepository,
+        _notificationRepository = notificationRepository;
+
+  // ── Reactive state ──
+  final _elderlyList = <Map<String, dynamic>>[].obs;
+  final _isLoading = false.obs;
+  final _unreadCount = 0.obs;
+
+  // ── Public getters ──
+  List<Map<String, dynamic>> get elderlyList => _elderlyList;
+  bool get isLoading => _isLoading.value;
+  int get unreadCount => _unreadCount.value;
 
   @override
   void onInit() {
@@ -19,13 +32,20 @@ class HomeController extends GetxController {
   }
 
   Future<void> loadElderly() async {
-    isLoading.value = true;
+    _isLoading.value = true;
 
-    final result = await _dashboardApi.getOverview();
+    final result = await _dashboardRepository.getOverview();
 
-    isLoading.value = false;
+    _isLoading.value = false;
 
     if (result['error'] == true) {
+      log.error('loadElderly gagal', data: {
+        'message': result['message'],
+        'statusCode': result['statusCode'],
+      });
+      if (result['session_expired'] == true) {
+        Get.offAllNamed(Routes.LOGIN);
+      }
       return;
     }
 
@@ -33,23 +53,29 @@ class HomeController extends GetxController {
     if (data != null) {
       final elderly = data['elderly'] as List<dynamic>?;
       if (elderly != null) {
-        elderlyList.value = elderly.cast<Map<String, dynamic>>();
+        log.info('loadElderly sukses', data: {'count': elderly.length});
+        _elderlyList.value = elderly.cast<Map<String, dynamic>>();
+      } else {
+        log.warn('loadElderly: field "elderly" tidak ditemukan di response',
+            data: {'response': data});
       }
+    } else {
+      log.warn('loadElderly: result["data"] null');
     }
   }
 
   Future<void> loadUnreadCount() async {
-    final result = await _notificationApi.getUnreadCount();
+    final result = await _notificationRepository.getUnreadCount();
 
     if (!result['error'] && result['data'] != null) {
       final data = result['data'] as Map<String, dynamic>;
-      unreadCount.value = data['unread_count'] as int? ?? 0;
+      _unreadCount.value = data['unread_count'] as int? ?? 0;
     }
   }
 
   /// Count elderly that need attention (critical/needs_attention status)
   int get needsAttentionCount {
-    return elderlyList.where((e) {
+    return _elderlyList.where((e) {
       final status = (e['latest_health_status'] as String?) ?? '';
       return status == 'critical' || status == 'needs_attention';
     }).length;
@@ -59,7 +85,7 @@ class HomeController extends GetxController {
     final name = elderly['full_name'] as String? ?? '';
     final age = elderly['age'];
     final gender = elderly['gender'] as String? ?? 'Laki-laki';
-    final elderlyId = elderly['elderly_id'];
+    final elderlyId = elderly['elderly_id']?.toString() ?? '';
 
     Get.toNamed(
       Routes.DASHBOARD,
@@ -67,9 +93,7 @@ class HomeController extends GetxController {
         'name': name,
         'age': age?.toString() ?? '',
         'gender': gender,
-        'elderly_id': elderlyId is int
-            ? elderlyId
-            : int.tryParse(elderlyId?.toString() ?? '') ?? 0,
+        'elderly_id': elderlyId,
         'image': 'assets/images/patient_ibu_siti.png',
       },
     );

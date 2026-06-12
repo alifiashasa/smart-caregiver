@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 
 import 'app/core/fcm_service.dart';
@@ -9,6 +10,9 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load .env (optional — falls back to defaults in config.dart)
+  await dotenv.load(fileName: '.env');
 
   // Initialize Firebase (may not be configured for web)
   try {

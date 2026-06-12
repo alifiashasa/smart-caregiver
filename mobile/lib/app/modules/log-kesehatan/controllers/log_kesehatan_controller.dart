@@ -1,37 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../data/health_api.dart';
+import '../../../core/logger.dart';
+import '../../../data/repositories/health_repository.dart';
 import '../../../routes/app_pages.dart';
-import '../../dashboard/controllers/dashboard_controller.dart';
 
 class LogKesehatanController extends GetxController {
-  // Input Controllers matching backend HealthRecordCreate schema
-  final cholesterolController = TextEditingController(); // mg/dL
-  final tensiController = TextEditingController(); // Format: 120/80
-  final uricAcidController = TextEditingController(); // mg/dL
-  final bloodSugarController = TextEditingController(); // mg/dL
-  final bodyTempController = TextEditingController(); // °C
-  final heartRateController = TextEditingController(); // bpm
-  final spo2Controller = TextEditingController(); // %
-  final weightController = TextEditingController(); // kg
-  final notesController = TextEditingController(); // daily_notes
-  final complaintsController = TextEditingController(); // complaints
+  final HealthRepository _healthRepository;
 
-  final isLoading = false.obs;
-  final patientName = ''.obs;
-  final HealthApi _api = HealthApi();
+  LogKesehatanController({required HealthRepository healthRepository})
+      : _healthRepository = healthRepository;
 
-  int? elderlyId;
+  // ── Form controllers ──
+  final cholesterolController = TextEditingController();
+  final tensiController = TextEditingController();
+  final uricAcidController = TextEditingController();
+  final bloodSugarController = TextEditingController();
+  final bodyTempController = TextEditingController();
+  final heartRateController = TextEditingController();
+  final spo2Controller = TextEditingController();
+  final weightController = TextEditingController();
+  final notesController = TextEditingController();
+  final complaintsController = TextEditingController();
+
+  // ── Reactive state ──
+  final _isLoading = false.obs;
+  final _patientName = ''.obs;
+
+  // ── Public getters ──
+  bool get isLoading => _isLoading.value;
+  String get patientName => _patientName.value;
+
+  String? _elderlyId;
 
   @override
   void onInit() {
     super.onInit();
     if (Get.arguments != null && Get.arguments is Map) {
       final args = Get.arguments as Map;
-      elderlyId = args['elderly_id'] is int
-          ? args['elderly_id']
-          : int.tryParse(args['elderly_id']?.toString() ?? '');
-      patientName.value = args['name'] as String? ?? '';
+      _elderlyId = args['elderly_id']?.toString();
+      _patientName.value = args['name'] as String? ?? '';
     }
   }
 
@@ -51,7 +58,6 @@ class LogKesehatanController extends GetxController {
   }
 
   Future<void> submitHealthRecord() async {
-    // 1. Parsing Tensi to systolic_bp and diastolic_bp
     double? systolicBp;
     double? diastolicBp;
     if (tensiController.text.contains('/')) {
@@ -62,7 +68,6 @@ class LogKesehatanController extends GetxController {
       systolicBp = double.tryParse(tensiController.text.trim());
     }
 
-    // 2. Map other fields
     final cholesterol = double.tryParse(cholesterolController.text.trim());
     final uricAcid = double.tryParse(uricAcidController.text.trim());
     final bloodSugar = double.tryParse(bloodSugarController.text.trim());
@@ -73,11 +78,21 @@ class LogKesehatanController extends GetxController {
     final notes = notesController.text.trim();
     final complaints = complaintsController.text.trim();
 
-    // 3. Call API
-    isLoading.value = true;
+    if (_elderlyId == null || _elderlyId!.isEmpty) {
+      _isLoading.value = false;
+      Get.snackbar(
+        'Error',
+        'Data lansia tidak ditemukan. Silakan pilih lansia dari halaman utama.',
+        backgroundColor: const Color(0xFFFFDAD6),
+        colorText: const Color(0xFF1C1B1C),
+      );
+      return;
+    }
 
-    final result = await _api.createRecord(
-      elderlyId: elderlyId ?? 0,
+    _isLoading.value = true;
+
+    final result = await _healthRepository.createRecord(
+      elderlyId: _elderlyId!,
       systolicBp: systolicBp,
       diastolicBp: diastolicBp,
       heartRate: heartRate,
@@ -91,9 +106,8 @@ class LogKesehatanController extends GetxController {
       complaints: complaints.isNotEmpty ? complaints : null,
     );
 
-    isLoading.value = false;
+    _isLoading.value = false;
 
-    // 4. Parse response for success page
     String healthStatus = "Normal";
     String healthMessage =
         "Semua indikator vital dalam batas normal. Tetap pertahankan pola makan sehat dan rutinitas aktivitas harian.";
@@ -102,14 +116,21 @@ class LogKesehatanController extends GetxController {
     double fuzzyInfectionScore = 0.0;
 
     if (result['error'] == true) {
+      final errMsg = result['message'] as String? ??
+          'Gagal menyimpan data kesehatan. Periksa koneksi Anda.';
+      final detailBody = result['detail_body'] as Map<String, dynamic>?;
+      log.error('submitHealthRecord gagal', data: {
+        'message': errMsg,
+        'statusCode': result['statusCode'],
+        if (detailBody case final body?) 'detail': body,
+      });
       Get.snackbar(
         'Gagal',
-        'Gagal menyimpan data kesehatan. Periksa koneksi Anda.',
+        errMsg,
         backgroundColor: Colors.red.shade100,
         duration: const Duration(seconds: 3),
       );
 
-      // Fallback: mock analysis so user still sees result
       if ((systolicBp != null && systolicBp > 180) ||
           (bloodSugar != null && bloodSugar > 250)) {
         healthStatus = "Kritis";
@@ -131,7 +152,8 @@ class LogKesehatanController extends GetxController {
         if (fuzzy != null) {
           final status = fuzzy['final_status'] as String?;
           if (status != null) {
-            healthStatus = status.toString().capitalizeFirst ?? healthStatus;
+            healthStatus =
+                status.toString().capitalizeFirst ?? healthStatus;
           }
         }
 
@@ -141,56 +163,7 @@ class LogKesehatanController extends GetxController {
       }
     }
 
-    // 5. Update Dashboard Metrics
-    try {
-      final dashboardCtrl = Get.find<DashboardController>();
-      if (cholesterolController.text.isNotEmpty) {
-        dashboardCtrl.updateHealthMetric(
-          'cholesterol',
-          cholesterolController.text.trim(),
-        );
-      }
-      if (tensiController.text.isNotEmpty) {
-        dashboardCtrl.updateHealthMetric('tensi', tensiController.text.trim());
-      }
-      if (uricAcidController.text.isNotEmpty) {
-        dashboardCtrl.updateHealthMetric(
-          'uric_acid',
-          uricAcidController.text.trim(),
-        );
-      }
-      if (bloodSugarController.text.isNotEmpty) {
-        dashboardCtrl.updateHealthMetric(
-          'blood_sugar',
-          bloodSugarController.text.trim(),
-        );
-      }
-      if (bodyTempController.text.isNotEmpty) {
-        dashboardCtrl.updateHealthMetric(
-          'body_temp',
-          bodyTempController.text.trim(),
-        );
-      }
-      if (heartRateController.text.isNotEmpty) {
-        dashboardCtrl.updateHealthMetric(
-          'heart_rate',
-          heartRateController.text.trim(),
-        );
-      }
-      if (spo2Controller.text.isNotEmpty) {
-        dashboardCtrl.updateHealthMetric('spo2', spo2Controller.text.trim());
-      }
-      if (weightController.text.isNotEmpty) {
-        dashboardCtrl.updateHealthMetric(
-          'weight',
-          weightController.text.trim(),
-        );
-      }
-    } catch (e) {
-      debugPrint('DashboardController not found, skipping UI update');
-    }
-
-    // 6. Navigate to success page
+    // 6. Navigate to success page — pass elderly info for refresh on return
     Get.offNamed(
       Routes.SUCCESS_LOG_KESEHATAN,
       arguments: {
@@ -199,6 +172,8 @@ class LogKesehatanController extends GetxController {
         "cardio_score": fuzzyCardioScore,
         "metabolic_score": fuzzyMetabolicScore,
         "infection_score": fuzzyInfectionScore,
+        "elderly_id": _elderlyId,
+        "name": _patientName.value,
       },
     );
   }

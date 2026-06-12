@@ -1,52 +1,77 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mobile/app/data/auth_api.dart';
-import '../../../routes/app_pages.dart';
+import 'package:mobile/app/data/repositories/auth_repository.dart';
+import 'package:mobile/app/routes/app_pages.dart';
 
 class RegisterController extends GetxController {
-  final name = ''.obs;
-  final email = ''.obs;
-  final password = ''.obs;
-  final confirmPassword = ''.obs;
-  final obscurePassword = true.obs;
-  final obscureConfirmPassword = true.obs;
-  final isLoading = false.obs;
+  final AuthRepository _authRepository;
+
+  RegisterController({required AuthRepository authRepository})
+      : _authRepository = authRepository;
+
+  // ── Reactive state ──
+  final _name = ''.obs;
+  final _email = ''.obs;
+  final _password = ''.obs;
+  final _confirmPassword = ''.obs;
+  final _obscurePassword = true.obs;
+  final _obscureConfirmPassword = true.obs;
+  final _isLoading = false.obs;
 
   // OTP state
-  final showOtpField = false.obs;
-  final otp = ''.obs;
-  final registeredEmail = ''.obs;
-  final otpExpiresMinutes = 5.obs;
+  final _showOtpField = false.obs;
+  final _otp = ''.obs;
+  final _registeredEmail = ''.obs;
+  final _otpExpiresMinutes = 5.obs;
 
-  final AuthApi _authApi = AuthApi();
+  // ── Public getters ──
+  String get name => _name.value;
+  String get email => _email.value;
+  String get password => _password.value;
+  String get confirmPassword => _confirmPassword.value;
+  bool get obscurePassword => _obscurePassword.value;
+  bool get obscureConfirmPassword => _obscureConfirmPassword.value;
+  bool get isLoading => _isLoading.value;
+  bool get showOtpField => _showOtpField.value;
+  String get otp => _otp.value;
+  String get registeredEmail => _registeredEmail.value;
+  int get otpExpiresMinutes => _otpExpiresMinutes.value;
+
+  set name(String value) => _name.value = value;
+  set email(String value) => _email.value = value;
+  set password(String value) => _password.value = value;
+  set confirmPassword(String value) => _confirmPassword.value = value;
+  set otp(String value) => _otp.value = value;
+  set showOtpField(bool value) => _showOtpField.value = value;
 
   void togglePasswordVisibility() =>
-      obscurePassword.value = !obscurePassword.value;
+      _obscurePassword.value = !_obscurePassword.value;
+
   void toggleConfirmPasswordVisibility() =>
-      obscureConfirmPassword.value = !obscureConfirmPassword.value;
+      _obscureConfirmPassword.value = !_obscureConfirmPassword.value;
 
   bool _validate() {
-    if (name.value.trim().isEmpty) {
+    if (_name.value.trim().isEmpty) {
       _showError('Nama lengkap harus diisi');
       return false;
     }
-    if (email.value.trim().isEmpty) {
+    if (_email.value.trim().isEmpty) {
       _showError('Email harus diisi');
       return false;
     }
-    if (!GetUtils.isEmail(email.value.trim())) {
+    if (!GetUtils.isEmail(_email.value.trim())) {
       _showError('Format email tidak valid');
       return false;
     }
-    if (password.value.isEmpty) {
+    if (_password.value.isEmpty) {
       _showError('Password harus diisi');
       return false;
     }
-    if (password.value.length < 6) {
+    if (_password.value.length < 6) {
       _showError('Password minimal 6 karakter');
       return false;
     }
-    if (password.value != confirmPassword.value) {
+    if (_password.value != _confirmPassword.value) {
       _showError('Password dan konfirmasi password tidak sama');
       return false;
     }
@@ -68,15 +93,15 @@ class RegisterController extends GetxController {
   Future<void> register() async {
     if (!_validate()) return;
 
-    isLoading.value = true;
+    _isLoading.value = true;
 
-    final result = await _authApi.register(
-      email: email.value.trim(),
-      password: password.value,
-      fullName: name.value.trim(),
+    final result = await _authRepository.register(
+      email: _email.value.trim(),
+      password: _password.value,
+      fullName: _name.value.trim(),
     );
 
-    isLoading.value = false;
+    _isLoading.value = false;
 
     if (result['error'] == true) {
       Get.snackbar(
@@ -91,12 +116,11 @@ class RegisterController extends GetxController {
       return;
     }
 
-    // Registration success — show OTP verification
-    registeredEmail.value = email.value.trim();
-    showOtpField.value = true;
+    _registeredEmail.value = _email.value.trim();
+    _showOtpField.value = true;
     Get.snackbar(
       'Berhasil Daftar',
-      'Kode OTP telah dikirim ke ${email.value.trim()}',
+      'Kode OTP telah dikirim ke ${_email.value.trim()}',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: const Color(0xFFBBF246),
       colorText: const Color(0xFF192126),
@@ -106,23 +130,23 @@ class RegisterController extends GetxController {
   }
 
   Future<void> verifyOtp() async {
-    if (otp.value.trim().isEmpty) {
+    if (_otp.value.trim().isEmpty) {
       _showError('Kode OTP harus diisi');
       return;
     }
-    if (otp.value.trim().length < 4) {
+    if (_otp.value.trim().length < 4) {
       _showError('Kode OTP tidak valid');
       return;
     }
 
-    isLoading.value = true;
+    _isLoading.value = true;
 
-    final result = await _authApi.verifyOtp(
-      email: registeredEmail.value,
-      otp: otp.value.trim(),
+    final result = await _authRepository.verifyOtp(
+      email: _registeredEmail.value,
+      otp: _otp.value.trim(),
     );
 
-    isLoading.value = false;
+    _isLoading.value = false;
 
     if (result['error'] == true) {
       Get.snackbar(

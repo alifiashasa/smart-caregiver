@@ -1,13 +1,21 @@
 import 'package:get/get.dart';
-import 'package:mobile/app/data/auth_api.dart';
+import '../../../core/logger.dart';
+import '../../../data/repositories/auth_repository.dart';
 import '../../../routes/app_pages.dart';
 
 class ProfilCaregiverController extends GetxController {
-  final count = 0.obs;
-  final fullName = ''.obs;
-  final email = ''.obs;
+  final AuthRepository _authRepository;
 
-  final AuthApi _authApi = AuthApi();
+  ProfilCaregiverController({required AuthRepository authRepository})
+      : _authRepository = authRepository;
+
+  // ── Reactive state ──
+  final _fullName = ''.obs;
+  final _email = ''.obs;
+
+  // ── Public getters ──
+  String get fullName => _fullName.value;
+  String get email => _email.value;
 
   @override
   void onInit() {
@@ -16,18 +24,25 @@ class ProfilCaregiverController extends GetxController {
   }
 
   Future<void> _loadProfile() async {
-    final result = await _authApi.getMe();
+    final result = await _authRepository.getMe();
     if (result['error'] == false) {
       final data = result['data'] as Map<String, dynamic>;
-      fullName.value = data['full_name'] ?? '';
-      email.value = data['email'] ?? '';
+      _fullName.value = data['full_name'] ?? '';
+      _email.value = data['email'] ?? '';
+      log.info('Profile loaded', data: {
+        'email': _email.value,
+        'full_name': _fullName.value,
+      });
+    } else {
+      log.error('Gagal load profil caregiver', data: {
+        'message': result['message'],
+        'statusCode': result['statusCode'],
+      });
     }
   }
 
-  void increment() => count.value++;
-
   void logout() {
-    _authApi.logout();
+    _authRepository.logout();
     Get.offAllNamed(Routes.LOGIN);
   }
 }

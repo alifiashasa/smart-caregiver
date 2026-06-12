@@ -5,7 +5,7 @@ class HealthApi {
 
   /// POST /health/records
   Future<Map<String, dynamic>> createRecord({
-    required int elderlyId,
+    required String elderlyId,
     double? systolicBp,
     double? diastolicBp,
     double? heartRate,
@@ -51,7 +51,7 @@ class HealthApi {
   }
 
   /// GET /elderly/{elderlyId}/health/records
-  Future<Map<String, dynamic>> getRecords(int elderlyId, {int? limit}) async {
+  Future<Map<String, dynamic>> getRecords(String elderlyId, {int? limit}) async {
     final query = limit != null ? '?limit=$limit' : '';
     final response = await _client.get(
       '/elderly/$elderlyId/health/records$query',
@@ -70,7 +70,7 @@ class HealthApi {
   }
 
   /// GET /elderly/{elderlyId}/health/latest
-  Future<Map<String, dynamic>> getLatest(int elderlyId) async {
+  Future<Map<String, dynamic>> getLatest(String elderlyId) async {
     final response = await _client.get(
       '/elderly/$elderlyId/health/latest',
       authenticated: true,

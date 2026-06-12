@@ -69,7 +69,7 @@ class ElderlyApi {
   }
 
   /// GET /elderly/{id}
-  Future<Map<String, dynamic>> getById(int id) async {
+  Future<Map<String, dynamic>> getById(String id) async {
     final response = await _client.get(
       '/elderly/$id',
       authenticated: true,
@@ -88,7 +88,7 @@ class ElderlyApi {
 
   /// PUT /elderly/{id}
   Future<Map<String, dynamic>> update(
-    int id, {
+    String id, {
     String? fullName,
     int? age,
     String? gender,
@@ -132,7 +132,7 @@ class ElderlyApi {
   }
 
   /// DELETE /elderly/{id}
-  Future<Map<String, dynamic>> delete(int id) async {
+  Future<Map<String, dynamic>> delete(String id) async {
     final response = await _client.delete(
       '/elderly/$id',
       authenticated: true,

@@ -1,16 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../data/ai_api.dart';
+import '../../../data/repositories/ai_repository.dart';
 
 class RekomendasiAiController extends GetxController {
-  final AiApi _api = AiApi();
+  final AiRepository _aiRepository;
 
-  final recommendations = <Map<String, dynamic>>[].obs;
-  final isLoading = true.obs;
-  final isGenerating = false.obs;
-  final errorMessage = Rxn<String>();
+  RekomendasiAiController({required AiRepository aiRepository})
+      : _aiRepository = aiRepository;
 
-  final elderlyId = 0.obs;
+  // ── Reactive state ──
+  final _recommendations = <Map<String, dynamic>>[].obs;
+  final _isLoading = true.obs;
+  final _isGenerating = false.obs;
+  final _errorMessage = Rxn<String>();
+  final _elderlyId = ''.obs;
+
+  // ── Public getters ──
+  List<Map<String, dynamic>> get recommendations => _recommendations;
+  bool get isLoading => _isLoading.value;
+  bool get isGenerating => _isGenerating.value;
+  String? get errorMessage => _errorMessage.value;
+  String get elderlyId => _elderlyId.value;
 
   @override
   void onInit() {
@@ -21,53 +31,50 @@ class RekomendasiAiController extends GetxController {
   void _readArgs() {
     if (Get.arguments != null && Get.arguments is Map) {
       final args = Get.arguments as Map;
-      if (args['elderly_id'] is int) {
-        elderlyId.value = args['elderly_id'];
-      } else if (args['elderly_id'] != null) {
-        elderlyId.value =
-            int.tryParse(args['elderly_id'].toString()) ?? 0;
+      if (args['elderly_id'] != null) {
+        _elderlyId.value = args['elderly_id'].toString();
       }
     }
-    if (elderlyId.value > 0) {
+    if (_elderlyId.value.isNotEmpty) {
       fetchRecommendations();
     } else {
-      isLoading.value = false;
-      errorMessage.value = 'Data lansia tidak ditemukan.';
+      _isLoading.value = false;
+      _errorMessage.value = 'Data lansia tidak ditemukan.';
     }
   }
 
   Future<void> fetchRecommendations() async {
-    if (elderlyId.value <= 0) return;
+    if (_elderlyId.value.isEmpty) return;
 
-    isLoading.value = true;
-    errorMessage.value = null;
+    _isLoading.value = true;
+    _errorMessage.value = null;
 
-    final result = await _api.getRecommendations(elderlyId.value);
+    final result = await _aiRepository.getRecommendations(_elderlyId.value);
 
     if (!result['error'] && result['data'] != null) {
       final data = result['data'] as Map<String, dynamic>;
       final rawList = data['recommendations'] as List<dynamic>? ?? [];
-      recommendations.assignAll(rawList.cast<Map<String, dynamic>>());
+      _recommendations.assignAll(rawList.cast<Map<String, dynamic>>());
     } else {
-      errorMessage.value =
+      _errorMessage.value =
           result['message'] ?? 'Gagal memuat rekomendasi.';
     }
 
-    isLoading.value = false;
+    _isLoading.value = false;
   }
 
   Future<void> generateRecommendation({String? additionalContext}) async {
-    if (elderlyId.value <= 0) return;
+    if (_elderlyId.value.isEmpty) return;
 
-    isGenerating.value = true;
-    errorMessage.value = null;
+    _isGenerating.value = true;
+    _errorMessage.value = null;
 
-    final result = await _api.generateRecommendation(
-      elderlyId: elderlyId.value,
+    final result = await _aiRepository.generateRecommendation(
+      elderlyId: _elderlyId.value,
       additionalContext: additionalContext,
     );
 
-    isGenerating.value = false;
+    _isGenerating.value = false;
 
     if (!result['error']) {
       Get.snackbar(
@@ -97,12 +104,12 @@ class RekomendasiAiController extends GetxController {
     final id = rec['id']?.toString();
     if (id == null || id.isEmpty) return;
 
-    // Default schedule for 1 hour from now
-    final scheduledAt = DateTime.now().add(const Duration(hours: 1)).toIso8601String();
+    final scheduledAt =
+        DateTime.now().add(const Duration(hours: 1)).toIso8601String();
     final duration = rec['duration_minutes'] as int? ?? 30;
 
-    final result = await _api.approveRecommendation(
-      elderlyId: elderlyId.value,
+    final result = await _aiRepository.approveRecommendation(
+      elderlyId: _elderlyId.value,
       recommendationId: id,
       scheduledAt: scheduledAt,
       durationMinutes: duration,
@@ -110,11 +117,10 @@ class RekomendasiAiController extends GetxController {
     );
 
     if (!result['error']) {
-      // Update local state
-      final index = recommendations.indexWhere((r) => r['id'] == id);
+      final index = _recommendations.indexWhere((r) => r['id'] == id);
       if (index != -1) {
-        recommendations[index]['status'] = 'approved';
-        recommendations.refresh();
+        _recommendations[index]['status'] = 'approved';
+        _recommendations.refresh();
       }
 
       Get.snackbar(
@@ -143,16 +149,16 @@ class RekomendasiAiController extends GetxController {
     final id = rec['id']?.toString();
     if (id == null || id.isEmpty) return;
 
-    final result = await _api.rejectRecommendation(
-      elderlyId: elderlyId.value,
+    final result = await _aiRepository.rejectRecommendation(
+      elderlyId: _elderlyId.value,
       recommendationId: id,
     );
 
     if (!result['error']) {
-      final index = recommendations.indexWhere((r) => r['id'] == id);
+      final index = _recommendations.indexWhere((r) => r['id'] == id);
       if (index != -1) {
-        recommendations[index]['status'] = 'rejected';
-        recommendations.refresh();
+        _recommendations[index]['status'] = 'rejected';
+        _recommendations.refresh();
       }
 
       Get.snackbar(

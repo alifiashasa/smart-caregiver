@@ -57,7 +57,7 @@ class LoginView extends GetView<LoginController> {
               ),
               const SizedBox(height: 8),
               TextFormField(
-                onChanged: (val) => controller.email.value = val,
+                onChanged: (val) => controller.email = val,
                 autocorrect: false,
                 enableSuggestions: false,
                 textCapitalization: TextCapitalization.none,
@@ -106,11 +106,11 @@ class LoginView extends GetView<LoginController> {
               const SizedBox(height: 8),
               Obx(
                 () => TextFormField(
-                  onChanged: (val) => controller.password.value = val,
+                  onChanged: (val) => controller.password = val,
                   autocorrect: false,
                   enableSuggestions: false,
                   textCapitalization: TextCapitalization.none,
-                  obscureText: controller.isPasswordHidden.value,
+                  obscureText: controller.isPasswordHidden,
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) => controller.login(),
                   style: const TextStyle(
@@ -147,7 +147,7 @@ class LoginView extends GetView<LoginController> {
                       padding: const EdgeInsets.only(right: 16.0),
                       child: IconButton(
                         icon: Icon(
-                          controller.isPasswordHidden.value
+                          controller.isPasswordHidden
                               ? Icons.visibility_off_outlined
                               : Icons.visibility_outlined,
                           color: const Color(0xFFB0B0B0),
@@ -163,7 +163,7 @@ class LoginView extends GetView<LoginController> {
               // Continue Button
               Obx(
                 () => ElevatedButton(
-                  onPressed: controller.isLoading.value
+                  onPressed: controller.isLoading
                       ? null
                       : controller.login,
                   style: ElevatedButton.styleFrom(
@@ -175,7 +175,7 @@ class LoginView extends GetView<LoginController> {
                     padding: const EdgeInsets.symmetric(vertical: 20),
                     elevation: 0,
                   ),
-                  child: controller.isLoading.value
+                  child: controller.isLoading
                       ? const SizedBox(
                           height: 20,
                           width: 20,

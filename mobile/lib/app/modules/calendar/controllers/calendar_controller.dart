@@ -1,22 +1,35 @@
 import 'package:get/get.dart';
-import '../../../data/schedule_api.dart';
+import '../../../core/logger.dart';
+import '../../../data/repositories/schedule_repository.dart';
 import '../../../routes/app_pages.dart';
 
 class CalendarController extends GetxController {
-  final ScheduleApi _api = ScheduleApi();
+  final ScheduleRepository _scheduleRepository;
 
-  final currentIndex = 1.obs;
+  CalendarController({required ScheduleRepository scheduleRepository})
+      : _scheduleRepository = scheduleRepository;
 
-  // ── Patient data (from args) ──
-  final patientName = ''.obs;
-  final patientAge = ''.obs;
-  final patientImage = 'assets/images/patient_ibu_siti.png'.obs;
-  final patientGender = 'Perempuan'.obs;
+  // ── Reactive state ──
+  final _currentIndex = 1.obs;
+  final _patientName = ''.obs;
+  final _patientAge = ''.obs;
+  final _patientImage = 'assets/images/patient_ibu_siti.png'.obs;
+  final _patientGender = 'Perempuan'.obs;
+  final _schedules = <Map<String, dynamic>>[].obs;
+  final _isLoading = false.obs;
+  final _elderlyId = ''.obs;
 
-  // ── Schedules from API ──
-  final schedules = <Map<String, dynamic>>[].obs;
-  final isLoading = false.obs;
-  final elderlyId = 0.obs;
+  // ── Public getters ──
+  int get currentIndex => _currentIndex.value;
+  String get patientName => _patientName.value;
+  String get patientAge => _patientAge.value;
+  String get patientImage => _patientImage.value;
+  String get patientGender => _patientGender.value;
+  List<Map<String, dynamic>> get schedules => _schedules;
+  bool get isLoading => _isLoading.value;
+  String get elderlyId => _elderlyId.value;
+
+  set currentIndex(int value) => _currentIndex.value = value;
 
   @override
   void onInit() {
@@ -28,9 +41,9 @@ class CalendarController extends GetxController {
   void onReady() {
     super.onReady();
     _loadSchedules();
-    if (currentIndex.value != 1) {
+    if (_currentIndex.value != 1) {
       Future.delayed(const Duration(milliseconds: 10), () {
-        currentIndex.value = 1;
+        _currentIndex.value = 1;
       });
     }
   }
@@ -38,42 +51,44 @@ class CalendarController extends GetxController {
   void _readArgs() {
     if (Get.arguments != null && Get.arguments is Map) {
       final args = Get.arguments as Map;
-      if (args['from'] != null) currentIndex.value = args['from'] as int;
-      if (args['name'] != null) patientName.value = args['name'] as String;
-      if (args['age'] != null) patientAge.value = args['age'] as String;
-      if (args['image'] != null) patientImage.value = args['image'] as String;
-      if (args['gender'] != null) {
-        patientGender.value = args['gender'] as String;
+      if (args['from'] != null) _currentIndex.value = args['from'] as int;
+      if (args['name'] != null) _patientName.value = args['name'] as String;
+      if (args['age'] != null) _patientAge.value = args['age'].toString();
+      if (args['image'] != null) {
+        _patientImage.value = args['image'] as String;
       }
-      if (args['elderly_id'] is int) {
-        elderlyId.value = args['elderly_id'];
-      } else if (args['elderly_id'] != null) {
-        elderlyId.value =
-            int.tryParse(args['elderly_id'].toString()) ?? 0;
+      if (args['gender'] != null) {
+        _patientGender.value = args['gender'] as String;
+      }
+      if (args['elderly_id'] != null) {
+        _elderlyId.value = args['elderly_id'].toString();
       }
     }
+    log.info('CalendarController._readArgs', data: {
+      'elderly_id': _elderlyId.value,
+      'has_args': Get.arguments != null,
+    });
   }
 
   Future<void> _loadSchedules() async {
-    if (elderlyId.value <= 0) return;
+    if (_elderlyId.value.isEmpty) return;
 
-    isLoading.value = true;
+    _isLoading.value = true;
 
-    final result = await _api.getSchedules(elderlyId.value);
+    final result = await _scheduleRepository.getSchedules(_elderlyId.value);
 
     if (!result['error'] && result['data'] != null) {
       final data = result['data'] as Map<String, dynamic>;
       final rawList = data['schedules'] as List<dynamic>? ?? [];
-      schedules.value = rawList
+      _schedules.value = rawList
           .map((s) => _normalizeSchedule(s as Map<String, dynamic>))
           .toList();
     }
 
-    isLoading.value = false;
+    _isLoading.value = false;
   }
 
   Map<String, dynamic> _normalizeSchedule(Map<String, dynamic> s) {
-    // Parse ISO datetime string to DateTime object for display
     DateTime scheduledAt;
     try {
       scheduledAt = DateTime.parse(s['scheduled_at'] as String);
@@ -93,11 +108,8 @@ class CalendarController extends GetxController {
     };
   }
 
-  void refreshSchedules() {
-    _loadSchedules();
-  }
+  void refreshSchedules() => _loadSchedules();
 
-  /// Called after jadwal-lansia screen creates a schedule
   void onScheduleCreated(dynamic result) {
     if (result == true) {
       _loadSchedules();
@@ -105,23 +117,21 @@ class CalendarController extends GetxController {
   }
 
   Future<void> toggleScheduleCompletion(String id) async {
-    final result = await _api.markComplete(id);
+    final result = await _scheduleRepository.markComplete(id);
     if (!result['error']) {
-      final index = schedules.indexWhere((s) => s['id'] == id);
+      final index = _schedules.indexWhere((s) => s['id'] == id);
       if (index != -1) {
-        schedules[index]['is_completed'] = true;
-        schedules.refresh();
+        _schedules[index]['is_completed'] = true;
+        _schedules.refresh();
       }
     }
   }
 
   void addSchedule(Map<String, dynamic> scheduleData) {
-    // Navigate to jadwal-lansia form with elderly data
     scheduleData['id'] = DateTime.now().millisecondsSinceEpoch.toString();
     scheduleData['is_completed'] = false;
-    schedules.add(scheduleData);
-
-    schedules.sort(
+    _schedules.add(scheduleData);
+    _schedules.sort(
       (a, b) => (a['scheduled_at'] as DateTime)
           .compareTo(b['scheduled_at'] as DateTime),
     );
@@ -130,7 +140,7 @@ class CalendarController extends GetxController {
   void navigateToAddSchedule() async {
     final result = await Get.toNamed(
       Routes.JADWAL_LANSIA,
-      arguments: {'elderly_id': elderlyId.value},
+      arguments: {'elderly_id': _elderlyId.value},
     );
     if (result == true) {
       _loadSchedules();
@@ -138,18 +148,18 @@ class CalendarController extends GetxController {
   }
 
   void changePage(int index) {
-    if (currentIndex.value == index) return;
+    if (_currentIndex.value == index) return;
 
-    int previousIndex = currentIndex.value;
-    currentIndex.value = index;
+    int previousIndex = _currentIndex.value;
+    _currentIndex.value = index;
 
     final args = {
       'from': previousIndex,
-      'name': patientName.value,
-      'age': patientAge.value,
-      'image': patientImage.value,
-      'gender': patientGender.value,
-      'elderly_id': elderlyId.value,
+      'name': _patientName.value,
+      'age': _patientAge.value,
+      'image': _patientImage.value,
+      'gender': _patientGender.value,
+      'elderly_id': _elderlyId.value,
     };
 
     if (index == 0) {

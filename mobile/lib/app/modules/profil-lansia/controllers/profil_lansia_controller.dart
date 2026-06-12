@@ -1,22 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../data/elderly_api.dart';
+import '../../../data/repositories/elderly_repository.dart';
 import '../../../routes/app_pages.dart';
 
 class ProfilLansiaController extends GetxController {
-  final currentIndex = 3.obs;
-  final patientImage = 'assets/images/patient_ibu_siti.png'.obs;
-  final isLoading = false.obs;
+  final ElderlyRepository _elderlyRepository;
 
-  int? elderlyId;
+  ProfilLansiaController({required ElderlyRepository elderlyRepository})
+      : _elderlyRepository = elderlyRepository;
 
-  final TextEditingController namaController = TextEditingController();
-  final TextEditingController umurController = TextEditingController();
-  final TextEditingController jenisKelaminController = TextEditingController();
-  final TextEditingController riwayatMedisController = TextEditingController();
-  final TextEditingController minatHobiController = TextEditingController();
+  // ── Reactive state ──
+  final _currentIndex = 3.obs;
+  final _patientImage = 'assets/images/patient_ibu_siti.png'.obs;
+  final _isLoading = false.obs;
 
-  final ElderlyApi _api = ElderlyApi();
+  // ── Form controllers ──
+  final namaController = TextEditingController();
+  final umurController = TextEditingController();
+  final jenisKelaminController = TextEditingController();
+  final riwayatMedisController = TextEditingController();
+  final minatHobiController = TextEditingController();
+
+  // ── Public getters ──
+  int get currentIndex => _currentIndex.value;
+  String get patientImage => _patientImage.value;
+  bool get isLoading => _isLoading.value;
+
+  set currentIndex(int value) => _currentIndex.value = value;
+
+  String? _elderlyId;
 
   @override
   void onInit() {
@@ -24,19 +36,17 @@ class ProfilLansiaController extends GetxController {
 
     if (Get.arguments != null && Get.arguments is Map) {
       final args = Get.arguments as Map;
-      elderlyId = args['elderly_id'] as int?;
+      _elderlyId = args['elderly_id']?.toString();
 
       if (args['from'] != null) {
-        currentIndex.value = args['from'];
+        _currentIndex.value = args['from'];
       }
 
       namaController.text = args['name'] ?? 'Ibu Siti';
-      umurController.text = (args['age'] ?? '55 Tahun').replaceAll(
-        ' Tahun',
-        '',
-      );
+      umurController.text =
+          (args['age']?.toString() ?? '55').replaceAll(' Tahun', '');
       jenisKelaminController.text = args['gender'] ?? 'Perempuan';
-      patientImage.value =
+      _patientImage.value =
           args['image'] ?? 'assets/images/patient_ibu_siti.png';
     } else {
       namaController.text = 'Ibu Siti';
@@ -44,17 +54,17 @@ class ProfilLansiaController extends GetxController {
       jenisKelaminController.text = 'Perempuan';
     }
 
-    if (elderlyId != null) {
-      loadProfile(elderlyId!);
+    if (_elderlyId != null) {
+      loadProfile(_elderlyId!);
     }
   }
 
-  Future<void> loadProfile(int id) async {
-    isLoading.value = true;
+  Future<void> loadProfile(String id) async {
+    _isLoading.value = true;
 
-    final result = await _api.getById(id);
+    final result = await _elderlyRepository.getById(id);
 
-    isLoading.value = false;
+    _isLoading.value = false;
 
     if (result['error'] == true) return;
 
@@ -62,28 +72,30 @@ class ProfilLansiaController extends GetxController {
     if (data != null) {
       namaController.text = data['full_name'] ?? namaController.text;
       umurController.text = data['age']?.toString() ?? umurController.text;
-      jenisKelaminController.text = data['gender'] ?? jenisKelaminController.text;
+      jenisKelaminController.text =
+          data['gender'] ?? jenisKelaminController.text;
       riwayatMedisController.text = data['medical_history'] ?? '';
       minatHobiController.text = data['hobbies_interests'] ?? '';
-      if (data['photo_url'] != null && data['photo_url'].toString().isNotEmpty) {
-        patientImage.value = data['photo_url'];
+      if (data['photo_url'] != null &&
+          data['photo_url'].toString().isNotEmpty) {
+        _patientImage.value = data['photo_url'];
       }
     }
   }
 
   void changePage(int index) {
-    if (currentIndex.value == index) return;
+    if (_currentIndex.value == index) return;
 
-    int previousIndex = currentIndex.value;
-    currentIndex.value = index;
+    int previousIndex = _currentIndex.value;
+    _currentIndex.value = index;
 
     final args = {
       'from': previousIndex,
       'name': namaController.text,
       'age': umurController.text,
-      'image': patientImage.value,
+      'image': _patientImage.value,
       'gender': jenisKelaminController.text,
-      if (elderlyId != null) 'elderly_id': elderlyId,
+      if (_elderlyId != null) 'elderly_id': _elderlyId,
     };
 
     if (index == 0) {
@@ -98,18 +110,19 @@ class ProfilLansiaController extends GetxController {
   }
 
   Future<void> saveChanges() async {
-    if (elderlyId == null) {
+    if (_elderlyId == null) {
       Get.snackbar('Info', 'Tidak ada profil lansia yang dimuat');
       return;
     }
 
-    isLoading.value = true;
+    _isLoading.value = true;
 
     final age = int.tryParse(umurController.text);
 
-    final result = await _api.update(
-      elderlyId!,
-      fullName: namaController.text.isNotEmpty ? namaController.text : null,
+    final result = await _elderlyRepository.update(
+      _elderlyId!,
+      fullName:
+          namaController.text.isNotEmpty ? namaController.text : null,
       age: age,
       gender: jenisKelaminController.text.isNotEmpty
           ? jenisKelaminController.text
@@ -122,7 +135,7 @@ class ProfilLansiaController extends GetxController {
           : null,
     );
 
-    isLoading.value = false;
+    _isLoading.value = false;
 
     if (result['error'] == true) {
       Get.snackbar(
@@ -147,9 +160,9 @@ class ProfilLansiaController extends GetxController {
   @override
   void onReady() {
     super.onReady();
-    if (currentIndex.value != 3) {
+    if (_currentIndex.value != 3) {
       Future.delayed(const Duration(milliseconds: 10), () {
-        currentIndex.value = 3;
+        _currentIndex.value = 3;
       });
     }
   }

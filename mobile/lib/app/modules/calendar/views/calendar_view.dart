@@ -610,7 +610,7 @@ class CalendarView extends GetView<CalendarController> {
   }
 
   Widget _buildNavItem(int index, IconData icon, String label) {
-    bool isSelected = controller.currentIndex.value == index;
+    bool isSelected = controller.currentIndex == index;
     return GestureDetector(
       onTap: () => controller.changePage(index),
       child: AnimatedContainer(
@@ -700,7 +700,7 @@ class CalendarView extends GetView<CalendarController> {
               onTap: () {
                 Get.back();
                 Get.toNamed(Routes.TEMPLATE_JADWAL, arguments: {
-                  'elderly_id': controller.elderlyId.value,
+                  'elderly_id': controller.elderlyId,
                 });
               },
             ),
@@ -714,7 +714,7 @@ class CalendarView extends GetView<CalendarController> {
               onTap: () {
                 Get.back();
                 Get.toNamed(Routes.REKOMENDASI_AI, arguments: {
-                  'elderly_id': controller.elderlyId.value,
+                  'elderly_id': controller.elderlyId,
                 });
               },
             ),

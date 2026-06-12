@@ -76,7 +76,7 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                                             decoration: ShapeDecoration(
                                               image: DecorationImage(
                                                 image: AssetImage(
-                                                  controller.patientImage.value,
+                                                  controller.patientImage,
                                                 ),
                                                 fit: BoxFit.fill,
                                               ),
@@ -1404,7 +1404,7 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
   }
 
   Widget _buildNavItem(int index, IconData icon, String label) {
-    bool isSelected = controller.currentIndex.value == index;
+    bool isSelected = controller.currentIndex == index;
     return GestureDetector(
       onTap: () => controller.changePage(index),
       child: AnimatedContainer(

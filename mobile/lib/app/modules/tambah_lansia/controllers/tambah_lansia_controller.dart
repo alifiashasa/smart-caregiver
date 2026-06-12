@@ -1,36 +1,55 @@
 import 'dart:typed_data';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../data/elderly_api.dart';
+import '../../../data/repositories/elderly_repository.dart';
 
 class TambahLansiaController extends GetxController {
-  final namaLengkap = ''.obs;
-  final usia = ''.obs;
-  final fotoProfilPath = ''.obs;
-  final fotoProfilBytes = Rx<Uint8List?>(null);
+  final ElderlyRepository _elderlyRepository;
 
-  final jenisKelamin = 'Laki-laki'.obs; // Laki-laki or Perempuan
+  TambahLansiaController({required ElderlyRepository elderlyRepository})
+      : _elderlyRepository = elderlyRepository;
 
-  final riwayatMedis = ''.obs;
+  // ── Reactive state ──
+  final _namaLengkap = ''.obs;
+  final _usia = ''.obs;
+  final _fotoProfilPath = ''.obs;
+  final _fotoProfilBytes = Rx<Uint8List?>(null);
 
-  final kondisiFisik =
-      'Mandiri'.obs; // Mandiri, Butuh Bantuan Sebagian, Butuh Bantuan Penuh
-  final mobilitas =
-      'Bisa Berjalan'.obs; // Bisa Berjalan, Alat Bantu, Kursi Roda, Berbaring
+  /// Public RxString for [_buildRadioBtn] compatibility
+  final jenisKelamin = 'Laki-laki'.obs;
+  final _riwayatMedis = ''.obs;
 
-  final minatHobi = ''.obs;
+  /// Public RxString for [_buildRadioBtn] compatibility
+  final kondisiFisik = 'Mandiri'.obs;
 
-  final isLoading = false.obs;
+  /// Public RxString for [_buildRadioBtn] compatibility
+  final mobilitas = 'Bisa Berjalan'.obs;
 
-  final ElderlyApi _api = ElderlyApi();
+  final _minatHobi = ''.obs;
+  final _isLoading = false.obs;
+
+  // ── Public getters ──
+  String get namaLengkap => _namaLengkap.value;
+  String get usia => _usia.value;
+  String get fotoProfilPath => _fotoProfilPath.value;
+  Uint8List? get fotoProfilBytes => _fotoProfilBytes.value;
+  String get riwayatMedis => _riwayatMedis.value;
+  String get minatHobi => _minatHobi.value;
+  bool get isLoading => _isLoading.value;
+
+  set namaLengkap(String value) => _namaLengkap.value = value;
+  set usia(String value) => _usia.value = value;
+  set riwayatMedis(String value) => _riwayatMedis.value = value;
+  set minatHobi(String value) => _minatHobi.value = value;
+
   final ImagePicker _picker = ImagePicker();
 
   Future<void> pickImage() async {
     try {
       final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
       if (image != null) {
-        fotoProfilPath.value = image.path;
-        fotoProfilBytes.value = await image.readAsBytes();
+        _fotoProfilPath.value = image.path;
+        _fotoProfilBytes.value = await image.readAsBytes();
       }
     } catch (e) {
       Get.snackbar('Error', 'Gagal memilih gambar: $e');
@@ -38,18 +57,18 @@ class TambahLansiaController extends GetxController {
   }
 
   Future<void> simpan() async {
-    if (namaLengkap.value.isEmpty || usia.value.isEmpty) {
+    if (_namaLengkap.value.isEmpty || _usia.value.isEmpty) {
       Get.snackbar('Error', 'Nama dan Usia harus diisi');
       return;
     }
 
-    final usiaInt = int.tryParse(usia.value);
+    final usiaInt = int.tryParse(_usia.value);
     if (usiaInt == null) {
       Get.snackbar('Error', 'Usia harus berupa angka');
       return;
     }
 
-    isLoading.value = true;
+    _isLoading.value = true;
 
     final gender = jenisKelamin.value == 'Laki-laki' ? 'male' : 'female';
 
@@ -69,25 +88,29 @@ class TambahLansiaController extends GetxController {
         break;
     }
 
-    final result = await _api.create(
-      fullName: namaLengkap.value,
+    final result = await _elderlyRepository.create(
+      fullName: _namaLengkap.value,
       age: usiaInt,
       gender: gender,
-      photoUrl: fotoProfilPath.value.isNotEmpty ? fotoProfilPath.value : null,
-      medicalHistory: riwayatMedis.value.isNotEmpty ? riwayatMedis.value : null,
-      physicalCondition: kondisiFisik.value.isNotEmpty ? kondisiFisik.value : null,
+      photoUrl:
+          _fotoProfilPath.value.isNotEmpty ? _fotoProfilPath.value : null,
+      medicalHistory:
+          _riwayatMedis.value.isNotEmpty ? _riwayatMedis.value : null,
+      physicalCondition:
+          kondisiFisik.value.isNotEmpty ? kondisiFisik.value : null,
       mobilityLevel: mobilityLevel,
-      hobbiesInterests: minatHobi.value.isNotEmpty ? minatHobi.value : null,
+      hobbiesInterests:
+          _minatHobi.value.isNotEmpty ? _minatHobi.value : null,
     );
 
-    isLoading.value = false;
+    _isLoading.value = false;
 
     if (result['error'] == true) {
       Get.snackbar('Error', result['message'] ?? 'Gagal menyimpan data');
       return;
     }
 
-    Get.back();
+    Get.back(result: true);
     Get.snackbar('Sukses', 'Data Lansia berhasil ditambahkan');
   }
 }

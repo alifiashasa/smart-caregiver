@@ -1,17 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../data/notification_api.dart';
+import '../../../data/repositories/notification_repository.dart';
 
 class NotifikasiController extends GetxController {
-  final NotificationApi _api = NotificationApi();
+  final NotificationRepository _notificationRepository;
 
-  final notifications = <Map<String, dynamic>>[].obs;
-  final isLoading = true.obs;
-  final unreadCount = 0.obs;
-  final totalCount = 0.obs;
-  final currentPage = 0.obs;
-  final hasMore = true.obs;
-  final isLoadingMore = false.obs;
+  NotifikasiController({required NotificationRepository notificationRepository})
+      : _notificationRepository = notificationRepository;
+
+  // ── Reactive state ──
+  final _notifications = <Map<String, dynamic>>[].obs;
+  final _isLoading = true.obs;
+  final _unreadCount = 0.obs;
+  final _totalCount = 0.obs;
+  final _currentPage = 0.obs;
+  final _hasMore = true.obs;
+  final _isLoadingMore = false.obs;
+
+  // ── Public getters ──
+  List<Map<String, dynamic>> get notifications => _notifications;
+  bool get isLoading => _isLoading.value;
+  int get unreadCount => _unreadCount.value;
+  int get totalCount => _totalCount.value;
+  int get currentPage => _currentPage.value;
+  bool get hasMore => _hasMore.value;
+  bool get isLoadingMore => _isLoadingMore.value;
 
   static const int _pageSize = 20;
 
@@ -24,48 +37,48 @@ class NotifikasiController extends GetxController {
 
   Future<void> fetchNotifications({bool refresh = false}) async {
     if (refresh) {
-      currentPage.value = 0;
-      hasMore.value = true;
-      isLoading.value = true;
+      _currentPage.value = 0;
+      _hasMore.value = true;
+      _isLoading.value = true;
     }
 
-    final result = await _api.getNotifications(
+    final result = await _notificationRepository.getNotifications(
       limit: _pageSize,
-      offset: currentPage.value * _pageSize,
+      offset: _currentPage.value * _pageSize,
     );
 
     if (!result['error'] && result['data'] != null) {
       final data = result['data'] as Map<String, dynamic>;
       final rawList = data['notifications'] as List<dynamic>? ?? [];
-      totalCount.value = data['total'] as int? ?? 0;
+      _totalCount.value = data['total'] as int? ?? 0;
 
       if (refresh) {
-        notifications.assignAll(rawList.cast<Map<String, dynamic>>());
+        _notifications.assignAll(rawList.cast<Map<String, dynamic>>());
       } else {
-        notifications.addAll(rawList.cast<Map<String, dynamic>>());
+        _notifications.addAll(rawList.cast<Map<String, dynamic>>());
       }
 
-      hasMore.value = notifications.length < totalCount.value;
+      _hasMore.value = _notifications.length < _totalCount.value;
     }
 
-    isLoading.value = false;
-    isLoadingMore.value = false;
+    _isLoading.value = false;
+    _isLoadingMore.value = false;
   }
 
   Future<void> fetchUnreadCount() async {
-    final result = await _api.getUnreadCount();
+    final result = await _notificationRepository.getUnreadCount();
 
     if (!result['error'] && result['data'] != null) {
       final data = result['data'] as Map<String, dynamic>;
-      unreadCount.value = data['unread_count'] as int? ?? 0;
+      _unreadCount.value = data['unread_count'] as int? ?? 0;
     }
   }
 
   Future<void> loadMore() async {
-    if (isLoadingMore.value || !hasMore.value) return;
+    if (_isLoadingMore.value || !_hasMore.value) return;
 
-    isLoadingMore.value = true;
-    currentPage.value++;
+    _isLoadingMore.value = true;
+    _currentPage.value++;
     await fetchNotifications();
   }
 
@@ -73,25 +86,24 @@ class NotifikasiController extends GetxController {
     final id = notification['id']?.toString();
     if (id == null || id.isEmpty) return;
 
-    // Optimistic update
-    final index = notifications.indexWhere((n) => n['id'] == id);
-    if (index != -1 && notifications[index]['is_read'] == false) {
-      notifications[index]['is_read'] = true;
-      notifications.refresh();
-      unreadCount.value = (unreadCount.value - 1).clamp(0, 999);
+    final index = _notifications.indexWhere((n) => n['id'] == id);
+    if (index != -1 && _notifications[index]['is_read'] == false) {
+      _notifications[index]['is_read'] = true;
+      _notifications.refresh();
+      _unreadCount.value = (_unreadCount.value - 1).clamp(0, 999);
     }
 
-    await _api.markAsRead(id);
+    await _notificationRepository.markAsRead(id);
   }
 
   Future<void> markAllAsRead() async {
-    final result = await _api.markAllAsRead();
+    final result = await _notificationRepository.markAllAsRead();
     if (!result['error']) {
-      for (var i = 0; i < notifications.length; i++) {
-        notifications[i]['is_read'] = true;
+      for (var i = 0; i < _notifications.length; i++) {
+        _notifications[i]['is_read'] = true;
       }
-      notifications.refresh();
-      unreadCount.value = 0;
+      _notifications.refresh();
+      _unreadCount.value = 0;
       Get.snackbar(
         'Semua Dibaca',
         'Semua notifikasi telah ditandai sebagai dibaca',
@@ -139,7 +151,6 @@ class NotifikasiController extends GetxController {
     if (diff.inHours < 24) return '${diff.inHours}j yang lalu';
     if (diff.inDays < 7) return '${diff.inDays}h yang lalu';
 
-    // Format date like "12 Jan"
     final months = [
       'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
       'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',

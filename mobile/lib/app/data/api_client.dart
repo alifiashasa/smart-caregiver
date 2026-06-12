@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:get_storage/get_storage.dart';
 import '../core/config.dart';
+import '../core/logger.dart';
 
 class ApiClient {
   static final GetStorage _storage = GetStorage();
@@ -42,6 +43,7 @@ class ApiClient {
     final headers = <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
+      'ngrok-skip-browser-warning': 'true',
     };
 
     if (authenticated) {
@@ -75,6 +77,7 @@ class ApiClient {
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',
+              'ngrok-skip-browser-warning': 'true',
             },
             body: jsonEncode({'refresh_token': currentRefreshToken}),
           )
@@ -131,11 +134,14 @@ class ApiClient {
     }
 
     if (response.statusCode >= 400) {
+      final message = body['detail'] ?? body['message'] ?? 'Permintaan gagal';
+      log.api('?', response.request?.url.toString() ?? '',
+          response.statusCode, response: body);
       return {
         'error': true,
         'statusCode': response.statusCode,
-        'message':
-            body['detail'] ?? body['message'] ?? 'Permintaan gagal',
+        'message': message,
+        'detail_body': body, // keep raw body for rich error display
       };
     }
 
@@ -163,6 +169,7 @@ class ApiClient {
     final headers = <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
+      'ngrok-skip-browser-warning': 'true',
       'Authorization': 'Bearer $newToken',
     };
 
@@ -189,11 +196,13 @@ class ApiClient {
     try {
       final uri = _buildUri(endpoint);
       final headers = _buildHeaders(authenticated: authenticated);
+      log.api('GET', endpoint, null);
       final response = await http
           .get(uri, headers: headers)
           .timeout(AppConfig.requestTimeout);
 
       final processed = await _processResponse(response);
+      log.api('GET', endpoint, response.statusCode);
 
       // If token was refreshed, retry the original request
       if (processed['statusCode'] == 498 && authenticated) {
@@ -220,6 +229,7 @@ class ApiClient {
     try {
       final uri = _buildUri(endpoint);
       final headers = _buildHeaders(authenticated: authenticated);
+      log.api('POST', endpoint, null, request: body);
       final response = await http
           .post(
             uri,
@@ -229,6 +239,7 @@ class ApiClient {
           .timeout(AppConfig.requestTimeout);
 
       final processed = await _processResponse(response);
+      log.api('POST', endpoint, response.statusCode);
 
       if (processed['statusCode'] == 498 && authenticated) {
         return _retryAuthenticated(
@@ -258,6 +269,7 @@ class ApiClient {
     try {
       final uri = _buildUri(endpoint);
       final headers = _buildHeaders(authenticated: authenticated);
+      log.api('PUT', endpoint, null, request: body);
       final response = await http
           .put(
             uri,
@@ -267,6 +279,7 @@ class ApiClient {
           .timeout(AppConfig.requestTimeout);
 
       final processed = await _processResponse(response);
+      log.api('PUT', endpoint, response.statusCode);
 
       if (processed['statusCode'] == 498 && authenticated) {
         return _retryAuthenticated(
@@ -296,6 +309,7 @@ class ApiClient {
     try {
       final uri = _buildUri(endpoint);
       final headers = _buildHeaders(authenticated: authenticated);
+      log.api('PATCH', endpoint, null, request: body);
       final response = await http
           .patch(
             uri,
@@ -305,6 +319,7 @@ class ApiClient {
           .timeout(AppConfig.requestTimeout);
 
       final processed = await _processResponse(response);
+      log.api('PATCH', endpoint, response.statusCode);
 
       if (processed['statusCode'] == 498 && authenticated) {
         return _retryAuthenticated(
@@ -333,11 +348,13 @@ class ApiClient {
     try {
       final uri = _buildUri(endpoint);
       final headers = _buildHeaders(authenticated: authenticated);
+      log.api('DELETE', endpoint, null);
       final response = await http
           .delete(uri, headers: headers)
           .timeout(AppConfig.requestTimeout);
 
       final processed = await _processResponse(response);
+      log.api('DELETE', endpoint, response.statusCode);
 
       if (processed['statusCode'] == 498 && authenticated) {
         return _retryAuthenticated(

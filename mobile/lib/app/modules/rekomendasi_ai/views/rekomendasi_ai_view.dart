@@ -31,13 +31,13 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
         ),
       ),
       body: Obx(() {
-        if (controller.isLoading.value) {
+        if (controller.isLoading) {
           return const Center(
             child: CircularProgressIndicator(color: Color(0xFF192126)),
           );
         }
 
-        if (controller.errorMessage.value != null) {
+        if (controller.errorMessage != null) {
           return _buildErrorState();
         }
 
@@ -49,7 +49,7 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
               children: [
                 _buildHeader(),
                 const SizedBox(height: 24),
-                if (controller.recommendations.isEmpty && !controller.isGenerating.value)
+                if (controller.recommendations.isEmpty && !controller.isGenerating)
                   _buildEmptyState()
                 else
                   ...controller.recommendations.asMap().entries.map(
@@ -102,10 +102,10 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
         Obx(() => SizedBox(
           height: 36,
           child: ElevatedButton.icon(
-            onPressed: controller.isGenerating.value
+            onPressed: controller.isGenerating
                 ? null
                 : () => controller.generateRecommendation(),
-            icon: controller.isGenerating.value
+            icon: controller.isGenerating
                 ? const SizedBox(
                     width: 14,
                     height: 14,
@@ -116,7 +116,7 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
                   )
                 : const Icon(Icons.refresh, size: 16),
             label: Text(
-              controller.isGenerating.value ? 'Memproses...' : 'Generate',
+              controller.isGenerating ? 'Memproses...' : 'Generate',
               style: const TextStyle(
                 fontFamily: 'Plus Jakarta Sans',
                 fontWeight: FontWeight.w600,
@@ -194,7 +194,7 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
             ),
             const SizedBox(height: 16),
             Text(
-              controller.errorMessage.value ?? 'Terjadi kesalahan',
+              controller.errorMessage ?? 'Terjadi kesalahan',
               textAlign: TextAlign.center,
               style: const TextStyle(
                 color: Color(0xFF77767B),

@@ -164,7 +164,7 @@ class LogKesehatanView extends GetView<LogKesehatanController> {
                                       ),
                                       SizedBox(height: 2),
                                       Text(
-                                        controller.patientName.value,
+                                        controller.patientName,
                                         style: TextStyle(
                                           color: Color(0xFF1C1B1C),
                                           fontSize: 12,

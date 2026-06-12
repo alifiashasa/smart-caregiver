@@ -1,29 +1,34 @@
 import 'package:get/get.dart';
-import '../../../data/health_api.dart';
+import '../../../data/repositories/health_repository.dart';
 
 class DetailHistoryController extends GetxController {
-  final records = <Map<String, dynamic>>[].obs;
-  final isLoading = false.obs;
-  final patientName = ''.obs;
-  final selectedIndex = 0.obs;
-  final HealthApi _api = HealthApi();
+  final HealthRepository _healthRepository;
 
-  int? elderlyId;
+  DetailHistoryController({required HealthRepository healthRepository})
+      : _healthRepository = healthRepository;
 
-  /// The currently selected/focused record.
+  // ── Reactive state ──
+  final _records = <Map<String, dynamic>>[].obs;
+  final _isLoading = false.obs;
+  final _patientName = ''.obs;
+  final _selectedIndex = 0.obs;
+
+  // ── Public getters ──
+  List<Map<String, dynamic>> get records => _records;
+  bool get isLoading => _isLoading.value;
+  String get patientName => _patientName.value;
+  int get selectedIndex => _selectedIndex.value;
+
   Map<String, dynamic>? get selectedRecord =>
-      records.isNotEmpty && selectedIndex.value < records.length
-          ? records[selectedIndex.value]
+      _records.isNotEmpty && _selectedIndex.value < _records.length
+          ? _records[_selectedIndex.value]
           : null;
 
-  /// The fuzzy_analysis map from [selectedRecord].
   Map<String, dynamic>? get fuzzyAnalysis =>
       selectedRecord?['fuzzy_analysis'] as Map<String, dynamic>?;
 
-  /// The health_status string from [selectedRecord].
   String? get healthStatus => selectedRecord?['health_status'] as String?;
 
-  /// Human-readable date for the selected record.
   String get selectedRecordDate {
     final rec = selectedRecord;
     if (rec == null) return '';
@@ -41,51 +46,46 @@ class DetailHistoryController extends GetxController {
     }
   }
 
+  String? _elderlyId;
+
   @override
   void onInit() {
     super.onInit();
     if (Get.arguments != null && Get.arguments is Map) {
       final args = Get.arguments as Map;
-      elderlyId = args['elderly_id'] is int
-          ? args['elderly_id']
-          : int.tryParse(args['elderly_id']?.toString() ?? '');
-      patientName.value = args['name'] as String? ?? '';
+      _elderlyId = args['elderly_id']?.toString();
+      _patientName.value = args['name'] as String? ?? '';
     }
-    if (elderlyId != null) {
+    if (_elderlyId != null) {
       loadRecords();
     }
   }
 
   Future<void> loadRecords() async {
-    isLoading.value = true;
+    _isLoading.value = true;
 
-    final result = await _api.getRecords(elderlyId ?? 0);
+    final result = await _healthRepository.getRecords(_elderlyId ?? '');
 
-    isLoading.value = false;
+    _isLoading.value = false;
 
-    if (result['error'] == true) {
-      // Silent fail — records stays empty
-      return;
-    }
+    if (result['error'] == true) return;
 
     final data = result['data'] as Map<String, dynamic>?;
     if (data != null && data['records'] != null) {
-      records.value = List<Map<String, dynamic>>.from(data['records'] as List);
-      // Sort by recorded_at descending (newest first)
-      records.sort((a, b) {
+      _records.value =
+          List<Map<String, dynamic>>.from(data['records'] as List);
+      _records.sort((a, b) {
         final aDate = _parseDate(a['recorded_at']);
         final bDate = _parseDate(b['recorded_at']);
         return bDate.compareTo(aDate);
       });
-      // Select the first (newest) record by default
-      selectedIndex.value = 0;
+      _selectedIndex.value = 0;
     }
   }
 
-  /// Switch the displayed record.
   void selectRecord(int index) {
-    if (index >= 0 && index < records.length) {
-      selectedIndex.value = index;
+    if (index >= 0 && index < _records.length) {
+      _selectedIndex.value = index;
     }
   }
 

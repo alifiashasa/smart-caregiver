@@ -1,29 +1,52 @@
 import 'package:get/get.dart';
-import '../../../data/elderly_api.dart';
-import '../../../data/health_api.dart';
+import '../../../data/repositories/elderly_repository.dart';
+import '../../../data/repositories/health_repository.dart';
 import '../../../routes/app_pages.dart';
 
 class PatientDetailController extends GetxController {
-  final patientName = ''.obs;
-  final patientAge = ''.obs;
-  final patientGender = ''.obs;
-  final patientPhotoUrl = ''.obs;
-  final patientMobilityLevel = ''.obs;
-  final patientMedicalHistory = ''.obs;
-  final patientPhysicalCondition = ''.obs;
-  final patientHobbiesInterests = ''.obs;
-  final patientStatus = ''.obs;
-  final isLoading = false.obs;
+  final ElderlyRepository _elderlyRepository;
+  final HealthRepository _healthRepository;
 
-  int? elderlyId;
+  PatientDetailController({
+    required ElderlyRepository elderlyRepository,
+    required HealthRepository healthRepository,
+  })  : _elderlyRepository = elderlyRepository,
+        _healthRepository = healthRepository;
 
-  final records = <Map<String, dynamic>>[].obs;
-  final isLoadingRecords = false.obs;
+  // ── Reactive state ──
+  final _patientName = ''.obs;
+  final _patientAge = ''.obs;
+  final _patientGender = ''.obs;
+  final _patientPhotoUrl = ''.obs;
+  final _patientMobilityLevel = ''.obs;
+  final _patientMedicalHistory = ''.obs;
+  final _patientPhysicalCondition = ''.obs;
+  final _patientHobbiesInterests = ''.obs;
+  final _patientStatus = ''.obs;
+  final _isLoading = false.obs;
+  final _records = <Map<String, dynamic>>[].obs;
+  final _isLoadingRecords = false.obs;
+  final _currentIndex = 2.obs;
 
-  final currentIndex = 2.obs;
+  // ── Public getters ──
+  String get patientName => _patientName.value;
+  String get patientAge => _patientAge.value;
+  String get patientGender => _patientGender.value;
+  String get patientPhotoUrl => _patientPhotoUrl.value;
+  String get patientMobilityLevel => _patientMobilityLevel.value;
+  String get patientMedicalHistory => _patientMedicalHistory.value;
+  String get patientPhysicalCondition => _patientPhysicalCondition.value;
+  String get patientHobbiesInterests => _patientHobbiesInterests.value;
+  String get patientStatus => _patientStatus.value;
+  bool get isLoading => _isLoading.value;
+  List<Map<String, dynamic>> get records => _records;
+  bool get isLoadingRecords => _isLoadingRecords.value;
+  int get currentIndex => _currentIndex.value;
 
-  final ElderlyApi _elderlyApi = ElderlyApi();
-  final HealthApi _healthApi = HealthApi();
+  set currentIndex(int value) => _currentIndex.value = value;
+
+  String? _elderlyId;
+  String? get elderlyId => _elderlyId;
 
   @override
   void onInit() {
@@ -31,61 +54,59 @@ class PatientDetailController extends GetxController {
 
     if (Get.arguments != null && Get.arguments is Map) {
       final args = Get.arguments as Map;
-      elderlyId = args['elderly_id'] is int
-          ? args['elderly_id']
-          : int.tryParse(args['elderly_id']?.toString() ?? '');
+      _elderlyId = args['elderly_id']?.toString();
 
       if (args['from'] != null) {
-        currentIndex.value = args['from'];
+        _currentIndex.value = args['from'];
       }
 
-      patientName.value = args['name'] ?? '';
-      if (patientName.value.isNotEmpty) {
-        patientGender.value = args['gender'] ?? '';
-        patientPhotoUrl.value = args['image'] ?? '';
+      _patientName.value = args['name'] ?? '';
+      if (_patientName.value.isNotEmpty) {
+        _patientGender.value = args['gender'] ?? '';
+        _patientPhotoUrl.value = args['image'] ?? '';
       }
     }
 
-    if (elderlyId != null) {
-      loadDetail(elderlyId!);
-      loadHealthRecords(elderlyId!);
+    if (_elderlyId != null && _elderlyId!.isNotEmpty) {
+      loadDetail(_elderlyId!);
+      loadHealthRecords(_elderlyId!);
     }
   }
 
-  Future<void> loadDetail(int id) async {
-    isLoading.value = true;
+  Future<void> loadDetail(String id) async {
+    _isLoading.value = true;
 
-    final result = await _elderlyApi.getById(id);
+    final result = await _elderlyRepository.getById(id);
 
-    isLoading.value = false;
+    _isLoading.value = false;
 
     if (result['error'] == true) {
-      patientName.value = patientName.value.isNotEmpty
-          ? patientName.value
+      _patientName.value = _patientName.value.isNotEmpty
+          ? _patientName.value
           : 'Budi Santoso';
       return;
     }
 
     final data = result['data'] as Map<String, dynamic>?;
     if (data != null) {
-      patientName.value = data['full_name'] ?? patientName.value;
-      patientAge.value = data['age']?.toString() ?? '';
-      patientGender.value = data['gender'] ?? '';
-      patientPhotoUrl.value = data['photo_url'] ?? '';
-      patientMobilityLevel.value = data['mobility_level'] ?? '';
-      patientMedicalHistory.value = data['medical_history'] ?? '';
-      patientPhysicalCondition.value = data['physical_condition'] ?? '';
-      patientHobbiesInterests.value = data['hobbies_interests'] ?? '';
-      patientStatus.value = data['status'] ?? '';
+      _patientName.value = data['full_name'] ?? _patientName.value;
+      _patientAge.value = data['age']?.toString() ?? '';
+      _patientGender.value = data['gender'] ?? '';
+      _patientPhotoUrl.value = data['photo_url'] ?? '';
+      _patientMobilityLevel.value = data['mobility_level'] ?? '';
+      _patientMedicalHistory.value = data['medical_history'] ?? '';
+      _patientPhysicalCondition.value = data['physical_condition'] ?? '';
+      _patientHobbiesInterests.value = data['hobbies_interests'] ?? '';
+      _patientStatus.value = data['status'] ?? '';
     }
   }
 
-  Future<void> loadHealthRecords(int id) async {
-    isLoadingRecords.value = true;
+  Future<void> loadHealthRecords(String id) async {
+    _isLoadingRecords.value = true;
 
-    final result = await _healthApi.getRecords(id);
+    final result = await _healthRepository.getRecords(id);
 
-    isLoadingRecords.value = false;
+    _isLoadingRecords.value = false;
 
     if (result['error'] == true || result['data'] == null) return;
 
@@ -93,16 +114,14 @@ class PatientDetailController extends GetxController {
     final rawList = data['records'] as List<dynamic>?;
     if (rawList == null || rawList.isEmpty) return;
 
-    records.assignAll(
+    _records.assignAll(
       rawList.cast<Map<String, dynamic>>().map(_normalizeRecord),
     );
   }
 
-  /// Map server HealthRecordResponse → TimelineCard-compatible fields
   Map<String, dynamic> _normalizeRecord(Map<String, dynamic> rec) {
     final isCritical = _isStatusCritical(rec['health_status'] as String?);
 
-    // Format date
     String dateStr;
     try {
       final dt = DateTime.parse(rec['recorded_at'] as String);
@@ -115,19 +134,15 @@ class PatientDetailController extends GetxController {
       dateStr = rec['recorded_at'] as String? ?? '';
     }
 
-    // Tensi
     final sys = _fmtNum(rec['systolic_bp']);
     final dia = _fmtNum(rec['diastolic_bp']);
     final tensi = sys != null && dia != null ? '$sys/$dia' : '—';
 
-    // Suhu
     final suhu = _fmtNum(rec['body_temperature']);
     final suhuDisplay = suhu != null ? '$suhu°C' : '—';
 
-    // Notes
     final notes = _buildNotes(rec);
 
-    // Symptoms from complaints
     final symptoms = <String>[];
     if (rec['complaints'] != null) {
       final rawComplaints = rec['complaints'].toString();
@@ -136,7 +151,6 @@ class PatientDetailController extends GetxController {
       }
     }
 
-    // Fuzzy analysis details
     final fuzzy = rec['fuzzy_analysis'] as Map<String, dynamic>?;
     if (fuzzy != null) {
       final finalStatus = fuzzy['final_status'] as String?;
@@ -185,7 +199,9 @@ class PatientDetailController extends GetxController {
   }
 
   bool _isStatusCritical(String? status) {
-    return status == 'needs_attention' || status == 'critical' || status == 'warning';
+    return status == 'needs_attention' ||
+        status == 'critical' ||
+        status == 'warning';
   }
 
   String _statusLabel(String? status) {
@@ -214,19 +230,28 @@ class PatientDetailController extends GetxController {
   }
 
   void changePage(int index) {
-    if (currentIndex.value == index) return;
+    if (_currentIndex.value == index) return;
 
-    int previousIndex = currentIndex.value;
-    currentIndex.value = index;
+    int previousIndex = _currentIndex.value;
+    _currentIndex.value = index;
+
+    final args = {
+      'from': previousIndex,
+      'name': _patientName.value,
+      'age': _patientAge.value,
+      'image': _patientPhotoUrl.value,
+      'gender': _patientGender.value,
+      if (_elderlyId != null) 'elderly_id': _elderlyId,
+    };
 
     if (index == 0) {
-      Get.offNamed(Routes.DASHBOARD, arguments: {'from': previousIndex});
+      Get.offNamed(Routes.DASHBOARD, arguments: args);
     } else if (index == 1) {
-      Get.offNamed(Routes.CALENDAR, arguments: {'from': previousIndex});
+      Get.offNamed(Routes.CALENDAR, arguments: args);
     } else if (index == 2) {
-      Get.offNamed(Routes.PATIENT_DETAIL, arguments: {'from': previousIndex});
+      Get.offNamed(Routes.PATIENT_DETAIL, arguments: args);
     } else if (index == 3) {
-      Get.offNamed(Routes.PROFIL_LANSIA, arguments: {'from': previousIndex});
+      Get.offNamed(Routes.PROFIL_LANSIA, arguments: args);
     }
   }
 }

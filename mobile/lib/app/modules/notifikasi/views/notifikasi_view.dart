@@ -31,7 +31,7 @@ class NotifikasiView extends GetView<NotifikasiController> {
         ),
         actions: [
           Obx(
-            () => controller.unreadCount.value > 0
+            () => controller.unreadCount > 0
                 ? TextButton.icon(
                     onPressed: () => controller.markAllAsRead(),
                     icon: const Icon(
@@ -57,7 +57,7 @@ class NotifikasiView extends GetView<NotifikasiController> {
         ],
       ),
       body: Obx(() {
-        if (controller.isLoading.value) {
+        if (controller.isLoading) {
           return const Center(
             child: CircularProgressIndicator(color: Color(0xFF192126)),
           );
@@ -73,7 +73,7 @@ class NotifikasiView extends GetView<NotifikasiController> {
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             itemCount: controller.notifications.length +
-                (controller.hasMore.value ? 1 : 0),
+                (controller.hasMore ? 1 : 0),
             itemBuilder: (context, index) {
               if (index >= controller.notifications.length) {
                 return _buildLoadMoreIndicator();

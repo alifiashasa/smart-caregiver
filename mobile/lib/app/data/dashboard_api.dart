@@ -23,7 +23,7 @@ class DashboardApi {
 
   /// GET /elderly/{elderlyId}/health/trends?range={range}
   Future<Map<String, dynamic>> getTrends(
-    int elderlyId, {
+    String elderlyId, {
     String range = '7d',
   }) async {
     final response = await _client.get(

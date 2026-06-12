@@ -21,7 +21,7 @@ class RegisterView extends GetView<RegisterController> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Obx(() {
-            if (controller.showOtpField.value) {
+            if (controller.showOtpField) {
               return _buildOtpStep();
             }
             return _buildRegisterStep();
@@ -50,7 +50,7 @@ class RegisterView extends GetView<RegisterController> {
         ),
         const SizedBox(height: 12),
         Text(
-          'Kode OTP telah dikirim ke\n${controller.registeredEmail.value}',
+          'Kode OTP telah dikirim ke\n${controller.registeredEmail}',
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontFamily: 'Plus Jakarta Sans',
@@ -65,11 +65,11 @@ class RegisterView extends GetView<RegisterController> {
           hint: '000000',
           keyboardType: TextInputType.number,
           maxLength: 6,
-          onChanged: (val) => controller.otp.value = val,
+          onChanged: (val) => controller.otp = val,
         ),
         const SizedBox(height: 24),
         ElevatedButton(
-          onPressed: controller.isLoading.value ? null : controller.verifyOtp,
+          onPressed: controller.isLoading ? null : controller.verifyOtp,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFFBBF246),
             foregroundColor: Colors.black,
@@ -79,7 +79,7 @@ class RegisterView extends GetView<RegisterController> {
             padding: const EdgeInsets.symmetric(vertical: 20),
             elevation: 0,
           ),
-          child: controller.isLoading.value
+          child: controller.isLoading
               ? const SizedBox(
                   height: 20,
                   width: 20,
@@ -96,7 +96,7 @@ class RegisterView extends GetView<RegisterController> {
         ),
         const SizedBox(height: 16),
         TextButton(
-          onPressed: () => controller.showOtpField.value = false,
+          onPressed: () => controller.showOtpField = false,
           child: const Text(
             'Gunakan email lain',
             style: TextStyle(
@@ -164,7 +164,7 @@ class RegisterView extends GetView<RegisterController> {
         _buildLabel('Nama Lengkap'),
         _buildTextField(
           hint: 'Masukkan nama lengkap',
-          onChanged: (val) => controller.name.value = val,
+          onChanged: (val) => controller.name = val,
         ),
         const SizedBox(height: 20),
 
@@ -173,7 +173,7 @@ class RegisterView extends GetView<RegisterController> {
         _buildTextField(
           hint: 'contoh@gmail.com',
           keyboardType: TextInputType.emailAddress,
-          onChanged: (val) => controller.email.value = val,
+          onChanged: (val) => controller.email = val,
         ),
         const SizedBox(height: 20),
 
@@ -182,11 +182,11 @@ class RegisterView extends GetView<RegisterController> {
         Obx(
           () => _buildTextField(
             hint: 'Minimal 8 karakter',
-            obscureText: controller.obscurePassword.value,
-            onChanged: (val) => controller.password.value = val,
+            obscureText: controller.obscurePassword,
+            onChanged: (val) => controller.password = val,
             suffixIcon: IconButton(
               icon: Icon(
-                controller.obscurePassword.value
+                controller.obscurePassword
                     ? Icons.visibility_off
                     : Icons.visibility,
                 color: const Color(0xFF4C4546),
@@ -202,11 +202,11 @@ class RegisterView extends GetView<RegisterController> {
         Obx(
           () => _buildTextField(
             hint: 'Ulangi kata sandi',
-            obscureText: controller.obscureConfirmPassword.value,
-            onChanged: (val) => controller.confirmPassword.value = val,
+            obscureText: controller.obscureConfirmPassword,
+            onChanged: (val) => controller.confirmPassword = val,
             suffixIcon: IconButton(
               icon: Icon(
-                controller.obscureConfirmPassword.value
+                controller.obscureConfirmPassword
                     ? Icons.visibility_off
                     : Icons.visibility,
                 color: const Color(0xFF4C4546),
@@ -219,7 +219,7 @@ class RegisterView extends GetView<RegisterController> {
 
         // Register Button
         ElevatedButton(
-          onPressed: controller.isLoading.value ? null : controller.register,
+          onPressed: controller.isLoading ? null : controller.register,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFFBBF246),
             foregroundColor: Colors.black,
@@ -229,7 +229,7 @@ class RegisterView extends GetView<RegisterController> {
             padding: const EdgeInsets.symmetric(vertical: 20),
             elevation: 0,
           ),
-          child: controller.isLoading.value
+          child: controller.isLoading
               ? const SizedBox(
                   height: 20,
                   width: 20,
