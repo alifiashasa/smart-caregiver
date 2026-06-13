@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import '../../../data/models/patient_route_args.dart';
 import '../../dashboard/controllers/dashboard_controller.dart';
 import '../../calendar/controllers/calendar_controller.dart';
 import '../../patient_detail/controllers/patient_detail_controller.dart';
@@ -13,7 +14,7 @@ class PatientShellController extends GetxController {
   final patientName = Rx<String>('');
   final patientAge = Rx<String>('');
   final patientGender = Rx<String>('');
-  final patientImage = Rx<String>('assets/images/patient_ibu_siti.png');
+  final patientImage = Rx<String>(PatientRouteArgs.defaultImage);
 
   int get currentIndex => _currentIndex.value;
 
@@ -45,13 +46,12 @@ class PatientShellController extends GetxController {
     super.onInit();
 
     if (Get.arguments != null && Get.arguments is Map) {
-      final args = Get.arguments as Map;
-      elderlyId.value = args['elderly_id']?.toString() ?? '';
-      patientName.value = args['name'] ?? '';
-      patientAge.value = args['age']?.toString() ?? '';
-      patientGender.value = args['gender'] ?? '';
-      patientImage.value =
-          args['image']?.toString() ?? 'assets/images/patient_ibu_siti.png';
+      final args = PatientRouteArgs.fromMap(Get.arguments as Map);
+      elderlyId.value = args.elderlyId;
+      patientName.value = args.name;
+      patientAge.value = args.age;
+      patientGender.value = args.gender;
+      patientImage.value = args.image;
     }
   }
 

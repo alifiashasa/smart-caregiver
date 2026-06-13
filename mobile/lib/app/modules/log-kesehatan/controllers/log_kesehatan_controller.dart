@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/logger.dart';
+import '../../../core/ui/app_feedback.dart';
+import '../../../data/models/patient_route_args.dart';
 import '../../../data/repositories/health_repository.dart';
 import '../../../routes/app_pages.dart';
 
@@ -36,9 +38,9 @@ class LogKesehatanController extends GetxController {
   void onInit() {
     super.onInit();
     if (Get.arguments != null && Get.arguments is Map) {
-      final args = Get.arguments as Map;
-      _elderlyId = args['elderly_id']?.toString();
-      _patientName.value = args['name'] as String? ?? '';
+      final args = PatientRouteArgs.fromMap(Get.arguments as Map);
+      _elderlyId = args.elderlyId;
+      _patientName.value = args.name;
     }
   }
 
@@ -82,11 +84,9 @@ class LogKesehatanController extends GetxController {
 
     if (_elderlyId == null || _elderlyId!.isEmpty) {
       _isLoading.value = false;
-      Get.snackbar(
+      AppFeedback.error(
         'Error',
         'Data lansia tidak ditemukan. Silakan pilih lansia dari halaman utama.',
-        backgroundColor: const Color(0xFFFFDAD6),
-        colorText: const Color(0xFF1C1B1C),
       );
       return;
     }
@@ -130,12 +130,7 @@ class LogKesehatanController extends GetxController {
         logData['detail'] = detailBody;
       }
       log.error('submitHealthRecord gagal', data: logData);
-      Get.snackbar(
-        'Gagal',
-        errMsg,
-        backgroundColor: Colors.red.shade100,
-        duration: const Duration(seconds: 3),
-      );
+      AppFeedback.error('Gagal', errMsg);
 
       if ((systolicBp != null && systolicBp > 180) ||
           (bloodSugar != null && bloodSugar > 250)) {

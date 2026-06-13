@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import '../data/api_client.dart';
+import '../data/models/elderly_id_args.dart';
 import '../routes/app_pages.dart';
 
 class FcmService {
@@ -151,7 +152,10 @@ class FcmService {
       case 'critical_alert':
       case 'health_recorded':
         if (elderlyId != null) {
-          Get.toNamed(Routes.DASHBOARD, arguments: {'elderly_id': elderlyId});
+          Get.toNamed(
+            Routes.DASHBOARD,
+            arguments: ElderlyIdArgs(elderlyId: elderlyId.toString()).toMap(),
+          );
         }
         break;
       case 'alarm_reminder':

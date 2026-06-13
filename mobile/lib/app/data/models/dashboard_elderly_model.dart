@@ -1,3 +1,5 @@
+import 'patient_route_args.dart';
+
 class DashboardElderlyModel {
   const DashboardElderlyModel({
     required this.elderlyId,
@@ -51,13 +53,13 @@ class DashboardElderlyModel {
   }
 
   Map<String, dynamic> toRouteArguments() {
-    return {
-      'name': fullName,
-      'age': age.toString(),
-      'gender': gender ?? 'Laki-laki',
-      'elderly_id': elderlyId,
-      'image': 'assets/images/patient_ibu_siti.png',
-    };
+    return PatientRouteArgs(
+      elderlyId: elderlyId,
+      name: fullName,
+      age: age.toString(),
+      gender: gender ?? 'Laki-laki',
+      image: PatientRouteArgs.defaultImage,
+    ).toMap();
   }
 
   static int _readInt(Object? value) {

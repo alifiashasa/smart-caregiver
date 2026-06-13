@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/logger.dart';
+import '../../../core/ui/app_feedback.dart';
+import '../../../data/models/elderly_id_args.dart';
 import '../../../data/repositories/schedule_repository.dart';
 
 class TemplateJadwal {
@@ -85,8 +86,8 @@ class TemplateJadwalController extends GetxController {
           'elderly_id_raw': args['elderly_id'],
         },
       );
-      final id = args['elderly_id']?.toString();
-      return (id != null && id.isNotEmpty) ? id : null;
+      final parsedArgs = ElderlyIdArgs.fromMap(args);
+      return parsedArgs.isValid ? parsedArgs.elderlyId : null;
     }
     log.info('TemplateJadwalController._elderlyId: no args');
     return null;
@@ -95,11 +96,9 @@ class TemplateJadwalController extends GetxController {
   Future<void> saveTemplateSchedule() async {
     final elderlyId = _elderlyId;
     if (elderlyId == null) {
-      Get.snackbar(
+      AppFeedback.error(
         'Error',
         'Data lansia tidak ditemukan. Silakan pilih lansia dari halaman utama.',
-        backgroundColor: const Color(0xFFFFDAD6),
-        colorText: const Color(0xFF1C1B1C),
       );
       return;
     }
@@ -108,7 +107,7 @@ class TemplateJadwalController extends GetxController {
         .where((t) => t.isEnabled.value)
         .toList();
     if (enabledTemplates.isEmpty) {
-      Get.snackbar('Info', 'Pilih minimal satu template');
+      AppFeedback.info('Info', 'Pilih minimal satu template');
       return;
     }
 
@@ -146,17 +145,12 @@ class TemplateJadwalController extends GetxController {
     Get.back(result: successCount > 0);
 
     if (successCount > 0) {
-      Get.snackbar(
+      AppFeedback.success(
         'Sukses',
         '$successCount jadwal dari template berhasil ditambahkan',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFFBBF246),
-        colorText: const Color(0xFF192126),
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
       );
     } else {
-      Get.snackbar('Error', 'Gagal menambahkan jadwal template');
+      AppFeedback.error('Error', 'Gagal menambahkan jadwal template');
     }
   }
 }

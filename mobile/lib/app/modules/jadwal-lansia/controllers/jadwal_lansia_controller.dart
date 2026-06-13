@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../core/ui/app_feedback.dart';
+import '../../../data/models/elderly_id_args.dart';
 import '../../../data/repositories/schedule_repository.dart';
 
 class JadwalLansiaController extends GetxController {
@@ -88,9 +90,8 @@ class JadwalLansiaController extends GetxController {
 
   String? get _elderlyId {
     if (Get.arguments != null && Get.arguments is Map) {
-      final args = Get.arguments as Map;
-      final id = args['elderly_id']?.toString();
-      return (id != null && id.isNotEmpty) ? id : null;
+      final args = ElderlyIdArgs.fromMap(Get.arguments as Map);
+      return args.isValid ? args.elderlyId : null;
     }
     return null;
   }
@@ -100,13 +101,13 @@ class JadwalLansiaController extends GetxController {
 
     final title = titleController.text.trim();
     if (title.isEmpty) {
-      Get.snackbar('Error', 'Nama aktivitas harus diisi');
+      AppFeedback.error('Error', 'Nama aktivitas harus diisi');
       return;
     }
 
     final elderlyId = _elderlyId;
     if (elderlyId == null) {
-      Get.snackbar('Error', 'Data lansia tidak ditemukan');
+      AppFeedback.error('Error', 'Data lansia tidak ditemukan');
       return;
     }
 
@@ -134,7 +135,7 @@ class JadwalLansiaController extends GetxController {
     _isLoading.value = false;
 
     if (result['error'] == true) {
-      Get.snackbar('Error', result['message'] ?? 'Gagal menyimpan jadwal');
+      AppFeedback.error('Error', result['message'] ?? 'Gagal menyimpan jadwal');
       return;
     }
 
@@ -157,15 +158,7 @@ class JadwalLansiaController extends GetxController {
         },
       },
     );
-    Get.snackbar(
-      'Sukses',
-      'Jadwal berhasil ditambahkan',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: const Color(0xFFBBF246),
-      colorText: const Color(0xFF192126),
-      margin: const EdgeInsets.all(16),
-      borderRadius: 12,
-    );
+    AppFeedback.success('Sukses', 'Jadwal berhasil ditambahkan');
   }
 
   @override

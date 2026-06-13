@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import '../../../data/models/patient_route_args.dart';
 import '../../../data/repositories/health_repository.dart';
 
 class DetailHistoryController extends GetxController {
@@ -62,9 +63,9 @@ class DetailHistoryController extends GetxController {
   void onInit() {
     super.onInit();
     if (Get.arguments != null && Get.arguments is Map) {
-      final args = Get.arguments as Map;
-      _elderlyId = args['elderly_id']?.toString();
-      _patientName.value = args['name'] as String? ?? '';
+      final args = PatientRouteArgs.fromMap(Get.arguments as Map);
+      _elderlyId = args.elderlyId;
+      _patientName.value = args.name;
     }
     if (_elderlyId != null) {
       loadRecords();
