@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -51,14 +53,12 @@ class FcmService {
 
     // Get FCM token
     _token = await _messaging.getToken();
-    if (_token != null) {
-      _registerToken(_token!);
-    }
+    unawaited(registerCurrentToken());
 
     // Listen for token refresh
     _messaging.onTokenRefresh.listen((newToken) {
       _token = newToken;
-      _registerToken(newToken);
+      unawaited(registerCurrentToken());
     });
 
     // Foreground messages
@@ -76,21 +76,34 @@ class FcmService {
     });
   }
 
-  /// Register FCM token with server
-  Future<void> _registerToken(String token) async {
+  /// Register the current FCM token with the server.
+  ///
+  /// Safe to call after login: if FCM is unavailable, permission is denied,
+  /// or the user is not authenticated yet, this becomes a no-op.
+  Future<void> registerCurrentToken() async {
+    if (kIsWeb) return;
+
     final accessToken = ApiClient.getAccessToken();
     if (accessToken == null) return; // Not logged in
+
+    final token = _token ?? await _messaging.getToken();
+    if (token == null || token.isEmpty) return;
+    _token = token;
 
     final client = ApiClient();
     try {
       await client.post(
         '/notifications/register-device',
-        body: {'fcm_token': token, 'platform': 'android'},
+        body: {'fcm_token': token, 'platform': _platformName},
         authenticated: true,
       );
     } catch (_) {
       // Push token registration is best-effort.
     }
+  }
+
+  String get _platformName {
+    return defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android';
   }
 
   /// Show local notification for foreground messages

@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:mobile/app/core/fcm_service.dart';
 import 'package:mobile/app/core/ui/app_feedback.dart';
 import 'package:mobile/app/core/validators/app_validators.dart';
 import 'package:mobile/app/data/repositories/auth_repository.dart';
@@ -71,6 +72,7 @@ class LoginController extends GetxController {
         return;
       }
 
+      await FcmService().registerCurrentToken();
       await _checkFaceStatusAndNavigate();
     } catch (e) {
       _isLoading.value = false;
