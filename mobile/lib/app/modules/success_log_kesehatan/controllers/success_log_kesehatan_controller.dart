@@ -1,4 +1,6 @@
 import 'package:get/get.dart';
+import '../../../data/models/health_log_result_args.dart';
+import '../../../data/models/patient_route_args.dart';
 import '../../../routes/app_pages.dart';
 
 class SuccessLogKesehatanController extends GetxController {
@@ -24,15 +26,14 @@ class SuccessLogKesehatanController extends GetxController {
   void onInit() {
     super.onInit();
     if (Get.arguments != null && Get.arguments is Map) {
-      final args = Get.arguments as Map;
-      _healthStatus.value = args['status'] as String? ?? 'Normal';
-      _healthMessage.value =
-          args['message'] as String? ?? 'Data kesehatan berhasil dicatat.';
-      _fuzzyCardioScore.value = _readScore(args['cardio_score']);
-      _fuzzyMetabolicScore.value = _readScore(args['metabolic_score']);
-      _fuzzyInfectionScore.value = _readScore(args['infection_score']);
-      _elderlyId = args['elderly_id']?.toString();
-      _patientName = args['name'] as String?;
+      final args = HealthLogResultArgs.fromMap(Get.arguments as Map);
+      _healthStatus.value = args.status;
+      _healthMessage.value = args.message;
+      _fuzzyCardioScore.value = args.cardioScore;
+      _fuzzyMetabolicScore.value = args.metabolicScore;
+      _fuzzyInfectionScore.value = args.infectionScore;
+      _elderlyId = args.elderlyId;
+      _patientName = args.patientName;
     }
   }
 
@@ -44,16 +45,13 @@ class SuccessLogKesehatanController extends GetxController {
     }
     Get.offAllNamed(
       Routes.DASHBOARD,
-      arguments: {
-        'from': 0,
-        'elderly_id': _elderlyId,
-        'name': _patientName ?? '',
-      },
+      arguments: PatientRouteArgs(
+        elderlyId: _elderlyId!,
+        name: _patientName ?? '',
+        age: '',
+        gender: '',
+        image: PatientRouteArgs.defaultImage,
+      ).toMap(),
     );
-  }
-
-  double _readScore(dynamic value) {
-    if (value is num) return value.toDouble();
-    return double.tryParse(value?.toString() ?? '') ?? 0.0;
   }
 }

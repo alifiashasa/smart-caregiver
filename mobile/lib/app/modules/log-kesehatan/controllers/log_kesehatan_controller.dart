@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/logger.dart';
 import '../../../core/ui/app_feedback.dart';
+import '../../../data/models/health_log_result_args.dart';
 import '../../../data/models/patient_route_args.dart';
 import '../../../data/repositories/health_repository.dart';
 import '../../../routes/app_pages.dart';
@@ -166,15 +167,15 @@ class LogKesehatanController extends GetxController {
     // 6. Navigate to success page — pass elderly info for refresh on return
     Get.offNamed(
       Routes.SUCCESS_LOG_KESEHATAN,
-      arguments: {
-        "status": healthStatus,
-        "message": healthMessage,
-        "cardio_score": fuzzyCardioScore,
-        "metabolic_score": fuzzyMetabolicScore,
-        "infection_score": fuzzyInfectionScore,
-        "elderly_id": _elderlyId,
-        "name": _patientName.value,
-      },
+      arguments: HealthLogResultArgs(
+        status: healthStatus,
+        message: healthMessage,
+        cardioScore: fuzzyCardioScore,
+        metabolicScore: fuzzyMetabolicScore,
+        infectionScore: fuzzyInfectionScore,
+        elderlyId: _elderlyId,
+        patientName: _patientName.value,
+      ).toMap(),
     );
   }
 
