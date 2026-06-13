@@ -23,7 +23,13 @@ Isi:
 
 - `VITE_API_URL`: URL FastAPI, contoh `http://localhost:8000`
 
-Admin key diinput dari halaman login. Nilainya sama dengan `INTERNAL_API_KEY` di `server/.env`.
+Admin key diinput dari halaman login. Nilainya sama dengan `INTERNAL_API_KEY` di `server/.env`. Key hanya disimpan di memory tab browser; refresh halaman akan logout supaya secret tidak tersimpan di web storage.
+
+## Security notes
+
+- Deploy lewat HTTPS dan set `VITE_API_URL` ke URL API HTTPS production.
+- `public/_headers` berisi security headers untuk static host yang mendukung format `_headers` (mis. Netlify/Cloudflare Pages).
+- Jangan commit `.env`; root `.gitignore` sudah mengabaikan `.env`, `.env.local`, dan `.env.*.local`.
 
 ## Fokus fitur
 

@@ -98,7 +98,7 @@ type TargetVerified = 'all' | 'verified' | 'unverified'
 type LoadingAction = 'load' | 'create-caregiver' | 'create-announcement' | `toggle-${string}` | null
 
 const apiUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
-const adminSessionKey = 'smart-caregiver-admin-key'
+const normalizedApiUrl = apiUrl.replace(/\/$/, '')
 
 const tabs: { key: ActiveTab; label: string }[] = [
   { key: 'overview', label: 'Overview' },
@@ -114,8 +114,25 @@ function formatDate(value: string | null) {
   }).format(new Date(value))
 }
 
+function normalizeText(value: string) {
+  return value.trim().replace(/\s+/g, ' ')
+}
+
+async function getErrorMessage(response: Response) {
+  if (response.status >= 500) return `Request gagal (${response.status})`
+
+  const contentType = response.headers.get('content-type') ?? ''
+  if (contentType.includes('application/json')) {
+    const body = (await response.json().catch(() => null)) as { detail?: unknown } | null
+    if (typeof body?.detail === 'string') return body.detail
+  }
+
+  const text = await response.text().catch(() => '')
+  return text.slice(0, 200) || `Request gagal (${response.status})`
+}
+
 function App() {
-  const [adminKey, setAdminKey] = useState(() => sessionStorage.getItem(adminSessionKey) ?? '')
+  const [adminKey, setAdminKey] = useState('')
   const [loginKey, setLoginKey] = useState('')
   const [activeTab, setActiveTab] = useState<ActiveTab>('overview')
   const [operations, setOperations] = useState<Operations | null>(null)
@@ -150,7 +167,7 @@ function App() {
   )
 
   async function request<T>(path: string, init?: RequestInit) {
-    const response = await fetch(`${apiUrl.replace(/\/$/, '')}${path}`, {
+    const response = await fetch(`${normalizedApiUrl}${path}`, {
       ...init,
       headers: {
         ...headers,
@@ -159,8 +176,7 @@ function App() {
     })
 
     if (!response.ok) {
-      const text = await response.text()
-      throw new Error(text || `Request gagal (${response.status})`)
+      throw new Error(await getErrorMessage(response))
     }
 
     return response.json() as Promise<T>
@@ -173,11 +189,8 @@ function App() {
         ? { 'Content-Type': 'application/json', 'X-API-Key': keyOverride }
         : headers
       const fetchAdmin = async <T,>(path: string) => {
-        const response = await fetch(`${apiUrl.replace(/\/$/, '')}${path}`, { headers: requestHeaders })
-        if (!response.ok) {
-          const text = await response.text()
-          throw new Error(text || `Request gagal (${response.status})`)
-        }
+        const response = await fetch(`${normalizedApiUrl}${path}`, { headers: requestHeaders })
+        if (!response.ok) throw new Error(await getErrorMessage(response))
         return response.json() as Promise<T>
       }
       const [operationsData, caregiversData, announcementsData] = await Promise.all([
@@ -208,12 +221,10 @@ function App() {
     setLoadingAction('load')
     try {
       await loadData(false, key)
-      sessionStorage.setItem(adminSessionKey, key)
       setAdminKey(key)
       setLoginKey('')
       toast.success('Login berhasil')
     } catch (error) {
-      sessionStorage.removeItem(adminSessionKey)
       setAdminKey('')
       toast.error(error instanceof Error ? error.message : 'Login gagal')
     } finally {
@@ -222,7 +233,6 @@ function App() {
   }
 
   function logout() {
-    sessionStorage.removeItem(adminSessionKey)
     setAdminKey('')
     setOperations(null)
     setCaregivers(null)
@@ -249,16 +259,32 @@ function App() {
 
   async function createCaregiver(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    const phone = caregiverForm.phone.trim()
+    const payload = {
+      email: caregiverForm.email.trim().toLowerCase(),
+      password: caregiverForm.password,
+      full_name: normalizeText(caregiverForm.full_name),
+      phone: phone || null,
+      is_email_verified: caregiverForm.is_email_verified,
+    }
+
+    if (payload.password.length < 8) {
+      toast.error('Password minimal 8 karakter')
+      return
+    }
+
+    if (phone && !/^\+?[0-9\s-]{6,20}$/.test(phone)) {
+      toast.error('Format nomor HP tidak valid')
+      return
+    }
+
     setLoadingAction('create-caregiver')
     try {
       await request('/admin/caregivers', {
         method: 'POST',
-        body: JSON.stringify({
-          ...caregiverForm,
-          phone: caregiverForm.phone.trim() || null,
-        }),
+        body: JSON.stringify(payload),
       })
-      toast.success(`Akun caregiver ${caregiverForm.full_name} berhasil dibuat`)
+      toast.success(`Akun caregiver ${payload.full_name} berhasil dibuat`)
       setCaregiverDialogOpen(false)
       setCaregiverForm({ email: '', password: '', full_name: '', phone: '', is_email_verified: true })
       await loadData()
@@ -274,6 +300,14 @@ function App() {
       ...(announcementForm.in_app ? ['in_app'] : []),
       ...(announcementForm.email ? ['email'] : []),
     ]
+    const title = normalizeText(announcementForm.title)
+    const body = announcementForm.body.trim()
+
+    if (!channels.length) {
+      toast.error('Pilih minimal satu channel pengumuman')
+      return
+    }
+
     setLoadingAction('create-announcement')
     try {
       const result = await request<{
@@ -284,8 +318,8 @@ function App() {
       }>('/admin/announcements', {
         method: 'POST',
         body: JSON.stringify({
-          title: announcementForm.title,
-          body: announcementForm.body,
+          title,
+          body,
           channels,
           target: {
             active: announcementForm.active,
@@ -358,6 +392,7 @@ function App() {
               <div className="grid gap-2">
                 <Label htmlFor="admin-key">Admin key</Label>
                 <Input
+                  autoComplete="current-password"
                   autoFocus
                   disabled={loadingAction === 'load'}
                   id="admin-key"
@@ -643,6 +678,7 @@ function App() {
                       <div className="grid gap-2">
                         <Label htmlFor="password">Password awal</Label>
                         <Input
+                          autoComplete="new-password"
                           disabled={loadingAction === 'create-caregiver'}
                           id="password"
                           maxLength={100}
