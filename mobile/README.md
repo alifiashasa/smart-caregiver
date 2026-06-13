@@ -95,7 +95,7 @@ Get.find<AuthRepository>()
 - GetStorage hanya dipakai untuk cache/preference non-sensitif.
 - `ApiClient` menggunakan Dio dengan timeout global, debug logging, auth interceptor, dan token refresh retry.
 - Repository baru mulai mengembalikan typed `ApiResult<T>` untuk flow yang sudah dimigrasikan.
-- Dashboard, schedule, notification, elderly profile, dan health record sudah memiliki typed model.
+- Dashboard, schedule, notification, elderly profile, health record, user, dan AI recommendation sudah memiliki typed model.
 
 ## Konfigurasi API Base URL
 

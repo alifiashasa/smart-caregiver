@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../core/ui/app_feedback.dart';
+import '../../../data/models/ai_recommendation_model.dart';
 import '../../../data/repositories/ai_repository.dart';
 
 class RekomendasiAiController extends GetxController {
@@ -9,14 +10,14 @@ class RekomendasiAiController extends GetxController {
     : _aiRepository = aiRepository;
 
   // ── Reactive state ──
-  final _recommendations = <Map<String, dynamic>>[].obs;
+  final _recommendations = <AiRecommendationModel>[].obs;
   final _isLoading = true.obs;
   final _isGenerating = false.obs;
   final _errorMessage = Rxn<String>();
   final _elderlyId = ''.obs;
 
   // ── Public getters ──
-  List<Map<String, dynamic>> get recommendations => _recommendations;
+  List<AiRecommendationModel> get recommendations => _recommendations;
   bool get isLoading => _isLoading.value;
   bool get isGenerating => _isGenerating.value;
   String? get errorMessage => _errorMessage.value;
@@ -49,15 +50,12 @@ class RekomendasiAiController extends GetxController {
     _isLoading.value = true;
     _errorMessage.value = null;
 
-    final result = await _aiRepository.getRecommendations(_elderlyId.value);
+    final result = await _aiRepository.getRecommendationItems(_elderlyId.value);
 
-    if (!result['error'] && result['data'] != null) {
-      final data = result['data'] as Map<String, dynamic>;
-      final rawList = data['recommendations'] as List<dynamic>? ?? [];
-      _recommendations.assignAll(rawList.cast<Map<String, dynamic>>());
-    } else {
-      _errorMessage.value = result['message'] ?? 'Gagal memuat rekomendasi.';
-    }
+    result.when(
+      success: (recommendations) => _recommendations.assignAll(recommendations),
+      failure: (failure) => _errorMessage.value = failure.message,
+    );
 
     _isLoading.value = false;
   }
@@ -76,78 +74,60 @@ class RekomendasiAiController extends GetxController {
     _isGenerating.value = false;
 
     if (!result['error']) {
-      Get.snackbar(
-        'Rekomendasi Baru',
-        'Rekomendasi AI berhasil dibuat',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFFBBF246),
-        colorText: const Color(0xFF192126),
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
-      );
+      AppFeedback.success('Rekomendasi Baru', 'Rekomendasi AI berhasil dibuat');
       await fetchRecommendations();
     } else {
-      Get.snackbar(
+      AppFeedback.error(
         'Gagal Generate',
         result['message'] ?? 'Terjadi kesalahan. Coba lagi.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.shade100,
-        colorText: const Color(0xFF192126),
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
       );
     }
   }
 
-  Future<void> approveRecommendation(Map<String, dynamic> rec) async {
-    final id = rec['id']?.toString();
-    if (id == null || id.isEmpty) return;
+  Future<void> approveRecommendation(
+    AiRecommendationModel recommendation,
+  ) async {
+    final id = recommendation.id;
+    if (id.isEmpty) return;
 
     final scheduledAt = DateTime.now()
         .add(const Duration(hours: 1))
         .toIso8601String();
-    final duration = rec['duration_minutes'] as int? ?? 30;
 
     final result = await _aiRepository.approveRecommendation(
       elderlyId: _elderlyId.value,
       recommendationId: id,
       scheduledAt: scheduledAt,
-      durationMinutes: duration,
+      durationMinutes: recommendation.scheduleDurationMinutes,
       reminderMinutes: const [10, 30],
     );
 
     if (!result['error']) {
-      final index = _recommendations.indexWhere((r) => r['id'] == id);
+      final index = _recommendations.indexWhere((item) => item.id == id);
       if (index != -1) {
-        _recommendations[index]['status'] = 'approved';
+        _recommendations[index] = _recommendations[index].copyWith(
+          status: 'approved',
+        );
         _recommendations.refresh();
       }
 
-      Get.snackbar(
+      AppFeedback.success(
         'Ditambahkan ke Jadwal',
-        '${rec['activity_name']} berhasil ditambahkan ke jadwal',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFFBBF246),
-        colorText: const Color(0xFF192126),
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
+        '${recommendation.activityName} berhasil ditambahkan ke jadwal',
       );
     } else {
-      Get.snackbar(
+      AppFeedback.error(
         'Gagal',
         result['message'] ?? 'Gagal menyetujui rekomendasi.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.shade100,
-        colorText: const Color(0xFF192126),
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
       );
     }
   }
 
-  Future<void> rejectRecommendation(Map<String, dynamic> rec) async {
-    final id = rec['id']?.toString();
-    if (id == null || id.isEmpty) return;
+  Future<void> rejectRecommendation(
+    AiRecommendationModel recommendation,
+  ) async {
+    final id = recommendation.id;
+    if (id.isEmpty) return;
 
     final result = await _aiRepository.rejectRecommendation(
       elderlyId: _elderlyId.value,
@@ -155,30 +135,22 @@ class RekomendasiAiController extends GetxController {
     );
 
     if (!result['error']) {
-      final index = _recommendations.indexWhere((r) => r['id'] == id);
+      final index = _recommendations.indexWhere((item) => item.id == id);
       if (index != -1) {
-        _recommendations[index]['status'] = 'rejected';
+        _recommendations[index] = _recommendations[index].copyWith(
+          status: 'rejected',
+        );
         _recommendations.refresh();
       }
 
-      Get.snackbar(
+      AppFeedback.info(
         'Ditolak',
-        '${rec['activity_name']} tidak ditambahkan ke jadwal',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFFF2F2F2),
-        colorText: const Color(0xFF192126),
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
+        '${recommendation.activityName} tidak ditambahkan ke jadwal',
       );
     } else {
-      Get.snackbar(
+      AppFeedback.error(
         'Gagal',
         result['message'] ?? 'Gagal menolak rekomendasi.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.shade100,
-        colorText: const Color(0xFF192126),
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
       );
     }
   }

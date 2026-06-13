@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../data/models/ai_recommendation_model.dart';
 import '../controllers/rekomendasi_ai_controller.dart';
 
 class RekomendasiAiView extends GetView<RekomendasiAiController> {
@@ -229,11 +230,11 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
     );
   }
 
-  Widget _buildAiCard(Map<String, dynamic> rec, int index) {
-    final status = rec['status'] as String? ?? 'pending';
-    final isApproved = status == 'approved';
-    final isRejected = status == 'rejected';
-    final isPending = status == 'pending';
+  Widget _buildAiCard(AiRecommendationModel rec, int index) {
+    final status = rec.status;
+    final isApproved = rec.isApproved;
+    final isRejected = rec.isRejected;
+    final isPending = rec.isPending;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -279,9 +280,7 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        RekomendasiAiController.categoryLabel(
-                          rec['category'] as String?,
-                        ),
+                        RekomendasiAiController.categoryLabel(rec.category),
                         style: const TextStyle(
                           color: Color(0xFF47464B),
                           fontSize: 12,
@@ -300,7 +299,7 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
                         const SizedBox(width: 4),
                         Text(
                           RekomendasiAiController.durationLabel(
-                            rec['duration_minutes'],
+                            rec.durationMinutes,
                           ),
                           style: const TextStyle(
                             color: Color(0xFF77767B),
@@ -315,7 +314,7 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  rec['activity_name'] as String? ?? '',
+                  rec.activityName,
                   style: const TextStyle(
                     color: Color(0xFF1C1B1C),
                     fontSize: 18,
@@ -323,7 +322,7 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                if (rec['frequency_suggestion'] != null) ...[
+                if (rec.frequencySuggestion != null) ...[
                   const SizedBox(height: 4),
                   Row(
                     children: [
@@ -334,7 +333,7 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        rec['frequency_suggestion'] as String,
+                        rec.frequencySuggestion!,
                         style: const TextStyle(
                           color: Color(0xFF77767B),
                           fontSize: 12,
@@ -347,9 +346,7 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
                 ],
                 const SizedBox(height: 8),
                 Text(
-                  rec['ai_reasoning'] as String? ??
-                      rec['description'] as String? ??
-                      '',
+                  rec.displayReason,
                   style: const TextStyle(
                     color: Color(0xFF47464B),
                     fontSize: 14,
