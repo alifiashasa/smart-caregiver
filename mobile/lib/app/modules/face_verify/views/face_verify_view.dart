@@ -182,62 +182,66 @@ class FaceVerifyView extends GetView<FaceVerifyController> {
                 Row(
                   children: [
                     Expanded(
-                      child: Obx(() => OutlinedButton.icon(
-                        onPressed: controller.isLoading
-                            ? null
-                            : () => _pickImage(ImageSource.camera),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.black,
-                          side: const BorderSide(color: Color(0xFFE8E8E8)),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+                      child: Obx(
+                        () => OutlinedButton.icon(
+                          onPressed: controller.isLoading
+                              ? null
+                              : () => _pickImage(ImageSource.camera),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.black,
+                            side: const BorderSide(color: Color(0xFFE8E8E8)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 20),
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                        ),
-                        icon: const Icon(Icons.refresh),
-                        label: const Text(
-                          'Ulangi',
-                          style: TextStyle(
-                            fontFamily: 'Plus Jakarta Sans',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                          icon: const Icon(Icons.refresh),
+                          label: const Text(
+                            'Ulangi',
+                            style: TextStyle(
+                              fontFamily: 'Plus Jakarta Sans',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
-                      )),
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Obx(() => ElevatedButton(
-                        onPressed: controller.isLoading
-                            ? null
-                            : controller.verifyFace,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFBBF246),
-                          foregroundColor: Colors.black,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+                      child: Obx(
+                        () => ElevatedButton(
+                          onPressed: controller.isLoading
+                              ? null
+                              : controller.verifyFace,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFBBF246),
+                            foregroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            elevation: 0,
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          elevation: 0,
+                          child: controller.isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.black,
+                                  ),
+                                )
+                              : const Text(
+                                  'Verifikasi',
+                                  style: TextStyle(
+                                    fontFamily: 'Plus Jakarta Sans',
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                         ),
-                        child: controller.isLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.black,
-                                ),
-                              )
-                            : const Text(
-                                'Verifikasi',
-                                style: TextStyle(
-                                  fontFamily: 'Plus Jakarta Sans',
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                      )),
+                      ),
                     ),
                   ],
                 ),

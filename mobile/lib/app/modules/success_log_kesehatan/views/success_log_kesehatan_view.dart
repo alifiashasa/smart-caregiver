@@ -205,10 +205,7 @@ class SuccessLogKesehatanView extends GetView<SuccessLogKesehatanController> {
                         controller.fuzzyMetabolicScore,
                       ),
                       const SizedBox(height: 10),
-                      _analysisCard(
-                        'Infeksi',
-                        controller.fuzzyInfectionScore,
-                      ),
+                      _analysisCard('Infeksi', controller.fuzzyInfectionScore),
                     ],
                   ),
                 );

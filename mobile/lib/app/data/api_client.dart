@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 import '../core/config.dart';
 import '../core/logger.dart';
@@ -35,6 +37,18 @@ class ApiClient {
         },
       ),
     );
+
+    if (kDebugMode) {
+      _dio.interceptors.add(
+        PrettyDioLogger(
+          requestHeader: true,
+          requestBody: true,
+          responseHeader: false,
+          responseBody: true,
+          compact: true,
+        ),
+      );
+    }
   }
 
   static final GetStorage _storage = GetStorage();

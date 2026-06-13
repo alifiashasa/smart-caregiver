@@ -7,7 +7,7 @@ class SplashController extends GetxController {
   final AuthRepository _authRepository;
 
   SplashController({required AuthRepository authRepository})
-      : _authRepository = authRepository;
+    : _authRepository = authRepository;
 
   @override
   void onReady() {

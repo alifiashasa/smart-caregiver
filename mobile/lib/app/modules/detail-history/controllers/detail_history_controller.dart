@@ -5,7 +5,7 @@ class DetailHistoryController extends GetxController {
   final HealthRepository _healthRepository;
 
   DetailHistoryController({required HealthRepository healthRepository})
-      : _healthRepository = healthRepository;
+    : _healthRepository = healthRepository;
 
   // ── Reactive state ──
   final _records = <Map<String, dynamic>>[].obs;
@@ -21,8 +21,8 @@ class DetailHistoryController extends GetxController {
 
   Map<String, dynamic>? get selectedRecord =>
       _records.isNotEmpty && _selectedIndex.value < _records.length
-          ? _records[_selectedIndex.value]
-          : null;
+      ? _records[_selectedIndex.value]
+      : null;
 
   Map<String, dynamic>? get fuzzyAnalysis =>
       selectedRecord?['fuzzy_analysis'] as Map<String, dynamic>?;
@@ -35,8 +35,18 @@ class DetailHistoryController extends GetxController {
     try {
       final dt = DateTime.parse(rec['recorded_at'] as String);
       final months = [
-        'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-        'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'Mei',
+        'Jun',
+        'Jul',
+        'Agu',
+        'Sep',
+        'Okt',
+        'Nov',
+        'Des',
       ];
       return '${dt.day} ${months[dt.month - 1]} ${dt.year}, '
           '${dt.hour.toString().padLeft(2, '0')}:'
@@ -72,8 +82,7 @@ class DetailHistoryController extends GetxController {
 
     final data = result['data'] as Map<String, dynamic>?;
     if (data != null && data['records'] != null) {
-      _records.value =
-          List<Map<String, dynamic>>.from(data['records'] as List);
+      _records.value = List<Map<String, dynamic>>.from(data['records'] as List);
       _records.sort((a, b) {
         final aDate = _parseDate(a['recorded_at']);
         final bDate = _parseDate(b['recorded_at']);

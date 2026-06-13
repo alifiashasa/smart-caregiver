@@ -39,8 +39,9 @@ class AiApi {
     };
     if (status != null) queryParams['status'] = status;
 
-    final queryString =
-        queryParams.entries.map((e) => '${e.key}=${e.value}').join('&');
+    final queryString = queryParams.entries
+        .map((e) => '${e.key}=${e.value}')
+        .join('&');
     final response = await _client.get(
       '/elderly/$elderlyId/recommendations?$queryString',
       authenticated: true,
@@ -110,9 +111,7 @@ class AiApi {
   }) async {
     final response = await _client.post(
       '/elderly/$elderlyId/recommendations/$recommendationId/reject',
-      body: {
-        if (reason != null && reason.isNotEmpty) 'reason': reason,
-      },
+      body: {if (reason != null && reason.isNotEmpty) 'reason': reason},
       authenticated: true,
     );
 

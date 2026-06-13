@@ -83,7 +83,10 @@ class RegisterView extends GetView<RegisterController> {
               ? const SizedBox(
                   height: 20,
                   width: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.black,
+                  ),
                 )
               : const Text(
                   'Verifikasi',
@@ -233,7 +236,10 @@ class RegisterView extends GetView<RegisterController> {
               ? const SizedBox(
                   height: 20,
                   width: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.black,
+                  ),
                 )
               : const Text(
                   'Daftar Sekarang',

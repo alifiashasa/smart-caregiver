@@ -49,7 +49,8 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
               children: [
                 _buildHeader(),
                 const SizedBox(height: 24),
-                if (controller.recommendations.isEmpty && !controller.isGenerating)
+                if (controller.recommendations.isEmpty &&
+                    !controller.isGenerating)
                   _buildEmptyState()
                 else
                   ...controller.recommendations.asMap().entries.map(
@@ -99,41 +100,43 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
           ),
         ),
         const SizedBox(width: 12),
-        Obx(() => SizedBox(
-          height: 36,
-          child: ElevatedButton.icon(
-            onPressed: controller.isGenerating
-                ? null
-                : () => controller.generateRecommendation(),
-            icon: controller.isGenerating
-                ? const SizedBox(
-                    width: 14,
-                    height: 14,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Color(0xFF192126),
-                    ),
-                  )
-                : const Icon(Icons.refresh, size: 16),
-            label: Text(
-              controller.isGenerating ? 'Memproses...' : 'Generate',
-              style: const TextStyle(
-                fontFamily: 'Plus Jakarta Sans',
-                fontWeight: FontWeight.w600,
-                fontSize: 12,
+        Obx(
+          () => SizedBox(
+            height: 36,
+            child: ElevatedButton.icon(
+              onPressed: controller.isGenerating
+                  ? null
+                  : () => controller.generateRecommendation(),
+              icon: controller.isGenerating
+                  ? const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Color(0xFF192126),
+                      ),
+                    )
+                  : const Icon(Icons.refresh, size: 16),
+              label: Text(
+                controller.isGenerating ? 'Memproses...' : 'Generate',
+                style: const TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12,
+                ),
               ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFBBF246),
-              foregroundColor: const Color(0xFF192126),
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFBBF246),
+                foregroundColor: const Color(0xFF192126),
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
           ),
-        )),
+        ),
       ],
     );
   }
@@ -241,8 +244,8 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
           color: isApproved
               ? const Color(0xFFBBF246)
               : isRejected
-                  ? const Color(0xFFE5E5E5)
-                  : const Color(0xFFE5E5E5),
+              ? const Color(0xFFE5E5E5)
+              : const Color(0xFFE5E5E5),
           width: isApproved ? 1.5 : 1,
         ),
         boxShadow: const [
@@ -344,7 +347,9 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
                 ],
                 const SizedBox(height: 8),
                 Text(
-                  rec['ai_reasoning'] as String? ?? rec['description'] as String? ?? '',
+                  rec['ai_reasoning'] as String? ??
+                      rec['description'] as String? ??
+                      '',
                   style: const TextStyle(
                     color: Color(0xFF47464B),
                     fontSize: 14,

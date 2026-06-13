@@ -203,7 +203,6 @@ class ProfilCaregiverView extends GetView<ProfilCaregiverController> {
                   text: 'Edit Profile',
                   onTap: () {},
                 ),
-
               ],
             ),
           ),

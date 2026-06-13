@@ -9,7 +9,7 @@ class FaceRegisterController extends GetxController {
   final AuthRepository _authRepository;
 
   FaceRegisterController({required AuthRepository authRepository})
-      : _authRepository = authRepository;
+    : _authRepository = authRepository;
 
   // ── Reactive state ──
   final _isLoading = false.obs;
@@ -47,8 +47,7 @@ class FaceRegisterController extends GetxController {
       final result = await _authRepository.registerFace(imageBytes: imageBytes);
 
       if (result['error'] == true) {
-        _errorMessage.value =
-            result['message'] ?? 'Gagal mendaftarkan wajah';
+        _errorMessage.value = result['message'] ?? 'Gagal mendaftarkan wajah';
         _isLoading.value = false;
         return;
       }

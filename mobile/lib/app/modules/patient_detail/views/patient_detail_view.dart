@@ -40,55 +40,55 @@ class PatientDetailView extends GetView<PatientDetailController> {
         }
 
         return SingleChildScrollView(
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.only(
-            top: 24,
-            left: 20,
-            right: 20,
-            bottom: 48,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header Texts
-              const Text(
-                'Riwayat Kesehatan',
-                style: TextStyle(
-                  color: Color(0xFF1C1B1C),
-                  fontSize: 24,
-                  fontFamily: 'Plus Jakarta Sans',
-                  fontWeight: FontWeight.w600,
-                  height: 1.33,
-                  letterSpacing: -0.24,
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.only(
+              top: 24,
+              left: 20,
+              right: 20,
+              bottom: 48,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header Texts
+                const Text(
+                  'Riwayat Kesehatan',
+                  style: TextStyle(
+                    color: Color(0xFF1C1B1C),
+                    fontSize: 24,
+                    fontFamily: 'Plus Jakarta Sans',
+                    fontWeight: FontWeight.w600,
+                    height: 1.33,
+                    letterSpacing: -0.24,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                'Riwayat kesehatan dan pemantauan tanda vital',
-                style: TextStyle(
-                  color: Color(0xFF47464B),
-                  fontSize: 16,
-                  fontFamily: 'Plus Jakarta Sans',
-                  fontWeight: FontWeight.w400,
-                  height: 1.50,
+                const SizedBox(height: 4),
+                const Text(
+                  'Riwayat kesehatan dan pemantauan tanda vital',
+                  style: TextStyle(
+                    color: Color(0xFF47464B),
+                    fontSize: 16,
+                    fontFamily: 'Plus Jakarta Sans',
+                    fontWeight: FontWeight.w400,
+                    height: 1.50,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 24),
+                const SizedBox(height: 24),
 
-              // Timeline items
-              Obx(() {
-                return Column(
-                  children: controller.records.map((record) {
-                    // Menggunakan widget TimelineCard yang baru dibuat
-                    return TimelineCard(record: record);
-                  }).toList(),
-                );
-              }),
-            ],
+                // Timeline items
+                Obx(() {
+                  return Column(
+                    children: controller.records.map((record) {
+                      // Menggunakan widget TimelineCard yang baru dibuat
+                      return TimelineCard(record: record);
+                    }).toList(),
+                  );
+                }),
+              ],
+            ),
           ),
-        ),
-      );
+        );
       }),
     );
   }
@@ -351,10 +351,13 @@ class _TimelineCardState extends State<TimelineCard> {
                         InkWell(
                           onTap: () {
                             final ctrl = Get.find<PatientDetailController>();
-                            Get.toNamed(Routes.DETAIL_HISTORY, arguments: {
-                              'elderly_id': ctrl.elderlyId,
-                              'name': ctrl.patientName,
-                            });
+                            Get.toNamed(
+                              Routes.DETAIL_HISTORY,
+                              arguments: {
+                                'elderly_id': ctrl.elderlyId,
+                                'name': ctrl.patientName,
+                              },
+                            );
                           },
                           child: const Padding(
                             padding: EdgeInsets.symmetric(vertical: 4.0),

@@ -7,7 +7,7 @@ class LoginController extends GetxController {
   final AuthRepository _authRepository;
 
   LoginController({required AuthRepository authRepository})
-      : _authRepository = authRepository;
+    : _authRepository = authRepository;
 
   // ── Reactive state ──
   final _email = ''.obs;
@@ -101,8 +101,7 @@ class LoginController extends GetxController {
   Future<void> _checkFaceStatusAndNavigate() async {
     try {
       final statusResult = await _authRepository.faceStatus();
-      final faceRegistered =
-          statusResult['data']?['face_registered'] == true;
+      final faceRegistered = statusResult['data']?['face_registered'] == true;
       _isLoading.value = false;
       if (faceRegistered) {
         Get.offNamed(Routes.FACE_VERIFY);

@@ -21,20 +21,19 @@ class ElderlyRepository {
     String? allergies,
     String? emergencyContactName,
     String? emergencyContactPhone,
-  }) =>
-      _api.create(
-        fullName: fullName,
-        age: age,
-        gender: gender,
-        photoUrl: photoUrl,
-        medicalHistory: medicalHistory,
-        physicalCondition: physicalCondition,
-        mobilityLevel: mobilityLevel,
-        hobbiesInterests: hobbiesInterests,
-        allergies: allergies,
-        emergencyContactName: emergencyContactName,
-        emergencyContactPhone: emergencyContactPhone,
-      );
+  }) => _api.create(
+    fullName: fullName,
+    age: age,
+    gender: gender,
+    photoUrl: photoUrl,
+    medicalHistory: medicalHistory,
+    physicalCondition: physicalCondition,
+    mobilityLevel: mobilityLevel,
+    hobbiesInterests: hobbiesInterests,
+    allergies: allergies,
+    emergencyContactName: emergencyContactName,
+    emergencyContactPhone: emergencyContactPhone,
+  );
 
   Future<Map<String, dynamic>> update(
     String id, {
@@ -49,21 +48,20 @@ class ElderlyRepository {
     String? allergies,
     String? emergencyContactName,
     String? emergencyContactPhone,
-  }) =>
-      _api.update(
-        id,
-        fullName: fullName,
-        age: age,
-        gender: gender,
-        photoUrl: photoUrl,
-        medicalHistory: medicalHistory,
-        physicalCondition: physicalCondition,
-        mobilityLevel: mobilityLevel,
-        hobbiesInterests: hobbiesInterests,
-        allergies: allergies,
-        emergencyContactName: emergencyContactName,
-        emergencyContactPhone: emergencyContactPhone,
-      );
+  }) => _api.update(
+    id,
+    fullName: fullName,
+    age: age,
+    gender: gender,
+    photoUrl: photoUrl,
+    medicalHistory: medicalHistory,
+    physicalCondition: physicalCondition,
+    mobilityLevel: mobilityLevel,
+    hobbiesInterests: hobbiesInterests,
+    allergies: allergies,
+    emergencyContactName: emergencyContactName,
+    emergencyContactPhone: emergencyContactPhone,
+  );
 
   Future<Map<String, dynamic>> delete(String id) => _api.delete(id);
 }

@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import '../../../data/models/schedule_model.dart';
 import '../../../data/repositories/schedule_repository.dart';
 import '../../../routes/app_pages.dart';
 import '../../patient_shell/controllers/patient_shell_controller.dart';
@@ -15,7 +16,7 @@ class CalendarController extends GetxController {
   final _patientAge = ''.obs;
   final _patientImage = 'assets/images/patient_ibu_siti.png'.obs;
   final _patientGender = 'Perempuan'.obs;
-  final _schedules = <Map<String, dynamic>>[].obs;
+  final _schedules = <ScheduleModel>[].obs;
   final _selectedDate = DateTime.now().obs;
   final _isLoading = false.obs;
   final _elderlyId = ''.obs;
@@ -25,12 +26,9 @@ class CalendarController extends GetxController {
   String get patientAge => _patientAge.value;
   String get patientImage => _patientImage.value;
   String get patientGender => _patientGender.value;
-  List<Map<String, dynamic>> get schedules => _schedules;
-  List<Map<String, dynamic>> get selectedDateSchedules => _schedules
-      .where(
-        (schedule) =>
-            _isSameDay(schedule['scheduled_at'] as DateTime, selectedDate),
-      )
+  List<ScheduleModel> get schedules => _schedules;
+  List<ScheduleModel> get selectedDateSchedules => _schedules
+      .where((schedule) => _isSameDay(schedule.scheduledAt, selectedDate))
       .toList();
   DateTime get selectedDate => _selectedDate.value;
   List<DateTime> get dateTabs {
@@ -100,37 +98,18 @@ class CalendarController extends GetxController {
 
     _isLoading.value = true;
 
-    final result = await _scheduleRepository.getSchedules(_elderlyId.value);
+    final result = await _scheduleRepository.getScheduleItems(_elderlyId.value);
 
-    if (!result['error'] && result['data'] != null) {
-      final data = result['data'] as Map<String, dynamic>;
-      final rawList = data['schedules'] as List<dynamic>? ?? [];
-      _schedules.value = rawList
-          .map((s) => _normalizeSchedule(s as Map<String, dynamic>))
-          .toList();
-    }
+    result.when(
+      success: (schedules) => _schedules.value = schedules,
+      failure: (failure) {
+        if (failure.sessionExpired) {
+          Get.offAllNamed(Routes.LOGIN);
+        }
+      },
+    );
 
     _isLoading.value = false;
-  }
-
-  Map<String, dynamic> _normalizeSchedule(Map<String, dynamic> s) {
-    DateTime scheduledAt;
-    try {
-      scheduledAt = DateTime.parse(s['scheduled_at'] as String).toLocal();
-    } catch (_) {
-      scheduledAt = DateTime.now();
-    }
-    return {
-      'id': s['id']?.toString() ?? '',
-      'title': s['title'] ?? '',
-      'schedule_type': s['schedule_type'] ?? '',
-      'scheduled_at': scheduledAt,
-      'duration_minutes': s['duration_minutes'],
-      'is_completed': s['is_completed'] ?? false,
-      'description': s['description'],
-      'is_active': s['is_active'] ?? true,
-      'alarms': s['alarms'] ?? [],
-    };
   }
 
   void refreshSchedules() => _loadSchedules();
@@ -139,11 +118,11 @@ class CalendarController extends GetxController {
     if (result is Map && result['created'] == true) {
       final rawSchedule = result['schedule'] ?? result['fallback'];
       if (rawSchedule is Map) {
-        final normalized = _normalizeSchedule(
+        final normalized = ScheduleModel.fromJson(
           Map<String, dynamic>.from(rawSchedule),
         );
         _upsertSchedule(normalized);
-        selectDate(normalized['scheduled_at'] as DateTime);
+        selectDate(normalized.scheduledAt);
       }
       _loadSchedules();
       return;
@@ -154,31 +133,25 @@ class CalendarController extends GetxController {
     }
   }
 
-  void _upsertSchedule(Map<String, dynamic> schedule) {
-    final index = _schedules.indexWhere((s) => s['id'] == schedule['id']);
+  void _upsertSchedule(ScheduleModel schedule) {
+    final index = _schedules.indexWhere((s) => s.id == schedule.id);
     if (index == -1) {
       _schedules.add(schedule);
     } else {
       _schedules[index] = schedule;
     }
-    _schedules.sort(
-      (a, b) => (a['scheduled_at'] as DateTime).compareTo(
-        b['scheduled_at'] as DateTime,
-      ),
-    );
+    _schedules.sort((a, b) => a.scheduledAt.compareTo(b.scheduledAt));
     _schedules.refresh();
   }
 
   Future<void> toggleScheduleCompletion(String id) async {
-    final index = _schedules.indexWhere((s) => s['id'] == id);
+    final index = _schedules.indexWhere((s) => s.id == id);
     if (index == -1) return;
 
-    final previous = _schedules[index]['is_completed'] == true;
+    final previous = _schedules[index].isCompleted;
     final next = !previous;
 
-    final optimistic = Map<String, dynamic>.from(_schedules[index]);
-    optimistic['is_completed'] = next;
-    _schedules[index] = optimistic;
+    _schedules[index] = _schedules[index].copyWith(isCompleted: next);
     _schedules.refresh();
 
     final result = next
@@ -186,9 +159,7 @@ class CalendarController extends GetxController {
         : await _scheduleRepository.markIncomplete(id);
 
     if (result['error'] == true) {
-      final reverted = Map<String, dynamic>.from(_schedules[index]);
-      reverted['is_completed'] = previous;
-      _schedules[index] = reverted;
+      _schedules[index] = _schedules[index].copyWith(isCompleted: previous);
       _schedules.refresh();
       Get.snackbar(
         'Error',
@@ -200,7 +171,7 @@ class CalendarController extends GetxController {
   void addSchedule(Map<String, dynamic> scheduleData) {
     scheduleData['id'] ??= DateTime.now().millisecondsSinceEpoch.toString();
     scheduleData['is_completed'] ??= false;
-    _upsertSchedule(scheduleData);
+    _upsertSchedule(ScheduleModel.fromJson(scheduleData));
   }
 
   void navigateToAddSchedule() async {

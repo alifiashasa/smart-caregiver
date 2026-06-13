@@ -7,6 +7,7 @@ import 'package:get_storage/get_storage.dart';
 
 import 'app/bindings/initial_binding.dart';
 import 'app/core/fcm_service.dart';
+import 'app/core/theme/app_theme.dart';
 import 'app/data/api_client.dart';
 import 'app/routes/app_pages.dart';
 import 'firebase_options.dart';
@@ -38,6 +39,7 @@ void main() async {
       initialBinding: InitialBinding(),
       initialRoute: AppPages.INITIAL,
       getPages: AppPages.routes,
+      theme: AppTheme.light,
       debugShowCheckedModeBanner: false,
     ),
   );

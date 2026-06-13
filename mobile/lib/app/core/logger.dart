@@ -29,15 +29,20 @@ class _Logger {
     }
   }
 
-  void api(String method, String endpoint, int? statusCode,
-      {Map<String, dynamic>? request, Map<String, dynamic>? response}) {
+  void api(
+    String method,
+    String endpoint,
+    int? statusCode, {
+    Map<String, dynamic>? request,
+    Map<String, dynamic>? response,
+  }) {
     if (kReleaseMode) return;
 
     final icon = statusCode == null
         ? '➡️'
         : statusCode >= 400
-            ? '❌'
-            : '✅';
+        ? '❌'
+        : '✅';
     debugPrint('━━━ $icon API $method $endpoint ━━━');
     if (statusCode != null) debugPrint('  Status: $statusCode');
     if (request != null && request.isNotEmpty) {

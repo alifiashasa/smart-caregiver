@@ -6,7 +6,7 @@ class RekomendasiAiController extends GetxController {
   final AiRepository _aiRepository;
 
   RekomendasiAiController({required AiRepository aiRepository})
-      : _aiRepository = aiRepository;
+    : _aiRepository = aiRepository;
 
   // ── Reactive state ──
   final _recommendations = <Map<String, dynamic>>[].obs;
@@ -56,8 +56,7 @@ class RekomendasiAiController extends GetxController {
       final rawList = data['recommendations'] as List<dynamic>? ?? [];
       _recommendations.assignAll(rawList.cast<Map<String, dynamic>>());
     } else {
-      _errorMessage.value =
-          result['message'] ?? 'Gagal memuat rekomendasi.';
+      _errorMessage.value = result['message'] ?? 'Gagal memuat rekomendasi.';
     }
 
     _isLoading.value = false;
@@ -104,8 +103,9 @@ class RekomendasiAiController extends GetxController {
     final id = rec['id']?.toString();
     if (id == null || id.isEmpty) return;
 
-    final scheduledAt =
-        DateTime.now().add(const Duration(hours: 1)).toIso8601String();
+    final scheduledAt = DateTime.now()
+        .add(const Duration(hours: 1))
+        .toIso8601String();
     final duration = rec['duration_minutes'] as int? ?? 30;
 
     final result = await _aiRepository.approveRecommendation(

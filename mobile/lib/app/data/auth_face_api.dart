@@ -14,9 +14,7 @@ class AuthFaceApi {
 
     final response = await _client.post(
       '/auth/face/register',
-      body: {
-        'base64_image': base64Image,
-      },
+      body: {'base64_image': base64Image},
       authenticated: true,
     );
 
@@ -40,9 +38,7 @@ class AuthFaceApi {
 
     final response = await _client.post(
       '/auth/face/verify',
-      body: {
-        'base64_image': base64Image,
-      },
+      body: {'base64_image': base64Image},
       authenticated: true,
     );
 

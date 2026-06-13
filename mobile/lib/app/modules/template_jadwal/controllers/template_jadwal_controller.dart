@@ -25,7 +25,7 @@ class TemplateJadwalController extends GetxController {
   final ScheduleRepository _scheduleRepository;
 
   TemplateJadwalController({required ScheduleRepository scheduleRepository})
-      : _scheduleRepository = scheduleRepository;
+    : _scheduleRepository = scheduleRepository;
 
   // ── Reactive state ──
   final _templates = <TemplateJadwal>[].obs;
@@ -78,10 +78,13 @@ class TemplateJadwalController extends GetxController {
   String? get _elderlyId {
     if (Get.arguments != null && Get.arguments is Map) {
       final args = Get.arguments as Map;
-      log.info('TemplateJadwalController._elderlyId', data: {
-        'args_keys': args.keys.toList(),
-        'elderly_id_raw': args['elderly_id'],
-      });
+      log.info(
+        'TemplateJadwalController._elderlyId',
+        data: {
+          'args_keys': args.keys.toList(),
+          'elderly_id_raw': args['elderly_id'],
+        },
+      );
       final id = args['elderly_id']?.toString();
       return (id != null && id.isNotEmpty) ? id : null;
     }
@@ -101,8 +104,9 @@ class TemplateJadwalController extends GetxController {
       return;
     }
 
-    final enabledTemplates =
-        _templates.where((t) => t.isEnabled.value).toList();
+    final enabledTemplates = _templates
+        .where((t) => t.isEnabled.value)
+        .toList();
     if (enabledTemplates.isEmpty) {
       Get.snackbar('Info', 'Pilih minimal satu template');
       return;

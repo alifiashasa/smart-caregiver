@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../data/models/notification_model.dart';
 import '../../../data/repositories/notification_repository.dart';
 
 class NotifikasiController extends GetxController {
   final NotificationRepository _notificationRepository;
 
   NotifikasiController({required NotificationRepository notificationRepository})
-      : _notificationRepository = notificationRepository;
+    : _notificationRepository = notificationRepository;
 
   // ── Reactive state ──
-  final _notifications = <Map<String, dynamic>>[].obs;
+  final _notifications = <NotificationModel>[].obs;
   final _isLoading = true.obs;
   final _unreadCount = 0.obs;
   final _totalCount = 0.obs;
@@ -18,7 +19,7 @@ class NotifikasiController extends GetxController {
   final _isLoadingMore = false.obs;
 
   // ── Public getters ──
-  List<Map<String, dynamic>> get notifications => _notifications;
+  List<NotificationModel> get notifications => _notifications;
   bool get isLoading => _isLoading.value;
   int get unreadCount => _unreadCount.value;
   int get totalCount => _totalCount.value;
@@ -42,24 +43,25 @@ class NotifikasiController extends GetxController {
       _isLoading.value = true;
     }
 
-    final result = await _notificationRepository.getNotifications(
+    final result = await _notificationRepository.getNotificationItems(
       limit: _pageSize,
       offset: _currentPage.value * _pageSize,
     );
 
-    if (!result['error'] && result['data'] != null) {
-      final data = result['data'] as Map<String, dynamic>;
-      final rawList = data['notifications'] as List<dynamic>? ?? [];
-      _totalCount.value = data['total'] as int? ?? 0;
+    result.when(
+      success: (data) {
+        _totalCount.value = data.total;
 
-      if (refresh) {
-        _notifications.assignAll(rawList.cast<Map<String, dynamic>>());
-      } else {
-        _notifications.addAll(rawList.cast<Map<String, dynamic>>());
-      }
+        if (refresh) {
+          _notifications.assignAll(data.notifications);
+        } else {
+          _notifications.addAll(data.notifications);
+        }
 
-      _hasMore.value = _notifications.length < _totalCount.value;
-    }
+        _hasMore.value = _notifications.length < _totalCount.value;
+      },
+      failure: (_) {},
+    );
 
     _isLoading.value = false;
     _isLoadingMore.value = false;
@@ -82,13 +84,13 @@ class NotifikasiController extends GetxController {
     await fetchNotifications();
   }
 
-  Future<void> markAsRead(Map<String, dynamic> notification) async {
-    final id = notification['id']?.toString();
-    if (id == null || id.isEmpty) return;
+  Future<void> markAsRead(NotificationModel notification) async {
+    final id = notification.id;
+    if (id.isEmpty) return;
 
-    final index = _notifications.indexWhere((n) => n['id'] == id);
-    if (index != -1 && _notifications[index]['is_read'] == false) {
-      _notifications[index]['is_read'] = true;
+    final index = _notifications.indexWhere((item) => item.id == id);
+    if (index != -1 && !_notifications[index].isRead) {
+      _notifications[index] = _notifications[index].copyWith(isRead: true);
       _notifications.refresh();
       _unreadCount.value = (_unreadCount.value - 1).clamp(0, 999);
     }
@@ -100,7 +102,7 @@ class NotifikasiController extends GetxController {
     final result = await _notificationRepository.markAllAsRead();
     if (!result['error']) {
       for (var i = 0; i < _notifications.length; i++) {
-        _notifications[i]['is_read'] = true;
+        _notifications[i] = _notifications[i].copyWith(isRead: true);
       }
       _notifications.refresh();
       _unreadCount.value = 0;
@@ -152,16 +154,24 @@ class NotifikasiController extends GetxController {
     if (diff.inDays < 7) return '${diff.inDays}h yang lalu';
 
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-      'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Jun',
+      'Jul',
+      'Agu',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Des',
     ];
     return '${dt.day} ${months[dt.month - 1]}';
   }
 
   /// Check if notification is critical
-  static bool isCritical(Map<String, dynamic> notification) {
-    final type = notification['notification_type'] as String?;
-    final priority = notification['priority'] as String?;
-    return type == 'critical_alert' || priority == 'high';
+  static bool isCritical(NotificationModel notification) {
+    return notification.isCritical;
   }
 }

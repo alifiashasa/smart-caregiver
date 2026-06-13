@@ -51,7 +51,10 @@ class HealthApi {
   }
 
   /// GET /elderly/{elderlyId}/health/records
-  Future<Map<String, dynamic>> getRecords(String elderlyId, {int? limit}) async {
+  Future<Map<String, dynamic>> getRecords(
+    String elderlyId, {
+    int? limit,
+  }) async {
     final query = limit != null ? '?limit=$limit' : '';
     final response = await _client.get(
       '/elderly/$elderlyId/health/records$query',

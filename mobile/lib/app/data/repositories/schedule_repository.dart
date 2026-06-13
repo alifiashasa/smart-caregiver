@@ -1,3 +1,5 @@
+import '../../core/api_result.dart';
+import '../models/schedule_model.dart';
 import '../schedule_api.dart';
 
 class ScheduleRepository {
@@ -46,6 +48,46 @@ class ScheduleRepository {
     limit: limit,
     offset: offset,
   );
+
+  Future<ApiResult<List<ScheduleModel>>> getScheduleItems(
+    String elderlyId, {
+    String? scheduleType,
+    bool? isActive,
+    String? fromDate,
+    String? toDate,
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    final response = await getSchedules(
+      elderlyId,
+      scheduleType: scheduleType,
+      isActive: isActive,
+      fromDate: fromDate,
+      toDate: toDate,
+      limit: limit,
+      offset: offset,
+    );
+    final result = response.toApiResult();
+
+    return result.when(
+      success: (data) {
+        final rawList = data['schedules'] as List<dynamic>? ?? [];
+        final schedules = rawList
+            .whereType<Map>()
+            .map(
+              (item) => ScheduleModel.fromJson(Map<String, dynamic>.from(item)),
+            )
+            .toList();
+        return ApiResult.success(schedules);
+      },
+      failure: (failure) => ApiResult.failure(
+        failure.message,
+        statusCode: failure.statusCode,
+        sessionExpired: failure.sessionExpired,
+        detailBody: failure.detailBody,
+      ),
+    );
+  }
 
   Future<Map<String, dynamic>> getById(String scheduleId) =>
       _api.getById(scheduleId);

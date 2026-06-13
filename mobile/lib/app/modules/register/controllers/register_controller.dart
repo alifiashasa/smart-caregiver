@@ -7,7 +7,7 @@ class RegisterController extends GetxController {
   final AuthRepository _authRepository;
 
   RegisterController({required AuthRepository authRepository})
-      : _authRepository = authRepository;
+    : _authRepository = authRepository;
 
   // ── Reactive state ──
   final _name = ''.obs;

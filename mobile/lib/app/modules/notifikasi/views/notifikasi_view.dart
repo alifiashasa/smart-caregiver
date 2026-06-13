@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../data/models/notification_model.dart';
 import '../controllers/notifikasi_controller.dart';
 
 class NotifikasiView extends GetView<NotifikasiController> {
@@ -72,15 +73,13 @@ class NotifikasiView extends GetView<NotifikasiController> {
           color: const Color(0xFF192126),
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            itemCount: controller.notifications.length +
-                (controller.hasMore ? 1 : 0),
+            itemCount:
+                controller.notifications.length + (controller.hasMore ? 1 : 0),
             itemBuilder: (context, index) {
               if (index >= controller.notifications.length) {
                 return _buildLoadMoreIndicator();
               }
-              return _buildNotificationCard(
-                controller.notifications[index],
-              );
+              return _buildNotificationCard(controller.notifications[index]);
             },
           ),
         );
@@ -141,14 +140,14 @@ class NotifikasiView extends GetView<NotifikasiController> {
     );
   }
 
-  Widget _buildNotificationCard(Map<String, dynamic> notification) {
+  Widget _buildNotificationCard(NotificationModel notification) {
     final isCritical = NotifikasiController.isCritical(notification);
-    final isUnread = notification['is_read'] == false;
-    final title = notification['title'] as String? ?? '';
-    final body = notification['body'] as String? ?? '';
-    final type = notification['notification_type'] as String?;
+    final isUnread = !notification.isRead;
+    final title = notification.title;
+    final body = notification.body;
+    final type = notification.notificationType;
     final time = NotifikasiController.relativeTime(
-      notification['created_at'] as String?,
+      notification.createdAt.toIso8601String(),
     );
 
     return GestureDetector(
@@ -162,9 +161,7 @@ class NotifikasiView extends GetView<NotifikasiController> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
-          color: isCritical
-              ? const Color(0xFF4A1F1F)
-              : const Color(0xFF384046),
+          color: isCritical ? const Color(0xFF4A1F1F) : const Color(0xFF384046),
           borderRadius: BorderRadius.circular(15),
           border: isCritical
               ? Border.all(color: const Color(0xFFEF4444), width: 1.5)

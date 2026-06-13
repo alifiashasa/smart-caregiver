@@ -31,7 +31,6 @@ class DashboardView extends GetView<DashboardController> {
             letterSpacing: -0.40,
           ),
         ),
-
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -176,8 +175,7 @@ class DashboardView extends GetView<DashboardController> {
                                 ),
                                 onChanged: (String? newValue) {
                                   if (newValue != null) {
-                                    controller.selectedTrendFilter =
-                                        newValue;
+                                    controller.selectedTrendFilter = newValue;
                                   }
                                 },
                                 items: <String>['7 Hari', '30 Hari']
@@ -211,95 +209,97 @@ class DashboardView extends GetView<DashboardController> {
                       ),
                     ),
                     // ── Trend Chart ──
-                                        const SizedBox(height: 16),
-                                        // Parameter selector
-                                        Row(
-                                          children: [
-                                            Obx(() {
-                                              final params = controller.availableParams;
-                                              final selected = controller.selectedTrendParam;
-                                              if (params.isEmpty) return const SizedBox.shrink();
-                                              return Container(
-                                                height: 32,
-                                                padding: const EdgeInsets.symmetric(horizontal: 8),
-                                                decoration: BoxDecoration(
-                                                  color: const Color(0xFFF5F5F4),
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                                child: DropdownButtonHideUnderline(
-                                                  child: DropdownButton<String>(
-                                                    value: params.contains(selected) ? selected : params.first,
-                                                    icon: const Icon(
-                                                      Icons.keyboard_arrow_down,
-                                                      size: 16,
-                                                    ),
-                                                    style: const TextStyle(
-                                                      color: Color(0xFF1C1917),
-                                                      fontSize: 12,
-                                                      fontFamily: 'Plus Jakarta Sans',
-                                                      fontWeight: FontWeight.w600,
-                                                    ),
-                                                    onChanged: (String? newValue) {
-                                                      if (newValue != null) {
-                                                        controller.selectedTrendParam = newValue;
-                                                      }
-                                                    },
-                                                    items: params
-                                                        .map<DropdownMenuItem<String>>((String value) {
-                                                          final label = DashboardController
-                                                              .trendParamLabels[value];
-                                                          return DropdownMenuItem<String>(
-                                                            value: value,
-                                                            child: Text(label ?? value),
-                                                          );
-                                                        })
-                                                        .toList(),
-                                                  ),
-                                                ),
-                                              );
-                                            }),
-                                            const Spacer(),
-                                            Obx(() {
-                                              final label = DashboardController.trendParamLabels[
-                                                  controller.selectedTrendParam];
-                                              return Text(
-                                                label ?? 'Gula Darah',
-                                                style: const TextStyle(
-                                                  color: Color(0xFF4C4546),
-                                                  fontSize: 13,
-                                                  fontFamily: 'Plus Jakarta Sans',
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              );
-                                            }),
-                                            const SizedBox(width: 4),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 16),
-                                        // Chart
-                                        SizedBox(
-                                          height: 200,
-                                          width: double.infinity,
-                                          child: Obx(() {
-                                            final dataPoints = controller.trendDataPoints;
-                                            if (dataPoints.isEmpty) {
-                                              return const Center(
-                                                child: Text(
-                                                  'Belum ada data tren',
-                                                  style: TextStyle(
-                                                    color: Color(0xFFA3A1A6),
-                                                    fontSize: 14,
-                                                    fontFamily: 'Plus Jakarta Sans',
-                                                  ),
-                                                ),
-                                              );
-                                            }
-                                            return _buildTrendChart(
-                                              dataPoints.cast<Map<String, dynamic>>(),
-                                              controller.selectedTrendParam,
-                                            );
-                                          }),
-                                        ),
+                    const SizedBox(height: 16),
+                    // Parameter selector
+                    Row(
+                      children: [
+                        Obx(() {
+                          final params = controller.availableParams;
+                          final selected = controller.selectedTrendParam;
+                          if (params.isEmpty) return const SizedBox.shrink();
+                          return Container(
+                            height: 32,
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF5F5F4),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                value: params.contains(selected)
+                                    ? selected
+                                    : params.first,
+                                icon: const Icon(
+                                  Icons.keyboard_arrow_down,
+                                  size: 16,
+                                ),
+                                style: const TextStyle(
+                                  color: Color(0xFF1C1917),
+                                  fontSize: 12,
+                                  fontFamily: 'Plus Jakarta Sans',
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                onChanged: (String? newValue) {
+                                  if (newValue != null) {
+                                    controller.selectedTrendParam = newValue;
+                                  }
+                                },
+                                items: params.map<DropdownMenuItem<String>>((
+                                  String value,
+                                ) {
+                                  final label = DashboardController
+                                      .trendParamLabels[value];
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(label ?? value),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          );
+                        }),
+                        const Spacer(),
+                        Obx(() {
+                          final label = DashboardController
+                              .trendParamLabels[controller.selectedTrendParam];
+                          return Text(
+                            label ?? 'Gula Darah',
+                            style: const TextStyle(
+                              color: Color(0xFF4C4546),
+                              fontSize: 13,
+                              fontFamily: 'Plus Jakarta Sans',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          );
+                        }),
+                        const SizedBox(width: 4),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    // Chart
+                    SizedBox(
+                      height: 200,
+                      width: double.infinity,
+                      child: Obx(() {
+                        final dataPoints = controller.trendDataPoints;
+                        if (dataPoints.isEmpty) {
+                          return const Center(
+                            child: Text(
+                              'Belum ada data tren',
+                              style: TextStyle(
+                                color: Color(0xFFA3A1A6),
+                                fontSize: 14,
+                                fontFamily: 'Plus Jakarta Sans',
+                              ),
+                            ),
+                          );
+                        }
+                        return _buildTrendChart(
+                          dataPoints.cast<Map<String, dynamic>>(),
+                          controller.selectedTrendParam,
+                        );
+                      }),
+                    ),
                   ],
                 ),
               ),
@@ -457,17 +457,19 @@ class DashboardView extends GetView<DashboardController> {
           ),
         ),
       ),
-
     );
   }
 
   Widget _buildAddHealthRecordButton() {
     return InkWell(
       onTap: () {
-        Get.toNamed(Routes.LOG_KESEHATAN, arguments: {
-          'elderly_id': controller.elderlyId,
-          'name': controller.patientName,
-        });
+        Get.toNamed(
+          Routes.LOG_KESEHATAN,
+          arguments: {
+            'elderly_id': controller.elderlyId,
+            'name': controller.patientName,
+          },
+        );
       },
       borderRadius: BorderRadius.circular(18),
       child: Container(
@@ -504,10 +506,7 @@ class DashboardView extends GetView<DashboardController> {
     );
   }
 
-  Widget _buildTrendChart(
-    List<Map<String, dynamic>> dataPoints,
-    String param,
-  ) {
+  Widget _buildTrendChart(List<Map<String, dynamic>> dataPoints, String param) {
     // Build spots from data
     final spots = <FlSpot>[];
     double minVal = double.infinity;
@@ -515,7 +514,9 @@ class DashboardView extends GetView<DashboardController> {
 
     for (int i = 0; i < dataPoints.length; i++) {
       final raw = dataPoints[i][param];
-      final value = (raw is num) ? raw.toDouble() : double.tryParse(raw?.toString() ?? '');
+      final value = (raw is num)
+          ? raw.toDouble()
+          : double.tryParse(raw?.toString() ?? '');
       if (value != null && value.isFinite) {
         spots.add(FlSpot(i.toDouble(), value));
         if (value < minVal) minVal = value;
@@ -547,8 +548,18 @@ class DashboardView extends GetView<DashboardController> {
       try {
         final d = DateTime.parse(dp['date'] as String);
         final months = [
-          'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-          'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'Mei',
+          'Jun',
+          'Jul',
+          'Agu',
+          'Sep',
+          'Okt',
+          'Nov',
+          'Des',
         ];
         return '${d.day}/${months[d.month - 1]}';
       } catch (_) {
@@ -585,7 +596,9 @@ class DashboardView extends GetView<DashboardController> {
             sideTitles: SideTitles(
               showTitles: true,
               reservedSize: 30,
-              interval: dataPoints.length > 7 ? (dataPoints.length / 6).ceilToDouble() : 1,
+              interval: dataPoints.length > 7
+                  ? (dataPoints.length / 6).ceilToDouble()
+                  : 1,
               getTitlesWidget: (value, meta) {
                 final idx = value.toInt();
                 if (idx < 0 || idx >= dateLabels.length) {
@@ -610,9 +623,7 @@ class DashboardView extends GetView<DashboardController> {
         ),
         borderData: FlBorderData(
           show: true,
-          border: const Border(
-            bottom: BorderSide(color: Color(0xFFA8A29E)),
-          ),
+          border: const Border(bottom: BorderSide(color: Color(0xFFA8A29E))),
         ),
         minX: 0,
         maxX: (spots.length - 1).toDouble(),

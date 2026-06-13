@@ -11,11 +11,10 @@ class AiRepository {
   Future<Map<String, dynamic>> generateRecommendation({
     required String elderlyId,
     String? additionalContext,
-  }) =>
-      _api.generateRecommendation(
-        elderlyId: elderlyId,
-        additionalContext: additionalContext,
-      );
+  }) => _api.generateRecommendation(
+    elderlyId: elderlyId,
+    additionalContext: additionalContext,
+  );
 
   Future<Map<String, dynamic>> approveRecommendation({
     required String elderlyId,
@@ -23,21 +22,19 @@ class AiRepository {
     required String scheduledAt,
     int? durationMinutes,
     List<int>? reminderMinutes,
-  }) =>
-      _api.approveRecommendation(
-        elderlyId: elderlyId,
-        recommendationId: recommendationId,
-        scheduledAt: scheduledAt,
-        durationMinutes: durationMinutes,
-        reminderMinutes: reminderMinutes,
-      );
+  }) => _api.approveRecommendation(
+    elderlyId: elderlyId,
+    recommendationId: recommendationId,
+    scheduledAt: scheduledAt,
+    durationMinutes: durationMinutes,
+    reminderMinutes: reminderMinutes,
+  );
 
   Future<Map<String, dynamic>> rejectRecommendation({
     required String elderlyId,
     required String recommendationId,
-  }) =>
-      _api.rejectRecommendation(
-        elderlyId: elderlyId,
-        recommendationId: recommendationId,
-      );
+  }) => _api.rejectRecommendation(
+    elderlyId: elderlyId,
+    recommendationId: recommendationId,
+  );
 }

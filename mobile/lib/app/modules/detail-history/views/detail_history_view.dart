@@ -52,8 +52,11 @@ class DetailHistoryView extends GetView<DetailHistoryController> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.health_and_safety_outlined,
-              size: 64, color: Colors.grey.shade400),
+          Icon(
+            Icons.health_and_safety_outlined,
+            size: 64,
+            color: Colors.grey.shade400,
+          ),
           const SizedBox(height: 16),
           const Text(
             'Belum ada data kesehatan',
@@ -154,21 +157,23 @@ class DetailHistoryView extends GetView<DetailHistoryController> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Obx(() => Flexible(
-                      child: Text(
-                        controller.patientName.isNotEmpty
-                            ? controller.patientName
-                            : 'Riwayat Kesehatan',
-                        style: const TextStyle(
-                          color: Color(0xFF4C4546),
-                          fontSize: 14,
-                          fontFamily: 'Plus Jakarta Sans',
-                          fontWeight: FontWeight.w600,
-                          height: 1.43,
-                          letterSpacing: 0.14,
-                        ),
+                Obx(
+                  () => Flexible(
+                    child: Text(
+                      controller.patientName.isNotEmpty
+                          ? controller.patientName
+                          : 'Riwayat Kesehatan',
+                      style: const TextStyle(
+                        color: Color(0xFF4C4546),
+                        fontSize: 14,
+                        fontFamily: 'Plus Jakarta Sans',
+                        fontWeight: FontWeight.w600,
+                        height: 1.43,
+                        letterSpacing: 0.14,
                       ),
-                    )),
+                    ),
+                  ),
+                ),
                 const SizedBox(width: 8),
                 _buildStatusBadge(),
               ],
@@ -177,18 +182,20 @@ class DetailHistoryView extends GetView<DetailHistoryController> {
           const SizedBox(height: 4),
           SizedBox(
             width: double.infinity,
-            child: Obx(() => Text(
-                  controller.selectedRecordDate.isNotEmpty
-                      ? controller.selectedRecordDate
-                      : 'Riwayat kesehatan dan pemantauan tanda vital',
-                  style: const TextStyle(
-                    color: Color(0xFF47464B),
-                    fontSize: 14,
-                    fontFamily: 'Plus Jakarta Sans',
-                    fontWeight: FontWeight.w500,
-                    height: 1.50,
-                  ),
-                )),
+            child: Obx(
+              () => Text(
+                controller.selectedRecordDate.isNotEmpty
+                    ? controller.selectedRecordDate
+                    : 'Riwayat kesehatan dan pemantauan tanda vital',
+                style: const TextStyle(
+                  color: Color(0xFF47464B),
+                  fontSize: 14,
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontWeight: FontWeight.w500,
+                  height: 1.50,
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -271,8 +278,7 @@ class DetailHistoryView extends GetView<DetailHistoryController> {
         children: [
           IconButton(
             onPressed: controller.selectedIndex > 0
-                ? () => controller.selectRecord(
-                    controller.selectedIndex - 1)
+                ? () => controller.selectRecord(controller.selectedIndex - 1)
                 : null,
             icon: const Icon(Icons.chevron_left),
             color: controller.selectedIndex > 0
@@ -291,14 +297,11 @@ class DetailHistoryView extends GetView<DetailHistoryController> {
           ),
           const SizedBox(width: 8),
           IconButton(
-            onPressed: controller.selectedIndex <
-                    controller.records.length - 1
-                ? () => controller.selectRecord(
-                    controller.selectedIndex + 1)
+            onPressed: controller.selectedIndex < controller.records.length - 1
+                ? () => controller.selectRecord(controller.selectedIndex + 1)
                 : null,
             icon: const Icon(Icons.chevron_right),
-            color: controller.selectedIndex <
-                    controller.records.length - 1
+            color: controller.selectedIndex < controller.records.length - 1
                 ? const Color(0xFF1C1B1C)
                 : Colors.grey.shade300,
           ),
@@ -322,95 +325,117 @@ class DetailHistoryView extends GetView<DetailHistoryController> {
         final val = sys != null && dia != null
             ? '${_fmtNum(sys)}/${_fmtNum(dia)}'
             : (sys != null ? _fmtNum(sys)! : '—/${_fmtNum(dia)}');
-        metrics.add(_MetricItem(
-          title: 'Tensi',
-          value: val,
-          unit: 'mmHg',
-          iconBgColor: const Color(0xFFD6E7D0),
-          iconData: Icons.favorite,
-          iconColor: const Color(0xFF4C9A2A),
-        ));
+        metrics.add(
+          _MetricItem(
+            title: 'Tensi',
+            value: val,
+            unit: 'mmHg',
+            iconBgColor: const Color(0xFFD6E7D0),
+            iconData: Icons.favorite,
+            iconColor: const Color(0xFF4C9A2A),
+          ),
+        );
       }
 
       // Detak Jantung (heart_rate)
       if (rec['heart_rate'] != null) {
         final hr = _fmtNum(rec['heart_rate']);
-        final isHigh = (rec['heart_rate'] as num) > 100 ||
-            (rec['heart_rate'] as num) < 60;
-        metrics.add(_MetricItem(
-          title: 'Detak Jantung',
-          value: hr!,
-          unit: 'bpm',
-          iconBgColor:
-              isHigh ? const Color(0xFFFDDCC9) : const Color(0xFFD6E7D0),
-          iconData: Icons.monitor_heart,
-          iconColor:
-              isHigh ? const Color(0xFFD31822) : const Color(0xFF4C9A2A),
-        ));
+        final isHigh =
+            (rec['heart_rate'] as num) > 100 || (rec['heart_rate'] as num) < 60;
+        metrics.add(
+          _MetricItem(
+            title: 'Detak Jantung',
+            value: hr!,
+            unit: 'bpm',
+            iconBgColor: isHigh
+                ? const Color(0xFFFDDCC9)
+                : const Color(0xFFD6E7D0),
+            iconData: Icons.monitor_heart,
+            iconColor: isHigh
+                ? const Color(0xFFD31822)
+                : const Color(0xFF4C9A2A),
+          ),
+        );
       }
 
       // Saturasi (spo2_level)
       if (rec['spo2_level'] != null) {
         final spo2 = _fmtNum(rec['spo2_level']);
         final isLow = (rec['spo2_level'] as num) < 95;
-        metrics.add(_MetricItem(
-          title: 'Saturasi',
-          value: spo2!,
-          unit: '%',
-          iconBgColor:
-              isLow ? const Color(0xFFFDDCC9) : const Color(0xFFD6E7D0),
-          iconData: Icons.air,
-          iconColor:
-              isLow ? const Color(0xFFD31822) : const Color(0xFF4C9A2A),
-        ));
+        metrics.add(
+          _MetricItem(
+            title: 'Saturasi',
+            value: spo2!,
+            unit: '%',
+            iconBgColor: isLow
+                ? const Color(0xFFFDDCC9)
+                : const Color(0xFFD6E7D0),
+            iconData: Icons.air,
+            iconColor: isLow
+                ? const Color(0xFFD31822)
+                : const Color(0xFF4C9A2A),
+          ),
+        );
       }
 
       // Gula Darah (blood_sugar)
       if (rec['blood_sugar'] != null) {
         final bs = _fmtNum(rec['blood_sugar']);
         final isHigh = (rec['blood_sugar'] as num) > 140;
-        metrics.add(_MetricItem(
-          title: 'Gula Darah',
-          value: bs!,
-          unit: 'mg/dL',
-          iconBgColor:
-              isHigh ? const Color(0xFFFFDAD6) : const Color(0xFFD6E7D0),
-          iconData: Icons.water_drop,
-          iconColor:
-              isHigh ? const Color(0xFFD31822) : const Color(0xFF4C9A2A),
-        ));
+        metrics.add(
+          _MetricItem(
+            title: 'Gula Darah',
+            value: bs!,
+            unit: 'mg/dL',
+            iconBgColor: isHigh
+                ? const Color(0xFFFFDAD6)
+                : const Color(0xFFD6E7D0),
+            iconData: Icons.water_drop,
+            iconColor: isHigh
+                ? const Color(0xFFD31822)
+                : const Color(0xFF4C9A2A),
+          ),
+        );
       }
 
       // Kolestrol (cholesterol)
       if (rec['cholesterol'] != null) {
         final chol = _fmtNum(rec['cholesterol']);
         final isHigh = (rec['cholesterol'] as num) > 200;
-        metrics.add(_MetricItem(
-          title: 'Kolestrol',
-          value: chol!,
-          unit: 'mg/dL',
-          iconBgColor:
-              isHigh ? const Color(0xFFFDDCC9) : const Color(0xFFD6E7D0),
-          iconData: Icons.bloodtype,
-          iconColor:
-              isHigh ? const Color(0xFFD31822) : const Color(0xFF4C9A2A),
-        ));
+        metrics.add(
+          _MetricItem(
+            title: 'Kolestrol',
+            value: chol!,
+            unit: 'mg/dL',
+            iconBgColor: isHigh
+                ? const Color(0xFFFDDCC9)
+                : const Color(0xFFD6E7D0),
+            iconData: Icons.bloodtype,
+            iconColor: isHigh
+                ? const Color(0xFFD31822)
+                : const Color(0xFF4C9A2A),
+          ),
+        );
       }
 
       // Asam Urat (uric_acid)
       if (rec['uric_acid'] != null) {
         final ua = _fmtNum(rec['uric_acid']);
         final isHigh = (rec['uric_acid'] as num) > 7.0;
-        metrics.add(_MetricItem(
-          title: 'Asam Urat',
-          value: ua!,
-          unit: 'mg/dL',
-          iconBgColor:
-              isHigh ? const Color(0xFFFFDAD6) : const Color(0xFFEEEEEE),
-          iconData: Icons.science,
-          iconColor:
-              isHigh ? const Color(0xFFD31822) : const Color(0xFF1C1B1C),
-        ));
+        metrics.add(
+          _MetricItem(
+            title: 'Asam Urat',
+            value: ua!,
+            unit: 'mg/dL',
+            iconBgColor: isHigh
+                ? const Color(0xFFFFDAD6)
+                : const Color(0xFFEEEEEE),
+            iconData: Icons.science,
+            iconColor: isHigh
+                ? const Color(0xFFD31822)
+                : const Color(0xFF1C1B1C),
+          ),
+        );
       }
 
       // Suhu (body_temperature)
@@ -418,29 +443,35 @@ class DetailHistoryView extends GetView<DetailHistoryController> {
         final temp = _fmtNum(rec['body_temperature']);
         final tempVal = (rec['body_temperature'] as num);
         final isAbnormal = tempVal >= 37.5 || tempVal <= 35.5;
-        metrics.add(_MetricItem(
-          title: 'Suhu',
-          value: '$temp°C',
-          unit: '',
-          iconBgColor:
-              isAbnormal ? const Color(0xFFFFDAD6) : const Color(0xFFE2E2E2),
-          iconData: Icons.thermostat,
-          iconColor:
-              isAbnormal ? const Color(0xFFD31822) : const Color(0xFF1C1B1C),
-        ));
+        metrics.add(
+          _MetricItem(
+            title: 'Suhu',
+            value: '$temp°C',
+            unit: '',
+            iconBgColor: isAbnormal
+                ? const Color(0xFFFFDAD6)
+                : const Color(0xFFE2E2E2),
+            iconData: Icons.thermostat,
+            iconColor: isAbnormal
+                ? const Color(0xFFD31822)
+                : const Color(0xFF1C1B1C),
+          ),
+        );
       }
 
       // Berat Badan (body_weight)
       if (rec['body_weight'] != null) {
         final bw = _fmtNum(rec['body_weight']);
-        metrics.add(_MetricItem(
-          title: 'Berat Badan',
-          value: bw!,
-          unit: 'Kg',
-          iconBgColor: const Color(0xFFEEEEEE),
-          iconData: Icons.monitor_weight,
-          iconColor: const Color(0xFF1C1B1C),
-        ));
+        metrics.add(
+          _MetricItem(
+            title: 'Berat Badan',
+            value: bw!,
+            unit: 'Kg',
+            iconBgColor: const Color(0xFFEEEEEE),
+            iconData: Icons.monitor_weight,
+            iconColor: const Color(0xFF1C1B1C),
+          ),
+        );
       }
 
       if (metrics.isEmpty) {
@@ -495,14 +526,18 @@ class DetailHistoryView extends GetView<DetailHistoryController> {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: metrics.map((m) => _buildMetricItem(
-                m.title,
-                m.value,
-                m.unit,
-                m.iconBgColor,
-                m.iconData,
-                m.iconColor,
-              )).toList(),
+          children: metrics
+              .map(
+                (m) => _buildMetricItem(
+                  m.title,
+                  m.value,
+                  m.unit,
+                  m.iconBgColor,
+                  m.iconData,
+                  m.iconColor,
+                ),
+              )
+              .toList(),
         ),
       );
     });
@@ -544,8 +579,11 @@ class DetailHistoryView extends GetView<DetailHistoryController> {
               // Section title
               Row(
                 children: [
-                  const Icon(Icons.analytics_outlined,
-                      size: 20, color: Color(0xFF1C1B1C)),
+                  const Icon(
+                    Icons.analytics_outlined,
+                    size: 20,
+                    color: Color(0xFF1C1B1C),
+                  ),
                   const SizedBox(width: 8),
                   const Text(
                     'Analisis Fuzzy',
@@ -602,15 +640,33 @@ class DetailHistoryView extends GetView<DetailHistoryController> {
               ),
               const SizedBox(height: 12),
 
-              if (cardio != null) _buildModuleScore(
-                  'Kardiovaskular', cardio['score'], cardio['status'],
-                  Icons.favorite, const Color(0xFFD6E7D0), const Color(0xFF4C9A2A)),
-              if (metabolic != null) _buildModuleScore(
-                  'Metabolik', metabolic['score'], metabolic['status'],
-                  Icons.science, const Color(0xFFEEEEEE), const Color(0xFF1C1B1C)),
-              if (infection != null) _buildModuleScore(
-                  'Infeksi', infection['score'], infection['status'],
-                  Icons.thermostat, const Color(0xFFE2E2E2), const Color(0xFF1C1B1C)),
+              if (cardio != null)
+                _buildModuleScore(
+                  'Kardiovaskular',
+                  cardio['score'],
+                  cardio['status'],
+                  Icons.favorite,
+                  const Color(0xFFD6E7D0),
+                  const Color(0xFF4C9A2A),
+                ),
+              if (metabolic != null)
+                _buildModuleScore(
+                  'Metabolik',
+                  metabolic['score'],
+                  metabolic['status'],
+                  Icons.science,
+                  const Color(0xFFEEEEEE),
+                  const Color(0xFF1C1B1C),
+                ),
+              if (infection != null)
+                _buildModuleScore(
+                  'Infeksi',
+                  infection['score'],
+                  infection['status'],
+                  Icons.thermostat,
+                  const Color(0xFFE2E2E2),
+                  const Color(0xFF1C1B1C),
+                ),
 
               if (cardio == null && metabolic == null && infection == null)
                 const Text(
@@ -630,8 +686,13 @@ class DetailHistoryView extends GetView<DetailHistoryController> {
   }
 
   Widget _buildModuleScore(
-      String label, dynamic score, dynamic status,
-      IconData icon, Color bgColor, Color iconColor) {
+    String label,
+    dynamic score,
+    dynamic status,
+    IconData icon,
+    Color bgColor,
+    Color iconColor,
+  ) {
     final scoreStr = score?.toStringAsFixed(2) ?? '—';
     final statusStr = status?.toString() ?? '—';
 
@@ -648,9 +709,7 @@ class DetailHistoryView extends GetView<DetailHistoryController> {
                 borderRadius: BorderRadius.circular(6),
               ),
             ),
-            child: Center(
-              child: Icon(icon, size: 16, color: iconColor),
-            ),
+            child: Center(child: Icon(icon, size: 16, color: iconColor)),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -776,10 +835,7 @@ class DetailHistoryView extends GetView<DetailHistoryController> {
               decoration: ShapeDecoration(
                 color: Colors.white,
                 shape: RoundedRectangleBorder(
-                  side: const BorderSide(
-                    width: 1,
-                    color: Color(0xFFC8C5CB),
-                  ),
+                  side: const BorderSide(width: 1, color: Color(0xFFC8C5CB)),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 shadows: const [
@@ -804,8 +860,7 @@ class DetailHistoryView extends GetView<DetailHistoryController> {
                           ),
                           const SizedBox(height: 12),
                         ],
-                        if (dailyNotes != null &&
-                            dailyNotes.trim().isNotEmpty)
+                        if (dailyNotes != null && dailyNotes.trim().isNotEmpty)
                           _buildNoteSection(
                             'Catatan Harian',
                             dailyNotes,

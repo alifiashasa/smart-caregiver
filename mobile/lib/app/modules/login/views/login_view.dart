@@ -163,9 +163,7 @@ class LoginView extends GetView<LoginController> {
               // Continue Button
               Obx(
                 () => ElevatedButton(
-                  onPressed: controller.isLoading
-                      ? null
-                      : controller.login,
+                  onPressed: controller.isLoading ? null : controller.login,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFBBF246), // Light green
                     foregroundColor: Colors.black,

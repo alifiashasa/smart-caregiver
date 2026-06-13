@@ -7,7 +7,7 @@ class ProfilCaregiverController extends GetxController {
   final AuthRepository _authRepository;
 
   ProfilCaregiverController({required AuthRepository authRepository})
-      : _authRepository = authRepository;
+    : _authRepository = authRepository;
 
   // ── Reactive state ──
   final _fullName = ''.obs;
@@ -29,15 +29,18 @@ class ProfilCaregiverController extends GetxController {
       final data = result['data'] as Map<String, dynamic>;
       _fullName.value = data['full_name'] ?? '';
       _email.value = data['email'] ?? '';
-      log.info('Profile loaded', data: {
-        'email': _email.value,
-        'full_name': _fullName.value,
-      });
+      log.info(
+        'Profile loaded',
+        data: {'email': _email.value, 'full_name': _fullName.value},
+      );
     } else {
-      log.error('Gagal load profil caregiver', data: {
-        'message': result['message'],
-        'statusCode': result['statusCode'],
-      });
+      log.error(
+        'Gagal load profil caregiver',
+        data: {
+          'message': result['message'],
+          'statusCode': result['statusCode'],
+        },
+      );
     }
   }
 

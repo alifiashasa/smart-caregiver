@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../data/models/schedule_model.dart';
 import '../../../routes/app_pages.dart';
 import '../controllers/calendar_controller.dart';
 
@@ -336,13 +337,13 @@ class CalendarView extends GetView<CalendarController> {
   }
 
   Widget _buildScheduleCard(
-    Map<String, dynamic> schedule,
+    ScheduleModel schedule,
     CalendarController controller,
   ) {
-    bool isCompleted = schedule['is_completed'];
-    DateTime time = schedule['scheduled_at'];
-    String title = schedule['title'];
-    String type = schedule['schedule_type'];
+    final isCompleted = schedule.isCompleted;
+    final time = schedule.scheduledAt;
+    final title = schedule.title;
+    final type = schedule.scheduleType;
 
     IconData iconData = Icons.event;
     Color iconBgColor = const Color(0xFFE3E1EC);
@@ -422,7 +423,7 @@ class CalendarView extends GetView<CalendarController> {
                   ),
                 ),
                 Text(
-                  '${schedule['duration_minutes']} min',
+                  '${schedule.durationMinutes ?? 0} min',
                   style: const TextStyle(
                     color: Color(0xFF47464B),
                     fontSize: 14,
@@ -467,7 +468,7 @@ class CalendarView extends GetView<CalendarController> {
           const SizedBox(width: 16),
           GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: () => controller.toggleScheduleCompletion(schedule['id']),
+            onTap: () => controller.toggleScheduleCompletion(schedule.id),
             child: Padding(
               padding: const EdgeInsets.all(4),
               child: Icon(

@@ -35,47 +35,25 @@ class HomeController extends GetxController {
   Future<void> loadElderly() async {
     _isLoading.value = true;
 
-    final result = await _dashboardRepository.getOverview();
+    final result = await _dashboardRepository.getOverviewItems();
 
     _isLoading.value = false;
 
-    if (result['error'] == true) {
-      log.error(
-        'loadElderly gagal',
-        data: {
-          'message': result['message'],
-          'statusCode': result['statusCode'],
-        },
-      );
-      if (result['session_expired'] == true) {
-        Get.offAllNamed(Routes.LOGIN);
-      }
-      return;
-    }
-
-    final data = result['data'];
-    if (data != null) {
-      final elderly = data['elderly'] as List<dynamic>?;
-      if (elderly != null) {
-        final parsed = elderly
-            .whereType<Map>()
-            .map(
-              (item) => DashboardElderlyModel.fromJson(
-                Map<String, dynamic>.from(item),
-              ),
-            )
-            .toList();
-        log.info('loadElderly sukses', data: {'count': parsed.length});
-        _elderlyList.value = parsed;
-      } else {
-        log.warn(
-          'loadElderly: field "elderly" tidak ditemukan di response',
-          data: {'response': data},
+    result.when(
+      success: (elderly) {
+        log.info('loadElderly sukses', data: {'count': elderly.length});
+        _elderlyList.value = elderly;
+      },
+      failure: (failure) {
+        log.error(
+          'loadElderly gagal',
+          data: {'message': failure.message, 'statusCode': failure.statusCode},
         );
-      }
-    } else {
-      log.warn('loadElderly: result["data"] null');
-    }
+        if (failure.sessionExpired) {
+          Get.offAllNamed(Routes.LOGIN);
+        }
+      },
+    );
   }
 
   Future<void> loadUnreadCount() async {

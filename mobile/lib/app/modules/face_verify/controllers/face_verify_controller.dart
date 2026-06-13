@@ -9,7 +9,7 @@ class FaceVerifyController extends GetxController {
   final AuthRepository _authRepository;
 
   FaceVerifyController({required AuthRepository authRepository})
-      : _authRepository = authRepository;
+    : _authRepository = authRepository;
 
   // ── Reactive state ──
   final _isLoading = false.obs;
@@ -49,8 +49,7 @@ class FaceVerifyController extends GetxController {
       final result = await _authRepository.verifyFace(imageBytes: imageBytes);
 
       if (result['error'] == true) {
-        _errorMessage.value =
-            result['message'] ?? 'Verifikasi wajah gagal';
+        _errorMessage.value = result['message'] ?? 'Verifikasi wajah gagal';
         _isLoading.value = false;
         return;
       }

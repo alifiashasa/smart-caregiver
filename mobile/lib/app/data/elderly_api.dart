@@ -52,10 +52,7 @@ class ElderlyApi {
 
   /// GET /elderly
   Future<Map<String, dynamic>> getAll() async {
-    final response = await _client.get(
-      '/elderly',
-      authenticated: true,
-    );
+    final response = await _client.get('/elderly', authenticated: true);
 
     if (response['error'] == true) {
       return response;
@@ -70,10 +67,7 @@ class ElderlyApi {
 
   /// GET /elderly/{id}
   Future<Map<String, dynamic>> getById(String id) async {
-    final response = await _client.get(
-      '/elderly/$id',
-      authenticated: true,
-    );
+    final response = await _client.get('/elderly/$id', authenticated: true);
 
     if (response['error'] == true) {
       return response;
@@ -107,12 +101,18 @@ class ElderlyApi {
     if (gender != null) body['gender'] = gender;
     if (photoUrl != null) body['photo_url'] = photoUrl;
     if (medicalHistory != null) body['medical_history'] = medicalHistory;
-    if (physicalCondition != null) body['physical_condition'] = physicalCondition;
+    if (physicalCondition != null) {
+      body['physical_condition'] = physicalCondition;
+    }
     if (mobilityLevel != null) body['mobility_level'] = mobilityLevel;
     if (hobbiesInterests != null) body['hobbies_interests'] = hobbiesInterests;
     if (allergies != null) body['allergies'] = allergies;
-    if (emergencyContactName != null) body['emergency_contact_name'] = emergencyContactName;
-    if (emergencyContactPhone != null) body['emergency_contact_phone'] = emergencyContactPhone;
+    if (emergencyContactName != null) {
+      body['emergency_contact_name'] = emergencyContactName;
+    }
+    if (emergencyContactPhone != null) {
+      body['emergency_contact_phone'] = emergencyContactPhone;
+    }
 
     final response = await _client.put(
       '/elderly/$id',
@@ -133,10 +133,7 @@ class ElderlyApi {
 
   /// DELETE /elderly/{id}
   Future<Map<String, dynamic>> delete(String id) async {
-    final response = await _client.delete(
-      '/elderly/$id',
-      authenticated: true,
-    );
+    final response = await _client.delete('/elderly/$id', authenticated: true);
 
     if (response['error'] == true) {
       return response;

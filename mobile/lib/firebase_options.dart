@@ -59,5 +59,4 @@ class DefaultFirebaseOptions {
     projectId: 'liquid-virtue-406311',
     storageBucket: 'liquid-virtue-406311.firebasestorage.app',
   );
-
 }

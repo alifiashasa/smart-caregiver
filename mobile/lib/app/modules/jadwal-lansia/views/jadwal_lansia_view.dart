@@ -104,38 +104,44 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Obx(() => SizedBox(
-                                width: double.infinity,
-                                child: Wrap(
-                                  runSpacing: 8,
-                                  children: [
-                                    _buildTypeChip(
+                          Obx(
+                            () => SizedBox(
+                              width: double.infinity,
+                              child: Wrap(
+                                runSpacing: 8,
+                                children: [
+                                  _buildTypeChip(
+                                    'Medis',
+                                    Icons.medical_services,
+                                    controller.selectedType == 'medication',
+                                    () => controller.selectType(
+                                      'medication',
                                       'Medis',
-                                      Icons.medical_services,
-                                      controller.selectedType ==
-                                          'medication',
-                                      () => controller.selectType(
-                                          'medication', 'Medis'),
                                     ),
-                                    _buildTypeChip(
+                                  ),
+                                  _buildTypeChip(
+                                    'Pemeriksaan',
+                                    Icons.assignment,
+                                    controller.selectedType ==
+                                        'routine_checkup',
+                                    () => controller.selectType(
+                                      'routine_checkup',
                                       'Pemeriksaan',
-                                      Icons.assignment,
-                                      controller.selectedType ==
-                                          'routine_checkup',
-                                      () => controller.selectType(
-                                          'routine_checkup', 'Pemeriksaan'),
                                     ),
-                                    _buildTypeChip(
+                                  ),
+                                  _buildTypeChip(
+                                    'Aktivitas',
+                                    Icons.directions_run,
+                                    controller.selectedType == 'daily_activity',
+                                    () => controller.selectType(
+                                      'daily_activity',
                                       'Aktivitas',
-                                      Icons.directions_run,
-                                      controller.selectedType ==
-                                          'daily_activity',
-                                      () => controller.selectType(
-                                          'daily_activity', 'Aktivitas'),
                                     ),
-                                  ],
-                                ),
-                              )),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                           const SizedBox(height: 24),
                           const Text(
                             'Tanggal',
@@ -149,11 +155,13 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Obx(() => _buildInputField(
-                                controller.dateDisplay,
-                                Icons.calendar_today,
-                                onTap: _pickDate,
-                              )),
+                          Obx(
+                            () => _buildInputField(
+                              controller.dateDisplay,
+                              Icons.calendar_today,
+                              onTap: _pickDate,
+                            ),
+                          ),
                           const SizedBox(height: 24),
                           const Text(
                             'Waktu',
@@ -167,11 +175,13 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Obx(() => _buildInputField(
-                                controller.timeDisplay,
-                                Icons.access_time,
-                                onTap: _pickTime,
-                              )),
+                          Obx(
+                            () => _buildInputField(
+                              controller.timeDisplay,
+                              Icons.access_time,
+                              onTap: _pickTime,
+                            ),
+                          ),
                           const SizedBox(height: 24),
                           const Text(
                             'Mengulang',
@@ -185,11 +195,13 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Obx(() => _buildInputField(
-                                controller.recurrenceLabel,
-                                Icons.keyboard_arrow_down,
-                                onTap: _pickRecurrence,
-                              )),
+                          Obx(
+                            () => _buildInputField(
+                              controller.recurrenceLabel,
+                              Icons.keyboard_arrow_down,
+                              onTap: _pickRecurrence,
+                            ),
+                          ),
                           const SizedBox(height: 32),
                           _buildAlarmSection(),
                           const SizedBox(height: 48),
@@ -295,8 +307,12 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
     );
   }
 
-  Widget _buildTypeChip(String label, IconData icon, bool isSelected,
-      VoidCallback onTap) {
+  Widget _buildTypeChip(
+    String label,
+    IconData icon,
+    bool isSelected,
+    VoidCallback onTap,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -337,8 +353,11 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
     );
   }
 
-  Widget _buildInputField(String displayText, IconData icon,
-      {VoidCallback? onTap}) {
+  Widget _buildInputField(
+    String displayText,
+    IconData icon, {
+    VoidCallback? onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -380,90 +399,89 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
   Widget _buildAlarmSection() {
     return GestureDetector(
       onTap: () => controller.toggleAlarm(!controller.alarmEnabled),
-      child: Obx(() => Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: ShapeDecoration(
-              color: Colors.white,
-              shape: RoundedRectangleBorder(
-                side: BorderSide(
-                  width: 1,
-                  color: const Color(0x4CC8C5CB),
-                ),
-                borderRadius: BorderRadius.circular(16),
+      child: Obx(
+        () => Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: ShapeDecoration(
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+              side: BorderSide(width: 1, color: const Color(0x4CC8C5CB)),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            shadows: const [
+              BoxShadow(
+                color: Color(0x0A18181B),
+                blurRadius: 16,
+                offset: Offset(0, 4),
               ),
-              shadows: const [
-                BoxShadow(
-                  color: Color(0x0A18181B),
-                  blurRadius: 16,
-                  offset: Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: const ShapeDecoration(
-                          color: Color(0xFFF1FFD4),
-                          shape: CircleBorder(),
-                        ),
-                        child: const Icon(
-                          Icons.notifications_active,
-                          color: Color(0xFF576755),
-                          size: 20,
-                        ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: const ShapeDecoration(
+                        color: Color(0xFFF1FFD4),
+                        shape: CircleBorder(),
                       ),
-                      const SizedBox(width: 16),
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Pemberitahuan Alarm',
-                              style: TextStyle(
-                                color: Color(0xFF1C1B1C),
-                                fontSize: 14,
-                                fontFamily: 'Plus Jakarta Sans',
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              'Dapatkan pemberitahuan \n15 menit sebelumnya',
-                              style: TextStyle(
-                                color: Color(0xFF47464B),
-                                fontSize: 12,
-                                fontFamily: 'Plus Jakarta Sans',
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
+                      child: const Icon(
+                        Icons.notifications_active,
+                        color: Color(0xFF576755),
+                        size: 20,
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 16),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Pemberitahuan Alarm',
+                            style: TextStyle(
+                              color: Color(0xFF1C1B1C),
+                              fontSize: 14,
+                              fontFamily: 'Plus Jakarta Sans',
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Dapatkan pemberitahuan \n15 menit sebelumnya',
+                            style: TextStyle(
+                              color: Color(0xFF47464B),
+                              fontSize: 12,
+                              fontFamily: 'Plus Jakarta Sans',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(
-                  width: 44,
-                  height: 24,
-                  child: Switch.adaptive(
-                    value: controller.alarmEnabled,
-                    onChanged: controller.toggleAlarm,
-                    activeThumbColor: const Color(0xFF192126),
-                    activeTrackColor: const Color(0xFFBBF246),
-                    inactiveThumbColor: Colors.white,
-                    inactiveTrackColor: const Color(0xFFE5E5E5),
-                  ),
+              ),
+              SizedBox(
+                width: 44,
+                height: 24,
+                child: Switch.adaptive(
+                  value: controller.alarmEnabled,
+                  onChanged: controller.toggleAlarm,
+                  activeThumbColor: const Color(0xFF192126),
+                  activeTrackColor: const Color(0xFFBBF246),
+                  inactiveThumbColor: Colors.white,
+                  inactiveTrackColor: const Color(0xFFE5E5E5),
                 ),
-              ],
-            ),
-          )),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -515,15 +533,15 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
               ...JadwalLansiaController.recurrenceOptions.map((opt) {
                 final value = opt['value'] as String;
                 final label = opt['label'] as String;
-                final isSelected =
-                    controller.selectedRecurrence == value;
+                final isSelected = controller.selectedRecurrence == value;
                 return ListTile(
                   title: Text(
                     label,
                     style: TextStyle(
                       fontFamily: 'Plus Jakarta Sans',
-                      fontWeight:
-                          isSelected ? FontWeight.w600 : FontWeight.w400,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w400,
                       color: isSelected
                           ? const Color(0xFF192126)
                           : const Color(0xFF47464B),
