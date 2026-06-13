@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import '../../../core/formatters/app_formatters.dart';
 import '../../../core/logger.dart';
 import '../../../data/models/dashboard_elderly_model.dart';
 import '../../../data/repositories/dashboard_repository.dart';
@@ -84,18 +85,7 @@ class HomeController extends GetxController {
 
   /// Human-readable status label
   static String statusLabel(String? status) {
-    switch (status) {
-      case 'normal':
-        return 'NORMAL';
-      case 'warning':
-        return 'WASPADA';
-      case 'needs_attention':
-        return 'PERHATIAN';
-      case 'critical':
-        return 'KRITIS';
-      default:
-        return 'NORMAL';
-    }
+    return AppFormatters.healthStatusLabel(status);
   }
 
   static bool isCritical(String? status) {

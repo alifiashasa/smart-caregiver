@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import '../../../core/formatters/app_formatters.dart';
 import '../../../data/models/health_record_model.dart';
 import '../../../data/repositories/elderly_repository.dart';
 import '../../../data/repositories/health_repository.dart';
@@ -126,7 +127,7 @@ class PatientDetailController extends GetxController {
 
   Map<String, dynamic> _normalizeRecord(HealthRecordModel record) {
     final rec = record.toLegacyMap();
-    final isCritical = _isStatusCritical(record.healthStatus);
+    final isCritical = AppFormatters.isAttentionStatus(record.healthStatus);
 
     String dateStr;
     try {
@@ -176,7 +177,7 @@ class PatientDetailController extends GetxController {
       }
     }
 
-    final statusLabel = _statusLabel(rec['health_status'] as String?);
+    final statusLabel = AppFormatters.healthStatusTitle(record.healthStatus);
 
     return {
       'date': dateStr,
@@ -212,27 +213,6 @@ class PatientDetailController extends GetxController {
     }
 
     return parts.join('\n');
-  }
-
-  bool _isStatusCritical(String? status) {
-    return status == 'needs_attention' ||
-        status == 'critical' ||
-        status == 'warning';
-  }
-
-  String _statusLabel(String? status) {
-    switch (status) {
-      case 'normal':
-        return 'Normal';
-      case 'warning':
-        return 'Waspada';
-      case 'needs_attention':
-        return 'Perlu Perhatian';
-      case 'critical':
-        return 'Kritis';
-      default:
-        return 'Normal';
-    }
   }
 
   String? _fmtNum(dynamic value) {

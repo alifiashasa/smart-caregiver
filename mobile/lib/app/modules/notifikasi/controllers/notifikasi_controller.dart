@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import '../../../core/formatters/app_formatters.dart';
 import '../../../core/ui/app_feedback.dart';
 import '../../../data/models/notification_model.dart';
 import '../../../data/repositories/notification_repository.dart';
@@ -115,54 +116,14 @@ class NotifikasiController extends GetxController {
 
   /// Human-readable notification type label
   static String typeLabel(String? type) {
-    switch (type) {
-      case 'health_recorded':
-        return 'Data Kesehatan';
-      case 'critical_alert':
-        return 'Peringatan Kritis';
-      case 'weekly_summary':
-        return 'Ringkasan Mingguan';
-      case 'alarm_reminder':
-        return 'Pengingat';
-      case 'activity_recommendation':
-        return 'Rekomendasi AI';
-      default:
-        return 'Notifikasi';
-    }
+    return AppFormatters.notificationTypeLabel(type);
   }
 
   /// Human-readable relative time
   static String relativeTime(String? isoDate) {
-    if (isoDate == null) return '';
-    DateTime? dt;
-    try {
-      dt = DateTime.parse(isoDate);
-    } catch (_) {
-      return '';
-    }
-    final now = DateTime.now();
-    final diff = now.difference(dt);
-
-    if (diff.inMinutes < 1) return 'Baru saja';
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m yang lalu';
-    if (diff.inHours < 24) return '${diff.inHours}j yang lalu';
-    if (diff.inDays < 7) return '${diff.inDays}h yang lalu';
-
-    final months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'Mei',
-      'Jun',
-      'Jul',
-      'Agu',
-      'Sep',
-      'Okt',
-      'Nov',
-      'Des',
-    ];
-    return '${dt.day} ${months[dt.month - 1]}';
+    return AppFormatters.relativeTime(
+      isoDate == null ? null : DateTime.tryParse(isoDate),
+    );
   }
 
   /// Check if notification is critical

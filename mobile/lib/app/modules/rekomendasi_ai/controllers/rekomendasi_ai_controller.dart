@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import '../../../core/formatters/app_formatters.dart';
 import '../../../core/ui/app_feedback.dart';
 import '../../../data/models/ai_recommendation_model.dart';
 import '../../../data/repositories/ai_repository.dart';
@@ -157,48 +158,16 @@ class RekomendasiAiController extends GetxController {
 
   /// Human-readable label for server enum category
   static String categoryLabel(String? category) {
-    switch (category) {
-      case 'physical':
-        return 'Fisik';
-      case 'cognitive':
-        return 'Kognitif';
-      case 'social':
-        return 'Sosial';
-      case 'creative':
-        return 'Kreatif';
-      case 'relaxation':
-        return 'Relaksasi';
-      case 'nature':
-        return 'Alam';
-      case 'music':
-        return 'Musik';
-      default:
-        return category ?? 'Umum';
-    }
+    return AppFormatters.recommendationCategoryLabel(category);
   }
 
   /// Duration display text
   static String durationLabel(dynamic minutes) {
-    if (minutes == null) return '—';
-    final m = minutes is int ? minutes : int.tryParse(minutes.toString());
-    if (m == null) return '—';
-    if (m >= 60) {
-      final h = m ~/ 60;
-      final rem = m % 60;
-      return rem > 0 ? '$h jam $rem menit' : '$h jam';
-    }
-    return '$m menit';
+    return AppFormatters.durationMinutesLabel(minutes);
   }
 
   /// Status label in Indonesian
   static String statusLabel(String? status) {
-    switch (status) {
-      case 'approved':
-        return 'Disetujui';
-      case 'rejected':
-        return 'Ditolak';
-      default:
-        return 'Menunggu';
-    }
+    return AppFormatters.recommendationStatusLabel(status);
   }
 }
