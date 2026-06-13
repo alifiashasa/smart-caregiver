@@ -68,6 +68,12 @@ class ApiClient {
   // ---------------------------------------------------------------------------
 
   static Future<void> initTokenStorage() async {
+    if (kIsWeb) {
+      _accessToken = _storage.read<String>(_accessTokenKey);
+      _refreshToken = _storage.read<String>(_refreshTokenKey);
+      return;
+    }
+
     _accessToken = await _secureStorage.read(key: _accessTokenKey);
     _refreshToken = await _secureStorage.read(key: _refreshTokenKey);
   }
@@ -82,6 +88,13 @@ class ApiClient {
   ) async {
     _accessToken = accessToken;
     _refreshToken = refreshToken;
+
+    if (kIsWeb) {
+      await _storage.write(_accessTokenKey, accessToken);
+      await _storage.write(_refreshTokenKey, refreshToken);
+      return;
+    }
+
     await Future.wait([
       _secureStorage.write(key: _accessTokenKey, value: accessToken),
       _secureStorage.write(key: _refreshTokenKey, value: refreshToken),
@@ -91,6 +104,13 @@ class ApiClient {
   static Future<void> clearTokens() async {
     _accessToken = null;
     _refreshToken = null;
+
+    if (kIsWeb) {
+      await _storage.remove(_accessTokenKey);
+      await _storage.remove(_refreshTokenKey);
+      return;
+    }
+
     await Future.wait([
       _secureStorage.delete(key: _accessTokenKey),
       _secureStorage.delete(key: _refreshTokenKey),

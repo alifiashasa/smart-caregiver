@@ -24,6 +24,7 @@ from src.app.routers import notification
 from src.app.routers import schedule
 from src.app.routers import recommendation
 from src.app.routers import internal_jobs
+from src.app.routers import admin
 
 # Load .env file
 load_dotenv()
@@ -81,6 +82,7 @@ app.include_router(face.router)
 app.include_router(schedule.router)
 app.include_router(recommendation.router)
 app.include_router(internal_jobs.router)
+app.include_router(admin.router)
 
 
 @app.get("/")

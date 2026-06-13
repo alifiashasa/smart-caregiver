@@ -57,6 +57,7 @@ class NotificationType(str, enum.Enum):
     WEEKLY_SUMMARY = "weekly_summary"
     ALARM_REMINDER = "alarm_reminder"
     ACTIVITY_RECOMMENDATION = "activity_recommendation"
+    APP_ANNOUNCEMENT = "app_announcement"
 
 
 class NotificationPriority(str, enum.Enum):
