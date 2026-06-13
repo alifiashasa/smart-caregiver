@@ -3,16 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
 import 'app/core/fcm_service.dart';
+import 'app/data/api_client.dart';
 import 'app/routes/app_pages.dart';
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await GetStorage.init();
+  await ApiClient.initTokenStorage();
+
   // Load .env (optional — falls back to defaults in config.dart)
-  await dotenv.load(fileName: '.env');
+  await dotenv.load(fileName: 'assets/.env', isOptional: true);
 
   // Initialize Firebase (may not be configured for web)
   try {

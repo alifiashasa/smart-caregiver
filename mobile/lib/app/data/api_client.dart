@@ -1,14 +1,22 @@
+import 'dart:async';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:http/http.dart' as http;
+
 import '../core/config.dart';
 import '../core/logger.dart';
 
 class ApiClient {
   static final GetStorage _storage = GetStorage();
+  static const FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
   static const String _accessTokenKey = 'access_token';
   static const String _refreshTokenKey = 'refresh_token';
+
+  static String? _accessToken;
+  static String? _refreshToken;
 
   bool _isRefreshing = false;
 
@@ -16,23 +24,40 @@ class ApiClient {
   // Token management
   // ---------------------------------------------------------------------------
 
-  static String? getAccessToken() => _storage.read<String>(_accessTokenKey);
-
-  static String? getRefreshToken() => _storage.read<String>(_refreshTokenKey);
-
-  static void saveTokens(String accessToken, String refreshToken) {
-    _storage.write(_accessTokenKey, accessToken);
-    _storage.write(_refreshTokenKey, refreshToken);
+  static Future<void> initTokenStorage() async {
+    _accessToken = await _secureStorage.read(key: _accessTokenKey);
+    _refreshToken = await _secureStorage.read(key: _refreshTokenKey);
   }
 
-  static void clearTokens() {
-    _storage.remove(_accessTokenKey);
-    _storage.remove(_refreshTokenKey);
+  static String? getAccessToken() => _accessToken;
+
+  static String? getRefreshToken() => _refreshToken;
+
+  static Future<void> saveTokens(
+    String accessToken,
+    String refreshToken,
+  ) async {
+    _accessToken = accessToken;
+    _refreshToken = refreshToken;
+    await Future.wait([
+      _secureStorage.write(key: _accessTokenKey, value: accessToken),
+      _secureStorage.write(key: _refreshTokenKey, value: refreshToken),
+    ]);
   }
 
-  /// Clears ALL GetStorage data (tokens + any cached state).
+  static Future<void> clearTokens() async {
+    _accessToken = null;
+    _refreshToken = null;
+    await Future.wait([
+      _secureStorage.delete(key: _accessTokenKey),
+      _secureStorage.delete(key: _refreshTokenKey),
+    ]);
+  }
+
+  /// Clears non-sensitive cached state and secure authentication tokens.
   static void clearAllStorage() {
     _storage.erase();
+    unawaited(clearTokens());
   }
 
   // ---------------------------------------------------------------------------
@@ -84,21 +109,20 @@ class ApiClient {
           .timeout(AppConfig.requestTimeout);
 
       if (response.statusCode == 200) {
-        final body =
-            jsonDecode(response.body) as Map<String, dynamic>;
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
         final newAccess = body['access_token'] as String?;
         final newRefresh = body['refresh_token'] as String?;
         if (newAccess != null && newRefresh != null) {
-          saveTokens(newAccess, newRefresh);
+          await saveTokens(newAccess, newRefresh);
           return true;
         }
       }
 
       // Refresh failed — clear everything
-      clearTokens();
+      await clearTokens();
       return false;
     } catch (_) {
-      clearTokens();
+      await clearTokens();
       return false;
     } finally {
       _isRefreshing = false;
@@ -135,8 +159,12 @@ class ApiClient {
 
     if (response.statusCode >= 400) {
       final message = body['detail'] ?? body['message'] ?? 'Permintaan gagal';
-      log.api('?', response.request?.url.toString() ?? '',
-          response.statusCode, response: body);
+      log.api(
+        '?',
+        response.request?.url.toString() ?? '',
+        response.statusCode,
+        response: body,
+      );
       return {
         'error': true,
         'statusCode': response.statusCode,
@@ -145,11 +173,7 @@ class ApiClient {
       };
     }
 
-    return {
-      'error': false,
-      'statusCode': response.statusCode,
-      'data': body,
-    };
+    return {'error': false, 'statusCode': response.statusCode, 'data': body};
   }
 
   /// Retry a request after token refresh by rebuilding headers.

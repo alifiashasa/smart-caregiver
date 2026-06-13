@@ -18,11 +18,7 @@ class AuthApi {
   }) async {
     final response = await _client.post(
       '/auth/register',
-      body: {
-        'email': email,
-        'password': password,
-        'full_name': fullName,
-      },
+      body: {'email': email, 'password': password, 'full_name': fullName},
     );
 
     if (response['error'] == true) {
@@ -44,10 +40,7 @@ class AuthApi {
   }) async {
     final response = await _client.post(
       '/auth/verify-otp',
-      body: {
-        'email': email,
-        'otp': otp,
-      },
+      body: {'email': email, 'otp': otp},
     );
 
     if (response['error'] == true) {
@@ -73,10 +66,7 @@ class AuthApi {
   }) async {
     final response = await _client.post(
       '/auth/login/json',
-      body: {
-        'email': email,
-        'password': password,
-      },
+      body: {'email': email, 'password': password},
     );
 
     if (response['error'] == true) {
@@ -88,14 +78,10 @@ class AuthApi {
     final refreshToken = data['refresh_token'] as String?;
 
     if (accessToken != null && refreshToken != null) {
-      ApiClient.saveTokens(accessToken, refreshToken);
+      await ApiClient.saveTokens(accessToken, refreshToken);
     }
 
-    return {
-      'error': false,
-      'statusCode': response['statusCode'],
-      'data': data,
-    };
+    return {'error': false, 'statusCode': response['statusCode'], 'data': data};
   }
 
   /// GET /auth/me — requires authentication.
@@ -127,9 +113,7 @@ class AuthApi {
 
     final response = await _client.post(
       '/auth/refresh',
-      body: {
-        'refresh_token': currentRefreshToken,
-      },
+      body: {'refresh_token': currentRefreshToken},
     );
 
     if (response['error'] == true) {
@@ -141,14 +125,10 @@ class AuthApi {
     final newRefreshToken = data['refresh_token'] as String?;
 
     if (newAccessToken != null && newRefreshToken != null) {
-      ApiClient.saveTokens(newAccessToken, newRefreshToken);
+      await ApiClient.saveTokens(newAccessToken, newRefreshToken);
     }
 
-    return {
-      'error': false,
-      'statusCode': response['statusCode'],
-      'data': data,
-    };
+    return {'error': false, 'statusCode': response['statusCode'], 'data': data};
   }
 
   /// Clears all stored data (client-side logout) and navigates to login.

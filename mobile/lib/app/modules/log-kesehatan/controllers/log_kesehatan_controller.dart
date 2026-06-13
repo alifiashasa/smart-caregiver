@@ -122,14 +122,14 @@ class LogKesehatanController extends GetxController {
           result['message'] as String? ??
           'Gagal menyimpan data kesehatan. Periksa koneksi Anda.';
       final detailBody = result['detail_body'] as Map<String, dynamic>?;
-      log.error(
-        'submitHealthRecord gagal',
-        data: {
-          'message': errMsg,
-          'statusCode': result['statusCode'],
-          if (detailBody case final body?) 'detail': body,
-        },
-      );
+      final logData = <String, dynamic>{
+        'message': errMsg,
+        'statusCode': result['statusCode'],
+      };
+      if (detailBody != null) {
+        logData['detail'] = detailBody;
+      }
+      log.error('submitHealthRecord gagal', data: logData);
       Get.snackbar(
         'Gagal',
         errMsg,
