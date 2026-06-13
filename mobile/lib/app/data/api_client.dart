@@ -22,7 +22,20 @@ class ApiClient {
           },
           validateStatus: (_) => true,
         ),
-      );
+      ) {
+    _dio.interceptors.add(
+      QueuedInterceptorsWrapper(
+        onRequest: (options, handler) {
+          final authenticated = options.extra['authenticated'] == true;
+          final token = getAccessToken();
+          if (authenticated && token != null) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+          handler.next(options);
+        },
+      ),
+    );
+  }
 
   static final GetStorage _storage = GetStorage();
   static const FlutterSecureStorage _secureStorage = FlutterSecureStorage();
@@ -34,8 +47,7 @@ class ApiClient {
 
   static String? _accessToken;
   static String? _refreshToken;
-
-  bool _isRefreshing = false;
+  static Future<bool>? _refreshFuture;
 
   // ---------------------------------------------------------------------------
   // Token management
@@ -81,17 +93,8 @@ class ApiClient {
   // Internal helpers
   // ---------------------------------------------------------------------------
 
-  Map<String, String> _buildHeaders({bool authenticated = false}) {
-    final headers = <String, String>{};
-
-    if (authenticated) {
-      final token = getAccessToken();
-      if (token != null) {
-        headers['Authorization'] = 'Bearer $token';
-      }
-    }
-
-    return headers;
+  Options _options({bool authenticated = false}) {
+    return Options(extra: {'authenticated': authenticated});
   }
 
   Map<String, dynamic> _readBody(Response<dynamic> response) {
@@ -104,10 +107,18 @@ class ApiClient {
 
   /// Attempt to refresh the JWT token.
   /// Returns true if refresh succeeded and tokens were updated.
-  Future<bool> _tryRefreshToken() async {
-    if (_isRefreshing) return false;
-    _isRefreshing = true;
+  Future<bool> _tryRefreshToken() {
+    final pendingRefresh = _refreshFuture;
+    if (pendingRefresh != null) return pendingRefresh;
 
+    final refresh = _performRefreshToken().whenComplete(() {
+      _refreshFuture = null;
+    });
+    _refreshFuture = refresh;
+    return refresh;
+  }
+
+  Future<bool> _performRefreshToken() async {
     try {
       final currentRefreshToken = getRefreshToken();
       if (currentRefreshToken == null) return false;
@@ -133,8 +144,6 @@ class ApiClient {
     } catch (_) {
       await clearTokens();
       return false;
-    } finally {
-      _isRefreshing = false;
     }
   }
 
@@ -186,7 +195,7 @@ class ApiClient {
 
   /// Retry a request after token refresh by rebuilding headers.
   Future<Map<String, dynamic>> _retryAuthenticated(
-    Future<Response<dynamic>> Function(Map<String, String> headers) request,
+    Future<Response<dynamic>> Function() request,
   ) async {
     final newToken = getAccessToken();
     if (newToken == null) {
@@ -198,10 +207,8 @@ class ApiClient {
       };
     }
 
-    final headers = <String, String>{'Authorization': 'Bearer $newToken'};
-
     try {
-      final response = await request(headers);
+      final response = await request();
       return _processResponse(response, retried: true);
     } catch (e) {
       return {
@@ -229,11 +236,10 @@ class ApiClient {
     bool authenticated = true,
   }) async {
     try {
-      final headers = _buildHeaders(authenticated: authenticated);
       log.api('GET', endpoint, null);
       final response = await _dio.get<dynamic>(
         endpoint,
-        options: Options(headers: headers),
+        options: _options(authenticated: authenticated),
       );
 
       final processed = await _processResponse(response);
@@ -242,9 +248,9 @@ class ApiClient {
       // If token was refreshed, retry the original request
       if (processed['statusCode'] == 498 && authenticated) {
         return _retryAuthenticated(
-          (newHeaders) => _dio.get<dynamic>(
+          () => _dio.get<dynamic>(
             endpoint,
-            options: Options(headers: newHeaders),
+            options: _options(authenticated: true),
           ),
         );
       }
@@ -261,12 +267,11 @@ class ApiClient {
     bool authenticated = false,
   }) async {
     try {
-      final headers = _buildHeaders(authenticated: authenticated);
       log.api('POST', endpoint, null, request: body);
       final response = await _dio.post<dynamic>(
         endpoint,
         data: body,
-        options: Options(headers: headers),
+        options: _options(authenticated: authenticated),
       );
 
       final processed = await _processResponse(response);
@@ -274,10 +279,10 @@ class ApiClient {
 
       if (processed['statusCode'] == 498 && authenticated) {
         return _retryAuthenticated(
-          (newHeaders) => _dio.post<dynamic>(
+          () => _dio.post<dynamic>(
             endpoint,
             data: body,
-            options: Options(headers: newHeaders),
+            options: _options(authenticated: true),
           ),
         );
       }
@@ -294,12 +299,11 @@ class ApiClient {
     bool authenticated = true,
   }) async {
     try {
-      final headers = _buildHeaders(authenticated: authenticated);
       log.api('PUT', endpoint, null, request: body);
       final response = await _dio.put<dynamic>(
         endpoint,
         data: body,
-        options: Options(headers: headers),
+        options: _options(authenticated: authenticated),
       );
 
       final processed = await _processResponse(response);
@@ -307,10 +311,10 @@ class ApiClient {
 
       if (processed['statusCode'] == 498 && authenticated) {
         return _retryAuthenticated(
-          (newHeaders) => _dio.put<dynamic>(
+          () => _dio.put<dynamic>(
             endpoint,
             data: body,
-            options: Options(headers: newHeaders),
+            options: _options(authenticated: true),
           ),
         );
       }
@@ -327,12 +331,11 @@ class ApiClient {
     bool authenticated = true,
   }) async {
     try {
-      final headers = _buildHeaders(authenticated: authenticated);
       log.api('PATCH', endpoint, null, request: body);
       final response = await _dio.patch<dynamic>(
         endpoint,
         data: body,
-        options: Options(headers: headers),
+        options: _options(authenticated: authenticated),
       );
 
       final processed = await _processResponse(response);
@@ -340,10 +343,10 @@ class ApiClient {
 
       if (processed['statusCode'] == 498 && authenticated) {
         return _retryAuthenticated(
-          (newHeaders) => _dio.patch<dynamic>(
+          () => _dio.patch<dynamic>(
             endpoint,
             data: body,
-            options: Options(headers: newHeaders),
+            options: _options(authenticated: true),
           ),
         );
       }
@@ -359,11 +362,10 @@ class ApiClient {
     bool authenticated = true,
   }) async {
     try {
-      final headers = _buildHeaders(authenticated: authenticated);
       log.api('DELETE', endpoint, null);
       final response = await _dio.delete<dynamic>(
         endpoint,
-        options: Options(headers: headers),
+        options: _options(authenticated: authenticated),
       );
 
       final processed = await _processResponse(response);
@@ -371,9 +373,9 @@ class ApiClient {
 
       if (processed['statusCode'] == 498 && authenticated) {
         return _retryAuthenticated(
-          (newHeaders) => _dio.delete<dynamic>(
+          () => _dio.delete<dynamic>(
             endpoint,
-            options: Options(headers: newHeaders),
+            options: _options(authenticated: true),
           ),
         );
       }

@@ -14,12 +14,12 @@ class HomeView extends GetView<HomeController> {
       backgroundColor: const Color(0xFFFDF8F8),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-                  final result = await Get.toNamed(Routes.TAMBAH_LANSIA);
-                  if (result == true) {
-                    controller.loadElderly();
-                    controller.loadUnreadCount();
-                  }
-                },
+          final result = await Get.toNamed(Routes.TAMBAH_LANSIA);
+          if (result == true) {
+            controller.loadElderly();
+            controller.loadUnreadCount();
+          }
+        },
         backgroundColor: const Color(0xFF18181B),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         elevation: 8,
@@ -289,25 +289,19 @@ class HomeView extends GetView<HomeController> {
                       if (controller.elderlyList.isEmpty)
                         _buildEmptyPatientState()
                       else
-                        ...controller.elderlyList
-                            .asMap()
-                            .entries
-                            .map((entry) {
-                              final e = entry.value;
-                              return _buildPatientCard(
-                                name: e['full_name'] as String? ?? '',
-                                age: '${e['age'] ?? ''} Tahun',
-                                status: HomeController.statusLabel(
-                                  e['latest_health_status'] as String?,
-                                ),
-                                isCritical: HomeController.isCritical(
-                                  e['latest_health_status'] as String?,
-                                ),
-                                isLoading: false,
-                                onTap: () =>
-                                    controller.navigateToDashboard(e),
-                              );
-                            }),
+                        ...controller.elderlyList.asMap().entries.map((entry) {
+                          final e = entry.value;
+                          return _buildPatientCard(
+                            name: e.fullName,
+                            age: e.ageLabel,
+                            status: HomeController.statusLabel(
+                              e.latestHealthStatus,
+                            ),
+                            isCritical: e.needsAttention,
+                            isLoading: false,
+                            onTap: () => controller.navigateToDashboard(e),
+                          );
+                        }),
                     ],
                   ),
                 );
@@ -400,11 +394,7 @@ class HomeView extends GetView<HomeController> {
       ),
       child: const Column(
         children: [
-          Icon(
-            Icons.people_outline,
-            size: 48,
-            color: Color(0xFFA3A1A6),
-          ),
+          Icon(Icons.people_outline, size: 48, color: Color(0xFFA3A1A6)),
           SizedBox(height: 16),
           Text(
             'Belum ada pasien',
