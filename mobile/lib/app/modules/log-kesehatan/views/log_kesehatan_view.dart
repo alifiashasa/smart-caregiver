@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import '../../../core/theme/app_theme.dart';
 import '../controllers/log_kesehatan_controller.dart';
 
 class LogKesehatanView extends GetView<LogKesehatanController> {
@@ -7,485 +9,462 @@ class LogKesehatanView extends GetView<LogKesehatanController> {
 
   @override
   Widget build(BuildContext context) {
+    final pagePadding = AppTheme.pagePadding(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
-      // 1. Memindahkan bagian Top Bar ke AppBar agar otomatis Sticky (tidak hilang saat discroll)
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.white.withValues(alpha: 0.80),
-        elevation: 0,
-        shape: const Border(
-          bottom: BorderSide(color: Color(0xFFF5F5F4), width: 1),
-        ),
+        title: const Text('Isi Data Kesehatan'),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          tooltip: 'Kembali',
+          icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => Get.back(),
-        ),
-        title: const Text(
-          'Isi Data Kesehatan',
-          style: TextStyle(
-            color: Color(0xFF1C1917),
-            fontSize: 19,
-            fontFamily: 'Plus Jakarta Sans',
-            fontWeight: FontWeight.w600,
-            letterSpacing: -0.40,
-          ),
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.only(bottom: 40),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // --- MAIN CONTENT ---
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 8,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Judul & Deskripsi
-                      const Text(
-                        'Data Kesehatan',
-                        style: TextStyle(
-                          color: Color(0xFF1C1B1C),
-                          fontSize: 21,
-                          fontFamily: 'Plus Jakarta Sans',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Catat tanda-tanda vital dan kondisi keseluruhan hari ini.',
-                        style: TextStyle(
-                          color: Color(0xFF77767B),
-                          fontSize: 14,
-                          fontFamily: 'Plus Jakarta Sans',
-                          height: 1.50,
-                        ),
-                      ),
-                      const SizedBox(height: 28),
-
-                      const SizedBox(height: 12),
-
-                      // --- INFO PASIEN & TANGGAL ---
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE2E0E0).withValues(alpha: 0.6),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFBBF246),
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: const Icon(
-                                      Icons.calendar_today,
-                                      size: 16,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Selasa',
-                                        style: TextStyle(
-                                          color: Color(0xFF77767B),
-                                          fontSize: 10,
-                                          fontFamily: 'Plus Jakarta Sans',
-                                        ),
-                                      ),
-                                      SizedBox(height: 2),
-                                      Text(
-                                        '5 Mei 2026',
-                                        style: TextStyle(
-                                          color: Color(0xFF1C1B1C),
-                                          fontSize: 12,
-                                          fontFamily: 'Plus Jakarta Sans',
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              width: 1,
-                              height: 28,
-                              color: const Color(0xFFC8C5CB),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFBBF246),
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: const Icon(
-                                      Icons.person,
-                                      size: 16,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Pasien',
-                                        style: TextStyle(
-                                          color: Color(0xFF77767B),
-                                          fontSize: 10,
-                                          fontFamily: 'Plus Jakarta Sans',
-                                        ),
-                                      ),
-                                      SizedBox(height: 2),
-                                      Text(
-                                        controller.patientName,
-                                        style: TextStyle(
-                                          color: Color(0xFF1C1B1C),
-                                          fontSize: 12,
-                                          fontFamily: 'Plus Jakarta Sans',
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // --- DAFTAR VITAL SIGNS (Dibuat menjadi Input Field) ---
-                      Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Color(0x0A000000),
-                              blurRadius: 10,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            _buildVitalRow(
-                              Icons.water_drop_outlined,
-                              const Color(0xFFE88B63),
-                              const Color(0xFFFFEBDD),
-                              'Kolesterol',
-                              '180',
-                              'mg/dL',
-                              TextInputType.number,
-                              controller.cholesterolController,
-                            ),
-                            _buildDivider(),
-                            _buildVitalRow(
-                              Icons.favorite_border,
-                              const Color(0xFF6A9963),
-                              const Color(0xFFE6F3E6),
-                              'Tensi',
-                              '120/80',
-                              'mmHg',
-                              TextInputType.text,
-                              controller.tensiController,
-                            ),
-                            _buildDivider(),
-                            _buildVitalRow(
-                              Icons.science_outlined,
-                              const Color(0xFF77767B),
-                              const Color(0xFFF2F2F2),
-                              'Asam Urat',
-                              '5.5',
-                              'mg/dL',
-                              const TextInputType.numberWithOptions(
-                                decimal: true,
-                              ),
-                              controller.uricAcidController,
-                            ),
-                            _buildDivider(),
-                            _buildVitalRow(
-                              Icons.bloodtype_outlined,
-                              const Color(0xFFD35555),
-                              const Color(0xFFFFE6E6),
-                              'Gula Darah',
-                              '98.6',
-                              'mg/dL',
-                              const TextInputType.numberWithOptions(
-                                decimal: true,
-                              ),
-                              controller.bloodSugarController,
-                            ),
-                            _buildDivider(),
-                            _buildVitalRow(
-                              Icons.device_thermostat_outlined,
-                              const Color(0xFF77767B),
-                              const Color(0xFFF2F2F2),
-                              'Suhu',
-                              '36.5',
-                              '°C',
-                              const TextInputType.numberWithOptions(
-                                decimal: true,
-                              ),
-                              controller.bodyTempController,
-                            ),
-                            _buildDivider(),
-                            _buildVitalRow(
-                              Icons.monitor_heart_outlined,
-                              const Color(0xFF6A9963),
-                              const Color(0xFFE6F3E6),
-                              'Detak Jantung',
-                              '72',
-                              'bpm',
-                              TextInputType.number,
-                              controller.heartRateController,
-                            ),
-                            _buildDivider(),
-                            _buildVitalRow(
-                              Icons.air_outlined,
-                              const Color(0xFFE88B63),
-                              const Color(0xFFFFEBDD),
-                              'Saturasi',
-                              '98',
-                              '%',
-                              const TextInputType.numberWithOptions(
-                                decimal: true,
-                              ),
-                              controller.spo2Controller,
-                            ),
-                            _buildDivider(),
-                            _buildVitalRow(
-                              Icons.monitor_weight_outlined,
-                              const Color(0xFF77767B),
-                              const Color(0xFFF2F2F2),
-                              'Berat Badan',
-                              '70',
-                              'Kg',
-                              TextInputType.number,
-                              controller.weightController,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // --- TEXTBOX CATATAN ---
-                      const Text(
-                        'Catatan',
-                        style: TextStyle(
-                          color: Color(0xFF1C1B1C),
-                          fontSize: 13,
-                          fontFamily: 'Plus Jakarta Sans',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        controller: controller.notesController,
-                        maxLines: 4,
-                        decoration: InputDecoration(
-                          hintText:
-                              'Ada catatan atau keluhan tambahan hari\nini?',
-                          hintStyle: const TextStyle(
-                            color: Color(0xFFC8C5CB),
-                            fontSize: 14,
-                            fontFamily: 'Plus Jakarta Sans',
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.all(16),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: Color(0xFFD4D4D8),
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: Color(0xFFBBF246),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // --- TOMBOL SIMPAN ---
-                      SizedBox(
-                        width: double.infinity,
-                        height: 52,
-                        child: Obx(
-                          () => ElevatedButton(
-                            onPressed: controller.isLoading
-                                ? null
-                                : controller.submitHealthRecord,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF192126),
-                              disabledBackgroundColor: const Color(0xFF8C9093),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(26),
-                              ),
-                              elevation: 0,
-                            ),
-                            child: controller.isLoading
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : const Text(
-                                    'Simpan Data Kesehatan',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                      fontFamily: 'Plus Jakarta Sans',
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+        child: ListView(
+          physics: const BouncingScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(pagePadding, 24, pagePadding, 40),
+          children: [
+            _buildHeader(context),
+            const SizedBox(height: 20),
+            _buildVisitInfoCard(context),
+            const SizedBox(height: 20),
+            _buildVitalsCard(context),
+            const SizedBox(height: 20),
+            _buildNotesCard(context),
+            const SizedBox(height: 24),
+            _buildSubmitButton(),
+          ],
         ),
       ),
     );
   }
 
-  // --- REUSABLE WIDGETS ---
+  Widget _buildHeader(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
 
-  // 2. Fungsi diupdate untuk memuat TextField interaktif
-  Widget _buildVitalRow(
-    IconData icon,
-    Color iconColor,
-    Color iconBgColor,
-    String title,
-    String hintValue,
-    String unit,
-    TextInputType keyboardType,
-    TextEditingController textController,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 8,
-      ), // Padding dikecilkan sedikit untuk kompensasi textfield
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Data Kesehatan', style: textTheme.headlineSmall),
+        const SizedBox(height: 8),
+        Text(
+          'Catat tanda vital dan kondisi keseluruhan hari ini. Isi hanya data yang tersedia.',
+          style: textTheme.bodyMedium?.copyWith(color: AppTheme.textTertiary),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildVisitInfoCard(BuildContext context) {
+    final now = DateTime.now();
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: AppTheme.cardDecoration(radius: 20, elevated: false),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: iconBgColor,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Icon(icon, color: iconColor, size: 18),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                title,
-                style: const TextStyle(
-                  color: Color(0xFF1C1B1C),
-                  fontSize: 13,
-                  fontFamily: 'Plus Jakarta Sans',
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
+          Expanded(
+            child: _buildInfoPill(
+              context: context,
+              icon: Icons.calendar_today_rounded,
+              label: _weekdayFull(now),
+              value: '${now.day} ${_monthName(now.month)} ${now.year}',
+            ),
           ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: 70, // Batas lebar agar inputan tidak terlalu panjang
-                child: TextField(
-                  controller: textController,
-                  textAlign: TextAlign.right,
-                  keyboardType: keyboardType, // Keyboard menyesuaikan isian
-                  style: const TextStyle(
-                    color: Color(
-                      0xFF1C1B1C,
-                    ), // Warna teks waktu ngetik jadi gelap
-                    fontSize: 16,
-                    fontFamily: 'Plus Jakarta Sans',
-                    fontWeight: FontWeight.w500,
-                  ),
-                  decoration: InputDecoration(
-                    hintText:
-                        hintValue, // Placeholder seperti "180" atau "120/80"
-                    hintStyle: const TextStyle(
-                      color: Color(0xFFD4D4D8), // Warna abu-abu saat kosong
-                      fontSize: 16,
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontWeight: FontWeight.w400,
-                    ),
-                    border: InputBorder
-                        .none, // Menghilangkan garis pinggir biar bersih
-                    isDense: true,
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
+          Container(
+            width: 1,
+            height: 44,
+            margin: const EdgeInsets.symmetric(horizontal: 12),
+            color: AppTheme.border,
+          ),
+          Expanded(
+            child: Obx(
+              () => _buildInfoPill(
+                context: context,
+                icon: Icons.person_rounded,
+                label: 'Pasien',
+                value: controller.patientName.isEmpty
+                    ? 'Belum dipilih'
+                    : controller.patientName,
               ),
-              const SizedBox(width: 6),
-              SizedBox(
-                width: 40, // Diberi min-width biar baris satuannya lurus rata
-                child: Text(
-                  unit,
-                  style: const TextStyle(
-                    color: Color(0xFF1C1B1C),
-                    fontSize: 10,
-                    fontFamily: 'Plus Jakarta Sans',
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ],
       ),
     );
   }
 
+  Widget _buildInfoPill({
+    required BuildContext context,
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Row(
+      children: [
+        Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            color: AppTheme.accentSoft,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Icon(icon, size: 19, color: AppTheme.primary),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: textTheme.labelMedium?.copyWith(
+                  color: AppTheme.textTertiary,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: textTheme.labelLarge,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildVitalsCard(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      width: double.infinity,
+      decoration: AppTheme.cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Tanda Vital', style: textTheme.titleLarge),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Gunakan angka sesuai alat ukur.',
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: AppTheme.textTertiary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppTheme.surfaceMuted,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    'Opsional',
+                    style: textTheme.labelMedium?.copyWith(
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          _buildVitalRow(
+            icon: Icons.water_drop_outlined,
+            iconColor: AppTheme.warning,
+            iconBgColor: AppTheme.warningSoft,
+            title: 'Kolesterol',
+            hintValue: '180',
+            unit: 'mg/dL',
+            keyboardType: TextInputType.number,
+            textController: controller.cholesterolController,
+          ),
+          _buildDivider(),
+          _buildVitalRow(
+            icon: Icons.favorite_border_rounded,
+            iconColor: AppTheme.success,
+            iconBgColor: AppTheme.successSoft,
+            title: 'Tensi',
+            hintValue: '120/80',
+            unit: 'mmHg',
+            keyboardType: TextInputType.text,
+            textController: controller.tensiController,
+          ),
+          _buildDivider(),
+          _buildVitalRow(
+            icon: Icons.science_outlined,
+            iconColor: AppTheme.textSecondary,
+            iconBgColor: AppTheme.surfaceMuted,
+            title: 'Asam Urat',
+            hintValue: '5.5',
+            unit: 'mg/dL',
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            textController: controller.uricAcidController,
+          ),
+          _buildDivider(),
+          _buildVitalRow(
+            icon: Icons.bloodtype_outlined,
+            iconColor: AppTheme.error,
+            iconBgColor: AppTheme.errorSoft,
+            title: 'Gula Darah',
+            hintValue: '98.6',
+            unit: 'mg/dL',
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            textController: controller.bloodSugarController,
+          ),
+          _buildDivider(),
+          _buildVitalRow(
+            icon: Icons.device_thermostat_outlined,
+            iconColor: AppTheme.textSecondary,
+            iconBgColor: AppTheme.surfaceMuted,
+            title: 'Suhu',
+            hintValue: '36.5',
+            unit: '°C',
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            textController: controller.bodyTempController,
+          ),
+          _buildDivider(),
+          _buildVitalRow(
+            icon: Icons.monitor_heart_outlined,
+            iconColor: AppTheme.success,
+            iconBgColor: AppTheme.successSoft,
+            title: 'Detak Jantung',
+            hintValue: '72',
+            unit: 'bpm',
+            keyboardType: TextInputType.number,
+            textController: controller.heartRateController,
+          ),
+          _buildDivider(),
+          _buildVitalRow(
+            icon: Icons.air_rounded,
+            iconColor: AppTheme.warning,
+            iconBgColor: AppTheme.warningSoft,
+            title: 'Saturasi',
+            hintValue: '98',
+            unit: '%',
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            textController: controller.spo2Controller,
+          ),
+          _buildDivider(),
+          _buildVitalRow(
+            icon: Icons.monitor_weight_outlined,
+            iconColor: AppTheme.textSecondary,
+            iconBgColor: AppTheme.surfaceMuted,
+            title: 'Berat Badan',
+            hintValue: '70',
+            unit: 'kg',
+            keyboardType: TextInputType.number,
+            textController: controller.weightController,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVitalRow({
+    required IconData icon,
+    required Color iconColor,
+    required Color iconBgColor,
+    required String title,
+    required String hintValue,
+    required String unit,
+    required TextInputType keyboardType,
+    required TextEditingController textController,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: iconBgColor,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(icon, color: iconColor, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Get.textTheme.labelLarge?.copyWith(
+                color: AppTheme.textPrimary,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          SizedBox(
+            width: 92,
+            child: TextField(
+              controller: textController,
+              textAlign: TextAlign.right,
+              keyboardType: keyboardType,
+              textInputAction: TextInputAction.next,
+              style: Get.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+              decoration: InputDecoration(
+                hintText: hintValue,
+                hintStyle: Get.textTheme.titleMedium?.copyWith(
+                  color: AppTheme.textTertiary.withValues(alpha: 0.55),
+                  fontWeight: FontWeight.w700,
+                ),
+                filled: true,
+                fillColor: AppTheme.surfaceMuted,
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 10,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(color: AppTheme.primary),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 44,
+            child: Text(
+              unit,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Get.textTheme.labelMedium?.copyWith(
+                color: AppTheme.textTertiary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNotesCard(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: AppTheme.cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Catatan Tambahan', style: textTheme.titleLarge),
+          const SizedBox(height: 6),
+          Text(
+            'Tambahkan keluhan atau observasi harian untuk membantu analisis.',
+            style: textTheme.bodyMedium?.copyWith(color: AppTheme.textTertiary),
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: controller.complaintsController,
+            maxLines: 3,
+            decoration: AppTheme.inputDecoration(
+              labelText: 'Keluhan',
+              hintText: 'Contoh: pusing, lemas, nyeri sendi',
+              prefixIcon: const Icon(Icons.sick_outlined),
+            ),
+          ),
+          const SizedBox(height: 14),
+          TextFormField(
+            controller: controller.notesController,
+            maxLines: 4,
+            decoration: AppTheme.inputDecoration(
+              labelText: 'Catatan Caregiver',
+              hintText: 'Ada catatan aktivitas, makan, atau perilaku hari ini?',
+              prefixIcon: const Icon(Icons.note_alt_outlined),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return Obx(
+      () => ElevatedButton(
+        onPressed: controller.isLoading ? null : controller.submitHealthRecord,
+        child: AnimatedSwitcher(
+          duration: AppTheme.motionFast,
+          child: controller.isLoading
+              ? const SizedBox(
+                  key: ValueKey('loading'),
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : const Text(key: ValueKey('label'), 'Simpan Data Kesehatan'),
+        ),
+      ),
+    );
+  }
+
   Widget _buildDivider() {
-    return const Divider(height: 1, thickness: 1, color: Color(0xFFF4F4F5));
+    return const Divider(height: 1, thickness: 1, color: AppTheme.border);
+  }
+
+  String _weekdayFull(DateTime date) {
+    const days = [
+      'Senin',
+      'Selasa',
+      'Rabu',
+      'Kamis',
+      'Jumat',
+      'Sabtu',
+      'Minggu',
+    ];
+    return days[date.weekday - 1];
+  }
+
+  String _monthName(int month) {
+    const months = [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ];
+    return months[month - 1];
   }
 }

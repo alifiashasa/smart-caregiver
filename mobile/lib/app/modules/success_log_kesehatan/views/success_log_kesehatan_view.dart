@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import '../../../core/theme/app_theme.dart';
 import '../controllers/success_log_kesehatan_controller.dart';
 
 class SuccessLogKesehatanView extends GetView<SuccessLogKesehatanController> {
@@ -9,238 +11,185 @@ class SuccessLogKesehatanView extends GetView<SuccessLogKesehatanController> {
     switch (status.toLowerCase()) {
       case 'critical':
       case 'kritis':
-        return const Color(0xFFD32F2F);
+        return AppTheme.error;
       case 'warning':
       case 'perhatian':
-        return const Color(0xFFE6A817);
+        return AppTheme.warning;
       default:
-        return const Color(0xFF6A9963);
+        return AppTheme.success;
+    }
+  }
+
+  Color _statusSoftColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'critical':
+      case 'kritis':
+        return AppTheme.errorSoft;
+      case 'warning':
+      case 'perhatian':
+        return AppTheme.warningSoft;
+      default:
+        return AppTheme.successSoft;
     }
   }
 
   Color _scoreColor(double score) {
-    if (score >= 50) return const Color(0xFFD32F2F);
-    if (score >= 35) return const Color(0xFFE6A817);
-    return const Color(0xFF6A9963);
+    if (score >= 50) return AppTheme.error;
+    if (score >= 35) return AppTheme.warning;
+    return AppTheme.success;
   }
 
-  Widget _analysisCard(String label, double score) {
-    final color = _scoreColor(score);
+  @override
+  Widget build(BuildContext context) {
+    final pagePadding = AppTheme.pagePadding(context);
+    final textTheme = Theme.of(context).textTheme;
+
+    return Scaffold(
+      backgroundColor: AppTheme.background,
+      body: SafeArea(
+        child: ListView(
+          physics: const BouncingScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(pagePadding, 40, pagePadding, 40),
+          children: [
+            Obx(() {
+              final statusColor = _statusColor(controller.healthStatus);
+              final softColor = _statusSoftColor(controller.healthStatus);
+
+              return Column(
+                children: [
+                  Container(
+                    width: 104,
+                    height: 104,
+                    decoration: BoxDecoration(
+                      color: softColor,
+                      borderRadius: BorderRadius.circular(34),
+                    ),
+                    child: Icon(
+                      Icons.check_circle_rounded,
+                      color: statusColor,
+                      size: 62,
+                    ),
+                  ),
+                  const SizedBox(height: 26),
+                  Text(
+                    'Data Berhasil Disimpan',
+                    textAlign: TextAlign.center,
+                    style: textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Data kesehatan telah dicatat. Berikut ringkasan hasil analisis terbaru.',
+                    textAlign: TextAlign.center,
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: AppTheme.textTertiary,
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  _buildAnalysisCard(context, statusColor, softColor),
+                ],
+              );
+            }),
+            const SizedBox(height: 28),
+            ElevatedButton(
+              onPressed: controller.goToDashboard,
+              child: const Text('Selesai'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAnalysisCard(
+    BuildContext context,
+    Color statusColor,
+    Color softColor,
+  ) {
+    final textTheme = Theme.of(context).textTheme;
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E5E5)),
-      ),
-      child: Row(
+      padding: const EdgeInsets.all(20),
+      decoration: AppTheme.cardDecoration(),
+      child: Column(
         children: [
-          Expanded(
-            child: Text(
-              label,
-              style: const TextStyle(
-                color: Color(0xFF1C1B1C),
-                fontSize: 14,
-                fontFamily: 'Plus Jakarta Sans',
-                fontWeight: FontWeight.w600,
-              ),
+          Text(
+            'HASIL ANALISIS',
+            style: textTheme.labelMedium?.copyWith(
+              color: AppTheme.textTertiary,
+              letterSpacing: 0.7,
             ),
           ),
+          const SizedBox(height: 16),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(9999),
+              color: softColor,
+              borderRadius: BorderRadius.circular(999),
             ),
-            child: Text(
-              score.toStringAsFixed(1),
-              style: TextStyle(
-                color: color,
-                fontSize: 13,
-                fontFamily: 'Plus Jakarta Sans',
-                fontWeight: FontWeight.w700,
-              ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.health_and_safety_rounded,
+                  color: statusColor,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  controller.healthStatus,
+                  style: textTheme.labelLarge?.copyWith(color: statusColor),
+                ),
+              ],
             ),
           ),
+          const SizedBox(height: 16),
+          Text(
+            controller.healthMessage,
+            textAlign: TextAlign.center,
+            style: textTheme.bodyMedium?.copyWith(
+              color: AppTheme.textSecondary,
+              height: 1.55,
+            ),
+          ),
+          const SizedBox(height: 20),
+          _analysisCard(context, 'Kardiovaskular', controller.fuzzyCardioScore),
+          const SizedBox(height: 10),
+          _analysisCard(context, 'Metabolik', controller.fuzzyMetabolicScore),
+          const SizedBox(height: 10),
+          _analysisCard(context, 'Infeksi', controller.fuzzyInfectionScore),
         ],
       ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 40),
+  Widget _analysisCard(BuildContext context, String label, double score) {
+    final color = _scoreColor(score);
+    final textTheme = Theme.of(context).textTheme;
 
-              // Success Icon
-              Container(
-                width: 100,
-                height: 100,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFE6F3E6),
-                  shape: BoxShape.circle,
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.check_circle,
-                    color: Color(0xFF6A9963),
-                    size: 60,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              // Title
-              const Text(
-                'Data Berhasil Disimpan!',
-                style: TextStyle(
-                  color: Color(0xFF1C1B1C),
-                  fontSize: 24,
-                  fontFamily: 'Plus Jakarta Sans',
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.5,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-
-              // Subtitle
-              const Text(
-                'Data kesehatan lansia telah berhasil dicatat ke dalam sistem. Berikut adalah ringkasan hasil analisis.',
-                style: TextStyle(
-                  color: Color(0xFF77767B),
-                  fontSize: 14,
-                  fontFamily: 'Plus Jakarta Sans',
-                  height: 1.5,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 40),
-
-              // Analysis Card
-              Obx(() {
-                final statusColor = _statusColor(controller.healthStatus);
-
-                return Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF9F9F9),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFE5E5E5)),
-                  ),
-                  child: Column(
-                    children: [
-                      const Text(
-                        'HASIL ANALISIS',
-                        style: TextStyle(
-                          color: Color(0xFF77767B),
-                          fontSize: 11,
-                          fontFamily: 'Plus Jakarta Sans',
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          color: statusColor,
-                          borderRadius: BorderRadius.circular(9999),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.sentiment_satisfied_alt,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              controller.healthStatus,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontFamily: 'Plus Jakarta Sans',
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        controller.healthMessage,
-                        style: const TextStyle(
-                          color: Color(0xFF1C1B1C),
-                          fontSize: 14,
-                          fontFamily: 'Plus Jakarta Sans',
-                          fontWeight: FontWeight.w500,
-                          height: 1.4,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 20),
-                      _analysisCard(
-                        'Kardiovaskular',
-                        controller.fuzzyCardioScore,
-                      ),
-                      const SizedBox(height: 10),
-                      _analysisCard(
-                        'Metabolik',
-                        controller.fuzzyMetabolicScore,
-                      ),
-                      const SizedBox(height: 10),
-                      _analysisCard('Infeksi', controller.fuzzyInfectionScore),
-                    ],
-                  ),
-                );
-              }),
-
-              const SizedBox(height: 32),
-
-              // Back Button
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  onPressed: controller.goToDashboard,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF192126),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(26),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'Selesai',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 40),
-            ],
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceMuted,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.border),
+      ),
+      child: Row(
+        children: [
+          Expanded(child: Text(label, style: textTheme.labelLarge)),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              score.toStringAsFixed(1),
+              style: textTheme.labelLarge?.copyWith(color: color),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

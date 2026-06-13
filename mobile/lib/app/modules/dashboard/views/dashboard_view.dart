@@ -1,6 +1,8 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:fl_chart/fl_chart.dart';
+
+import '../../../core/theme/app_theme.dart';
 import '../../../routes/app_pages.dart';
 import '../controllers/dashboard_controller.dart';
 
@@ -9,450 +11,41 @@ class DashboardView extends GetView<DashboardController> {
 
   @override
   Widget build(BuildContext context) {
+    final pagePadding = AppTheme.pagePadding(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9),
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.white.withValues(alpha: 0.80),
-        elevation: 0,
-        shape: const Border(
-          bottom: BorderSide(color: Color(0xFFF5F5F4), width: 1),
-        ),
+        title: const Text('Data Kesehatan'),
+        backgroundColor: AppTheme.background,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          tooltip: 'Kembali',
+          icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => Get.back(),
         ),
-        title: const Text(
-          'Data Kesehatan',
-          style: TextStyle(
-            color: Color(0xFF1C1917),
-            fontSize: 19,
-            fontFamily: 'Plus Jakarta Sans',
-            fontWeight: FontWeight.w600,
-            letterSpacing: -0.40,
-          ),
-        ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      body: SafeArea(
+        child: RefreshIndicator(
+          color: AppTheme.primary,
+          onRefresh: () async {
+            await controller.loadLatestHealthRecord();
+            await controller.loadTrends();
+          },
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            padding: EdgeInsets.fromLTRB(pagePadding, 24, pagePadding, 112),
             children: [
-              const SizedBox(height: 32),
-              // Header Profile Info
-              Obx(
-                () => Text(
-                  controller.patientName,
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 32,
-                    fontFamily: 'Plus Jakarta Sans',
-                    fontWeight: FontWeight.w700,
-                    height: 1.25,
-                    letterSpacing: -0.64,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  Obx(
-                    () => Text(
-                      '${controller.patientAge} • ${controller.patientGender}',
-                      style: const TextStyle(
-                        color: Color(0xFF4C4546),
-                        fontSize: 14,
-                        fontFamily: 'Plus Jakarta Sans',
-                        fontWeight: FontWeight.w600,
-                        height: 1.43,
-                        letterSpacing: 0.14,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
-                    decoration: ShapeDecoration(
-                      color: const Color(0xFFBBF246),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(9999),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: ShapeDecoration(
-                            color: const Color(0xFF536250),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(9999),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        const Text(
-                          'NORMAL',
-                          style: TextStyle(
-                            color: Color(0xFF576755),
-                            fontSize: 12,
-                            fontFamily: 'Plus Jakarta Sans',
-                            fontWeight: FontWeight.w500,
-                            height: 1.33,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 32),
-
-              // Health Trend Card
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.only(
-                  top: 28,
-                  left: 20,
-                  right: 20,
-                  bottom: 20,
-                ),
-                decoration: ShapeDecoration(
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    side: const BorderSide(width: 1, color: Color(0xFFFAFAF9)),
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  shadows: const [
-                    BoxShadow(
-                      color: Color(0x0A000000),
-                      blurRadius: 40,
-                      offset: Offset(0, 20),
-                      spreadRadius: 0,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Tren Kesehatan',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 24,
-                            fontFamily: 'Plus Jakarta Sans',
-                            fontWeight: FontWeight.w600,
-                            height: 1.33,
-                            letterSpacing: -0.24,
-                          ),
-                        ),
-                        Obx(
-                          () => Container(
-                            height: 32,
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF5F5F4),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: DropdownButtonHideUnderline(
-                              child: DropdownButton<String>(
-                                value: controller.selectedTrendFilter,
-                                icon: const Icon(
-                                  Icons.keyboard_arrow_down,
-                                  size: 16,
-                                ),
-                                style: const TextStyle(
-                                  color: Color(0xFF1C1917),
-                                  fontSize: 12,
-                                  fontFamily: 'Plus Jakarta Sans',
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                onChanged: (String? newValue) {
-                                  if (newValue != null) {
-                                    controller.selectedTrendFilter = newValue;
-                                  }
-                                },
-                                items: <String>['7 Hari', '30 Hari']
-                                    .map<DropdownMenuItem<String>>((
-                                      String value,
-                                    ) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(value),
-                                      );
-                                    })
-                                    .toList(),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Obx(
-                      () => Text(
-                        'Stabilitas fisik keseluruhan selama ${controller.selectedTrendFilter}',
-                        style: const TextStyle(
-                          color: Color(0xFF4C4546),
-                          fontSize: 14,
-                          fontFamily: 'Plus Jakarta Sans',
-                          fontWeight: FontWeight.w600,
-                          height: 1.43,
-                          letterSpacing: 0.14,
-                        ),
-                      ),
-                    ),
-                    // ── Trend Chart ──
-                    const SizedBox(height: 16),
-                    // Parameter selector
-                    Row(
-                      children: [
-                        Obx(() {
-                          final params = controller.availableParams;
-                          final selected = controller.selectedTrendParam;
-                          if (params.isEmpty) return const SizedBox.shrink();
-                          return Container(
-                            height: 32,
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF5F5F4),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: DropdownButtonHideUnderline(
-                              child: DropdownButton<String>(
-                                value: params.contains(selected)
-                                    ? selected
-                                    : params.first,
-                                icon: const Icon(
-                                  Icons.keyboard_arrow_down,
-                                  size: 16,
-                                ),
-                                style: const TextStyle(
-                                  color: Color(0xFF1C1917),
-                                  fontSize: 12,
-                                  fontFamily: 'Plus Jakarta Sans',
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                onChanged: (String? newValue) {
-                                  if (newValue != null) {
-                                    controller.selectedTrendParam = newValue;
-                                  }
-                                },
-                                items: params.map<DropdownMenuItem<String>>((
-                                  String value,
-                                ) {
-                                  final label = DashboardController
-                                      .trendParamLabels[value];
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(label ?? value),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                          );
-                        }),
-                        const Spacer(),
-                        Obx(() {
-                          final label = DashboardController
-                              .trendParamLabels[controller.selectedTrendParam];
-                          return Text(
-                            label ?? 'Gula Darah',
-                            style: const TextStyle(
-                              color: Color(0xFF4C4546),
-                              fontSize: 13,
-                              fontFamily: 'Plus Jakarta Sans',
-                              fontWeight: FontWeight.w600,
-                            ),
-                          );
-                        }),
-                        const SizedBox(width: 4),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    // Chart
-                    SizedBox(
-                      height: 200,
-                      width: double.infinity,
-                      child: Obx(() {
-                        final dataPoints = controller.trendDataPoints;
-                        if (dataPoints.isEmpty) {
-                          return const Center(
-                            child: Text(
-                              'Belum ada data tren',
-                              style: TextStyle(
-                                color: Color(0xFFA3A1A6),
-                                fontSize: 14,
-                                fontFamily: 'Plus Jakarta Sans',
-                              ),
-                            ),
-                          );
-                        }
-                        return _buildTrendChart(
-                          dataPoints.cast<Map<String, dynamic>>(),
-                          controller.selectedTrendParam,
-                        );
-                      }),
-                    ),
-                  ],
-                ),
-              ),
+              _buildPatientHero(context),
+              const SizedBox(height: 18),
+              _buildTrendCard(context),
               const SizedBox(height: 16),
-              _buildAddHealthRecordButton(),
-              const SizedBox(height: 32),
-
-              // Health Metrics List
-              Obx(
-                () => GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 1.1,
-                  ),
-                  itemCount: controller.healthMetrics.length,
-                  itemBuilder: (context, index) {
-                    final metric = controller.healthMetrics[index];
-                    return Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: ShapeDecoration(
-                        color: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          side: const BorderSide(
-                            width: 1,
-                            color: Color(0xFFFAFAF9),
-                          ),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        shadows: const [
-                          BoxShadow(
-                            color: Color(0x07000000),
-                            blurRadius: 30,
-                            offset: Offset(0, 10),
-                            spreadRadius: 0,
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: 36,
-                                height: 36,
-                                decoration: ShapeDecoration(
-                                  color: metric['color'],
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                child: Center(
-                                  child: Icon(
-                                    metric['icon'],
-                                    color: metric['iconColor'],
-                                    size: 18,
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      width: 6,
-                                      height: 6,
-                                      decoration: ShapeDecoration(
-                                        color: const Color(0xFF536250),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            9999,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    const Flexible(
-                                      child: Text(
-                                        'Normal',
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          color: Color(0xFF576755),
-                                          fontSize: 10,
-                                          fontFamily: 'Plus Jakarta Sans',
-                                          fontWeight: FontWeight.w500,
-                                          height: 1.33,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            metric['title'],
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: Color(0xFF4C4546),
-                              fontSize: 13,
-                              fontFamily: 'Plus Jakarta Sans',
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.14,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.baseline,
-                            textBaseline: TextBaseline.alphabetic,
-                            children: [
-                              Text(
-                                metric['value'],
-                                style: const TextStyle(
-                                  color: Color(0xFF1B1B1B),
-                                  fontSize: 20,
-                                  fontFamily: 'Plus Jakarta Sans',
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: -0.24,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              Expanded(
-                                child: Text(
-                                  metric['unit'],
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    color: Color(0xFF4C4546),
-                                    fontSize: 10,
-                                    fontFamily: 'Plus Jakarta Sans',
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 100), // Spacing buat BottomNav
+              _buildAddHealthRecordButton(context),
+              const SizedBox(height: 28),
+              _buildMetricsHeader(context),
+              const SizedBox(height: 14),
+              _buildMetricsGrid(context),
             ],
           ),
         ),
@@ -460,9 +53,294 @@ class DashboardView extends GetView<DashboardController> {
     );
   }
 
-  Widget _buildAddHealthRecordButton() {
-    return InkWell(
-      onTap: () {
+  Widget _buildPatientHero(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Obx(() {
+              final initials = controller.patientName.isNotEmpty
+                  ? controller.patientName.trim().split(' ').take(2)
+                      .map((w) => w[0].toUpperCase())
+                      .join()
+                  : '?';
+              return Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: AppTheme.accentSoft,
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  initials,
+                  style: textTheme.titleSmall?.copyWith(
+                    color: AppTheme.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              );
+            }),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Obx(
+                    () => Text(
+                      controller.patientName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.titleLarge?.copyWith(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Obx(
+                    () => Text(
+                      '${controller.patientAge} - ${controller.patientGender}',
+                      style: textTheme.bodySmall?.copyWith(
+                        color: AppTheme.textTertiary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppTheme.accentSoft,
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                'Normal',
+                style: textTheme.labelSmall?.copyWith(
+                  color: AppTheme.primary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+  Widget _buildTrendCard(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Tren Kesehatan',
+                style: textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.1,
+                ),
+              ),
+            ),
+            Obx(
+              () => _buildSegmentedTabs(
+                context: context,
+                value: controller.selectedTrendFilter,
+                items: const ['7 Hari', '30 Hari'],
+                onChanged: (value) => controller.selectedTrendFilter = value,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Obx(() {
+          final params = controller.availableParams;
+          final selected = controller.selectedTrendParam;
+          if (params.isEmpty) {
+            return Text(
+              'Gula Darah',
+              style: textTheme.labelSmall?.copyWith(
+                color: AppTheme.textTertiary,
+                fontWeight: FontWeight.w600,
+              ),
+            );
+          }
+          return _buildParameterTabs(
+            context: context,
+            value: params.contains(selected) ? selected : params.first,
+            items: params,
+            onChanged: (value) => controller.selectedTrendParam = value,
+          );
+        }),
+        const SizedBox(height: 14),
+        SizedBox(
+          height: 200,
+          width: double.infinity,
+          child: Obx(() {
+            if (controller.isLoading && controller.trendDataPoints.isEmpty) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final dataPoints = controller.trendDataPoints;
+            if (dataPoints.isEmpty) return _buildChartEmptyState(context);
+            return _buildTrendChart(
+              dataPoints.cast<Map<String, dynamic>>(),
+              controller.selectedTrendParam,
+            );
+          }),
+        ),
+      ],
+    );
+  }
+  Widget _buildSegmentedTabs({
+    required BuildContext context,
+    required String value,
+    required List<String> items,
+    required ValueChanged<String> onChanged,
+  }) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceMuted,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: items.map((item) {
+          final selected = item == value;
+          return Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(999),
+              onTap: () => onChanged(item),
+              child: AnimatedContainer(
+                duration: AppTheme.motionFast,
+                curve: Curves.easeOutCubic,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: selected ? AppTheme.surface : Colors.transparent,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  item,
+                  style: textTheme.labelLarge?.copyWith(
+                    color: selected ? AppTheme.primary : AppTheme.textTertiary,
+                    fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildParameterTabs({
+    required BuildContext context,
+    required String value,
+    required List<String> items,
+    required ValueChanged<String> onChanged,
+  }) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
+      child: Row(
+        children: items.map((item) {
+          final selected = item == value;
+          final label = DashboardController.trendParamLabels[item] ?? item;
+
+          return Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(999),
+                onTap: () => onChanged(item),
+                child: AnimatedContainer(
+                  duration: AppTheme.motionFast,
+                  curve: Curves.easeOutCubic,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: selected ? AppTheme.primary : AppTheme.surfaceMuted,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    label,
+                    style: textTheme.labelMedium?.copyWith(
+                      color: selected ? Colors.white : AppTheme.textTertiary,
+                      fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildChartEmptyState(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceMuted,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppTheme.border),
+      ),
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.show_chart_rounded,
+                color: AppTheme.textTertiary,
+                size: 34,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Belum ada data tren',
+                style: textTheme.titleMedium?.copyWith(fontSize: 15),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Catat data kesehatan untuk melihat grafik perkembangan.',
+                textAlign: TextAlign.center,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: AppTheme.textTertiary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddHealthRecordButton(BuildContext context) {
+    return ElevatedButton.icon(
+      onPressed: () {
         Get.toNamed(
           Routes.LOG_KESEHATAN,
           arguments: {
@@ -471,50 +349,157 @@ class DashboardView extends GetView<DashboardController> {
           },
         );
       },
-      borderRadius: BorderRadius.circular(18),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-        decoration: BoxDecoration(
-          color: const Color(0xFF192126),
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x1A000000),
-              blurRadius: 16,
-              offset: Offset(0, 6),
-            ),
-          ],
-        ),
-        child: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.add, color: Colors.white, size: 20),
-            SizedBox(width: 10),
-            Text(
-              'Tambah Data Kesehatan',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-                fontFamily: 'Plus Jakarta Sans',
-                fontWeight: FontWeight.w700,
+      icon: const Icon(Icons.add_rounded, size: 20),
+      label: const Text('Tambah Data Kesehatan'),
+    );
+  }
+
+  Widget _buildMetricsHeader(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Tanda Vital Terakhir', style: textTheme.titleLarge),
+              const SizedBox(height: 4),
+              Text(
+                'Ringkasan hasil pemeriksaan terbaru.',
+                style: textTheme.bodyMedium?.copyWith(
+                  color: AppTheme.textTertiary,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+          decoration: BoxDecoration(
+            color: AppTheme.accentSoft,
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: Text(
+            'Normal',
+            style: textTheme.labelMedium?.copyWith(color: AppTheme.primary),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMetricsGrid(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final crossAxisCount = constraints.maxWidth >= 720 ? 4 : 2;
+        return Obx(() {
+          final metrics = controller.healthMetrics;
+
+          return GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: crossAxisCount == 4 ? 1.25 : 1.05,
+            ),
+            itemCount: metrics.length,
+            itemBuilder: (context, index) {
+              final metric = metrics[index];
+              return _buildMetricCard(context, metric);
+            },
+          );
+        });
+      },
+    );
+  }
+
+  Widget _buildMetricCard(BuildContext context, Map<String, dynamic> metric) {
+    final textTheme = Theme.of(context).textTheme;
+    final color = metric['color'] as Color? ?? AppTheme.surfaceMuted;
+    final icon =
+        metric['icon'] as IconData? ?? Icons.health_and_safety_outlined;
+    final iconColor = metric['iconColor'] as Color? ?? AppTheme.primary;
+    final value = metric['value']?.toString() ?? '-';
+    final unit = metric['unit']?.toString() ?? '';
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: AppTheme.cardDecoration(radius: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(icon, color: iconColor, size: 20),
+              ),
+              const Spacer(),
+              Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: AppTheme.success,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ],
+          ),
+          const Spacer(),
+          Text(
+            metric['title']?.toString() ?? '-',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: textTheme.labelLarge?.copyWith(
+              color: AppTheme.textSecondary,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Flexible(
+                child: Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.headlineSmall?.copyWith(fontSize: 22),
+                ),
+              ),
+              if (unit.isNotEmpty) ...[
+                const SizedBox(width: 5),
+                Text(
+                  unit,
+                  style: textTheme.labelMedium?.copyWith(
+                    color: AppTheme.textTertiary,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildTrendChart(List<Map<String, dynamic>> dataPoints, String param) {
-    // Build spots from data
     final spots = <FlSpot>[];
     double minVal = double.infinity;
     double maxVal = double.negativeInfinity;
 
-    for (int i = 0; i < dataPoints.length; i++) {
+    for (var i = 0; i < dataPoints.length; i++) {
       final raw = dataPoints[i][param];
-      final value = (raw is num)
+      final value = raw is num
           ? raw.toDouble()
           : double.tryParse(raw?.toString() ?? '');
       if (value != null && value.isFinite) {
@@ -528,26 +513,19 @@ class DashboardView extends GetView<DashboardController> {
       return const Center(
         child: Text(
           'Belum ada data parameter ini',
-          style: TextStyle(
-            color: Color(0xFFA3A1A6),
-            fontSize: 14,
-            fontFamily: 'Plus Jakarta Sans',
-          ),
+          style: TextStyle(color: AppTheme.textTertiary),
         ),
       );
     }
 
-    // Add padding to range
     final range = maxVal - minVal;
     final padding = range > 0 ? range * 0.15 : 10;
     final chartMinY = (minVal - padding).clamp(0, double.infinity).toDouble();
     final chartMaxY = maxVal + padding;
-
-    // Date labels for bottom axis
-    final dateLabels = dataPoints.map((dp) {
+    final dateLabels = dataPoints.map((point) {
       try {
-        final d = DateTime.parse(dp['date'] as String);
-        final months = [
+        final date = DateTime.parse(point['date'] as String);
+        const months = [
           'Jan',
           'Feb',
           'Mar',
@@ -561,7 +539,7 @@ class DashboardView extends GetView<DashboardController> {
           'Nov',
           'Des',
         ];
-        return '${d.day}/${months[d.month - 1]}';
+        return '${date.day}/${months[date.month - 1]}';
       } catch (_) {
         return '';
       }
@@ -575,7 +553,7 @@ class DashboardView extends GetView<DashboardController> {
           horizontalInterval: (chartMaxY - chartMinY) / 4,
           getDrawingHorizontalLine: (value) {
             return FlLine(
-              color: const Color(0xFFA8A29E).withValues(alpha: 0.3),
+              color: AppTheme.borderStrong.withValues(alpha: 0.32),
               strokeWidth: 1,
               dashArray: [5, 5],
             );
@@ -595,7 +573,7 @@ class DashboardView extends GetView<DashboardController> {
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              reservedSize: 30,
+              reservedSize: 32,
               interval: dataPoints.length > 7
                   ? (dataPoints.length / 6).ceilToDouble()
                   : 1,
@@ -610,10 +588,9 @@ class DashboardView extends GetView<DashboardController> {
                   child: Text(
                     dateLabels[idx],
                     style: const TextStyle(
-                      color: Color(0xFF4C4546),
+                      color: AppTheme.textTertiary,
                       fontSize: 10,
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 );
@@ -623,7 +600,9 @@ class DashboardView extends GetView<DashboardController> {
         ),
         borderData: FlBorderData(
           show: true,
-          border: const Border(bottom: BorderSide(color: Color(0xFFA8A29E))),
+          border: const Border(
+            bottom: BorderSide(color: AppTheme.borderStrong),
+          ),
         ),
         minX: 0,
         maxX: (spots.length - 1).toDouble(),
@@ -633,8 +612,8 @@ class DashboardView extends GetView<DashboardController> {
           LineChartBarData(
             spots: spots,
             isCurved: spots.length > 2,
-            color: const Color(0xFFBBF246),
-            barWidth: 3,
+            color: AppTheme.accent,
+            barWidth: 4,
             isStrokeCapRound: true,
             dotData: spots.length > 14
                 ? const FlDotData(show: false)
@@ -642,16 +621,16 @@ class DashboardView extends GetView<DashboardController> {
                     show: true,
                     getDotPainter: (spot, percent, barData, index) {
                       return FlDotCirclePainter(
-                        radius: 3,
-                        color: const Color(0xFFBBF246),
+                        radius: 4,
+                        color: AppTheme.accent,
                         strokeWidth: 2,
-                        strokeColor: Colors.white,
+                        strokeColor: AppTheme.primary,
                       );
                     },
                   ),
             belowBarData: BarAreaData(
               show: true,
-              color: const Color(0xFFBBF246).withValues(alpha: 0.2),
+              color: AppTheme.accent.withValues(alpha: 0.18),
             ),
           ),
         ],

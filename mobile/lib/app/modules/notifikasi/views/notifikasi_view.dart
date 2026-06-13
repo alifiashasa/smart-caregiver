@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import '../../../core/theme/app_theme.dart';
 import '../../../data/models/notification_model.dart';
 import '../controllers/notifikasi_controller.dart';
 
@@ -9,113 +11,140 @@ class NotifikasiView extends GetView<NotifikasiController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9),
+      backgroundColor: AppTheme.backgroundAlt,
       appBar: AppBar(
-        backgroundColor: Colors.white.withValues(alpha: 0.80),
-        elevation: 0,
-        shape: const Border(
-          bottom: BorderSide(color: Color(0xFFF5F5F4), width: 1),
+        backgroundColor: AppTheme.backgroundAlt,
+        surfaceTintColor: Colors.transparent,
+        centerTitle: true,
+        title: Text(
+          'Riwayat Notifikasi',
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            color: AppTheme.primary,
+            fontWeight: FontWeight.w400,
+          ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          tooltip: 'Kembali',
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => Get.back(),
         ),
-        title: const Text(
-          'Notifikasi',
-          style: TextStyle(
-            color: Color(0xFF1C1917),
-            fontSize: 19,
-            fontFamily: 'Plus Jakarta Sans',
-            fontWeight: FontWeight.w600,
-            letterSpacing: -0.40,
-          ),
-        ),
-        actions: [
-          Obx(
-            () => controller.unreadCount > 0
-                ? TextButton.icon(
-                    onPressed: () => controller.markAllAsRead(),
-                    icon: const Icon(
-                      Icons.done_all,
-                      size: 18,
-                      color: Color(0xFF192126),
-                    ),
-                    label: const Text(
-                      'Semua Dibaca',
-                      style: TextStyle(
-                        color: Color(0xFF192126),
-                        fontSize: 13,
-                        fontFamily: 'Plus Jakarta Sans',
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                    ),
-                  )
-                : const SizedBox.shrink(),
-          ),
-        ],
       ),
-      body: Obx(() {
-        if (controller.isLoading) {
-          return const Center(
-            child: CircularProgressIndicator(color: Color(0xFF192126)),
+      body: SafeArea(
+        child: Obx(() {
+          if (controller.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (controller.notifications.isEmpty) {
+            return _buildEmptyState(context);
+          }
+
+          return RefreshIndicator(
+            color: AppTheme.primary,
+            onRefresh: () => controller.fetchNotifications(refresh: true),
+            child: NotificationListener<ScrollNotification>(
+              onNotification: (notification) {
+                if (notification.metrics.pixels >=
+                    notification.metrics.maxScrollExtent - 120) {
+                  controller.loadMore();
+                }
+                return false;
+              },
+              child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
+                ),
+                padding: EdgeInsets.fromLTRB(
+                  AppTheme.pagePadding(context),
+                  20,
+                  AppTheme.pagePadding(context),
+                  32,
+                ),
+                children: [
+                  _buildIntro(context),
+                  const SizedBox(height: 28),
+                  ..._buildNotificationSections(context),
+                  if (controller.hasMore || controller.isLoadingMore)
+                    _buildLoadMoreIndicator(),
+                ],
+              ),
+            ),
           );
-        }
-
-        if (controller.notifications.isEmpty) {
-          return _buildEmptyState();
-        }
-
-        return RefreshIndicator(
-          onRefresh: () => controller.fetchNotifications(refresh: true),
-          color: const Color(0xFF192126),
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            itemCount:
-                controller.notifications.length + (controller.hasMore ? 1 : 0),
-            itemBuilder: (context, index) {
-              if (index >= controller.notifications.length) {
-                return _buildLoadMoreIndicator();
-              }
-              return _buildNotificationCard(controller.notifications[index]);
-            },
-          ),
-        );
-      }),
+        }),
+      ),
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildIntro(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Text(
+      'Berikut notifikasi Anda dari beberapa hari terakhir.',
+      style: textTheme.titleLarge?.copyWith(
+        color: AppTheme.textTertiary,
+        fontWeight: FontWeight.w400,
+        height: 1.25,
+      ),
+    );
+  }
+
+  List<Widget> _buildNotificationSections(BuildContext context) {
+    final sections = <Widget>[];
+    String? previousLabel;
+
+    for (final notification in controller.notifications) {
+      final label = _sectionLabel(notification.createdAt);
+      if (label != previousLabel) {
+        if (sections.isNotEmpty) sections.add(const SizedBox(height: 24));
+        sections.add(_buildSectionHeader(context, label));
+        sections.add(const SizedBox(height: 12));
+        previousLabel = label;
+      }
+
+      sections.add(_buildNotificationCard(context, notification));
+      sections.add(const SizedBox(height: 12));
+    }
+
+    return sections;
+  }
+
+  Widget _buildSectionHeader(BuildContext context, String label) {
+    return Text(
+      label,
+      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+        color: AppTheme.textTertiary,
+        fontWeight: FontWeight.w400,
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(24),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.notifications_none_outlined,
-              size: 64,
-              color: Colors.grey.shade300,
+            const Icon(
+              Icons.notifications_none_rounded,
+              size: 46,
+              color: AppTheme.textTertiary,
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Tidak ada notifikasi',
-              style: TextStyle(
-                color: Color(0xFF77767B),
-                fontSize: 16,
-                fontFamily: 'Plus Jakarta Sans',
-                fontWeight: FontWeight.w600,
+              style: textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w400,
               ),
             ),
-            const SizedBox(height: 8),
-            const Text(
-              'Notifikasi baru akan muncul di sini',
-              style: TextStyle(
-                color: Color(0xFFA3A1A6),
-                fontSize: 14,
-                fontFamily: 'Plus Jakarta Sans',
+            const SizedBox(height: 6),
+            Text(
+              'Peringatan kesehatan, alarm, dan ringkasan mingguan akan muncul di sini.',
+              textAlign: TextAlign.center,
+              style: textTheme.bodyMedium?.copyWith(
+                color: AppTheme.textTertiary,
               ),
             ),
           ],
@@ -126,139 +155,173 @@ class NotifikasiView extends GetView<NotifikasiController> {
 
   Widget _buildLoadMoreIndicator() {
     return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 16),
+      padding: EdgeInsets.symmetric(vertical: 18),
       child: Center(
         child: SizedBox(
           width: 24,
           height: 24,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            color: Color(0xFF77767B),
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNotificationCard(
+    BuildContext context,
+    NotificationModel notification,
+  ) {
+    final textTheme = Theme.of(context).textTheme;
+    final isUnread = !notification.isRead;
+    final time = _timeLabel(notification.createdAt);
+
+    return Semantics(
+      button: true,
+      label:
+          '${notification.title}. ${isUnread ? 'Belum dibaca' : 'Sudah dibaca'}',
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () {
+            if (isUnread) {
+              controller.markAsRead(notification);
+            }
+          },
+          child: Ink(
+            padding: const EdgeInsets.fromLTRB(18, 22, 18, 22),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.primary.withValues(alpha: 0.035),
+                  blurRadius: 18,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 44,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    alignment: Alignment.center,
+                    children: [
+                      Icon(
+                        _iconForType(notification.notificationType),
+                        color: AppTheme.primary,
+                        size: 28,
+                      ),
+                      if (isUnread)
+                        Positioned(
+                          top: -4,
+                          right: 4,
+                          child: Container(
+                            width: 9,
+                            height: 9,
+                            decoration: const BoxDecoration(
+                              color: AppTheme.accent,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 18),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        notification.title,
+                        style: textTheme.titleMedium?.copyWith(
+                          color: AppTheme.primary,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w400,
+                          height: 1.25,
+                        ),
+                      ),
+                      if (notification.body.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          notification.body,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: AppTheme.textTertiary,
+                            height: 1.35,
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 6),
+                      Text(
+                        time,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: AppTheme.textTertiary,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildNotificationCard(NotificationModel notification) {
-    final isCritical = NotifikasiController.isCritical(notification);
-    final isUnread = !notification.isRead;
-    final title = notification.title;
-    final body = notification.body;
-    final type = notification.notificationType;
-    final time = NotifikasiController.relativeTime(
-      notification.createdAt.toIso8601String(),
-    );
+  String _sectionLabel(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final itemDay = DateTime(date.year, date.month, date.day);
+    final difference = today.difference(itemDay).inDays;
 
-    return GestureDetector(
-      onTap: () {
-        if (isUnread) {
-          controller.markAsRead(notification);
-        }
-      },
-      child: Container(
-        width: double.infinity,
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        decoration: BoxDecoration(
-          color: isCritical ? const Color(0xFF4A1F1F) : const Color(0xFF384046),
-          borderRadius: BorderRadius.circular(15),
-          border: isCritical
-              ? Border.all(color: const Color(0xFFEF4444), width: 1.5)
-              : null,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Type label
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 3,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isCritical
-                              ? Colors.red.withValues(alpha: 0.2)
-                              : Colors.white.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          NotifikasiController.typeLabel(type),
-                          style: TextStyle(
-                            color: isCritical
-                                ? const Color(0xFFEF4444)
-                                : const Color(0xFFA3A1A6),
-                            fontSize: 10,
-                            fontFamily: 'Plus Jakarta Sans',
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        title,
-                        style: TextStyle(
-                          color: isCritical
-                              ? const Color(0xFFEF4444)
-                              : Colors.white,
-                          fontSize: 15,
-                          fontFamily: 'Plus Jakarta Sans',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      time,
-                      style: const TextStyle(
-                        color: Color(0xFF737373),
-                        fontSize: 12,
-                        fontFamily: 'Plus Jakarta Sans',
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    if (isUnread) ...[
-                      const SizedBox(width: 8),
-                      Container(
-                        width: 10,
-                        height: 10,
-                        decoration: BoxDecoration(
-                          color: isCritical
-                              ? const Color(0xFFEF4444)
-                              : const Color(0xFFBBF246),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              body,
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.60),
-                fontSize: 13,
-                fontFamily: 'Plus Jakarta Sans',
-                fontWeight: FontWeight.w400,
-                height: 1.4,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    if (difference == 0) return 'Hari ini';
+    if (difference == 1) return 'Kemarin';
+    return '${date.day} ${_monthName(date.month)} ${date.year}';
+  }
+
+  String _timeLabel(DateTime date) {
+    final hour = date.hour.toString().padLeft(2, '0');
+    final minute = date.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
+  }
+
+  String _monthName(int month) {
+    const names = [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ];
+    return names[month - 1];
+  }
+
+  IconData _iconForType(String type) {
+    switch (type) {
+      case 'critical_alert':
+        return Icons.add_circle_outline_rounded;
+      case 'alarm_reminder':
+        return Icons.alarm_rounded;
+      case 'weekly_summary':
+        return Icons.article_outlined;
+      case 'health_recorded':
+        return Icons.monitor_heart_outlined;
+      default:
+        return Icons.notifications_none_rounded;
+    }
   }
 }

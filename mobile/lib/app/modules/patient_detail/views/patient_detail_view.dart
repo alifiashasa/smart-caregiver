@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../core/theme/app_theme.dart';
 import '../../../routes/app_pages.dart';
 import '../controllers/patient_detail_controller.dart';
 
@@ -9,383 +10,346 @@ class PatientDetailView extends GetView<PatientDetailController> {
 
   @override
   Widget build(BuildContext context) {
+    final pagePadding = AppTheme.pagePadding(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFFDF8F8),
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.white.withValues(alpha: 0.80),
-        elevation: 0,
-        shape: const Border(
-          bottom: BorderSide(color: Color(0xFFF5F5F4), width: 1),
-        ),
+        title: const Text('Riwayat Kesehatan'),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          tooltip: 'Kembali',
+          icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => Get.back(),
         ),
-        title: const Text(
-          'Riwayat Kesehatan',
-          style: TextStyle(
-            color: Color(0xFF1C1917),
-            fontSize: 19,
-            fontFamily: 'Plus Jakarta Sans',
-            fontWeight: FontWeight.w600,
-            letterSpacing: -0.40,
-          ),
-        ),
       ),
-      body: Obx(() {
-        if (controller.isLoadingRecords) {
-          return const Center(
-            child: CircularProgressIndicator(color: Color(0xFF192126)),
-          );
-        }
+      body: SafeArea(
+        child: Obx(() {
+          if (controller.isLoadingRecords) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-        return SingleChildScrollView(
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.only(
-              top: 24,
-              left: 20,
-              right: 20,
-              bottom: 48,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          return RefreshIndicator(
+            color: AppTheme.primary,
+            onRefresh: () async {
+              final id = controller.elderlyId;
+              if (id != null && id.isNotEmpty) {
+                await controller.loadHealthRecords(id);
+              }
+            },
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
+              ),
+              padding: EdgeInsets.fromLTRB(pagePadding, 24, pagePadding, 112),
               children: [
-                // Header Texts
-                const Text(
-                  'Riwayat Kesehatan',
-                  style: TextStyle(
-                    color: Color(0xFF1C1B1C),
-                    fontSize: 24,
-                    fontFamily: 'Plus Jakarta Sans',
-                    fontWeight: FontWeight.w600,
-                    height: 1.33,
-                    letterSpacing: -0.24,
+                if (controller.records.isEmpty)
+                  _buildEmptyState(context)
+                else
+                  ...controller.records.map(
+                    (record) => TimelineCard(record: record),
                   ),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Riwayat kesehatan dan pemantauan tanda vital',
-                  style: TextStyle(
-                    color: Color(0xFF47464B),
-                    fontSize: 16,
-                    fontFamily: 'Plus Jakarta Sans',
-                    fontWeight: FontWeight.w400,
-                    height: 1.50,
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Timeline items
-                Obx(() {
-                  return Column(
-                    children: controller.records.map((record) {
-                      // Menggunakan widget TimelineCard yang baru dibuat
-                      return TimelineCard(record: record);
-                    }).toList(),
-                  );
-                }),
               ],
             ),
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 42, horizontal: 24),
+      decoration: AppTheme.cardDecoration(),
+      child: Column(
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: AppTheme.accentSoft,
+              borderRadius: BorderRadius.circular(22),
+            ),
+            child: const Icon(
+              Icons.monitor_heart_outlined,
+              color: AppTheme.primary,
+              size: 32,
+            ),
           ),
-        );
-      }),
+          const SizedBox(height: 18),
+          Text('Belum ada riwayat', style: textTheme.titleMedium),
+          const SizedBox(height: 6),
+          Text(
+            'Data kesehatan yang dicatat akan tampil di halaman ini.',
+            textAlign: TextAlign.center,
+            style: textTheme.bodyMedium?.copyWith(color: AppTheme.textTertiary),
+          ),
+        ],
+      ),
     );
   }
 }
 
-// Memisahkan Card menjadi StatefulWidget agar memiliki state expand/collapse secara independen
 class TimelineCard extends StatefulWidget {
-  final Map<String, dynamic> record;
-
   const TimelineCard({super.key, required this.record});
+
+  final Map<String, dynamic> record;
 
   @override
   State<TimelineCard> createState() => _TimelineCardState();
 }
 
 class _TimelineCardState extends State<TimelineCard> {
-  // State untuk melacak apakah kartu sedang dibuka atau ditutup
   bool _isExpanded = false;
 
   @override
   Widget build(BuildContext context) {
     final record = widget.record;
-    bool hasSymptoms =
-        record['symptoms'] != null && (record['symptoms'] as List).isNotEmpty;
-    bool hasNotes =
-        record['notes'] != null && record['notes'].toString().isNotEmpty;
-    bool isCritical = record['status'] == 'Perlu Perhatian';
+    final symptoms = (record['symptoms'] as List?)?.cast<String>() ?? [];
+    final notes = record['notes']?.toString() ?? '';
+    final isCritical = record['status'] == 'Perlu Perhatian';
+    final hasDetails = symptoms.isNotEmpty || notes.isNotEmpty || isCritical;
+    final textTheme = Theme.of(context).textTheme;
+    final statusColor = Color(record['color'] as int? ?? 0xFFBBF246);
+    final textColor = Color(record['textColor'] as int? ?? 0xFF192126);
 
-    // Opsional: Cek apakah ada detail tambahan untuk ditampilkan,
-    // jika tidak ada, Anda mungkin ingin menyembunyikan icon dropdown sama sekali.
-    bool hasDetails = hasSymptoms || hasNotes || isCritical;
-
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
-      clipBehavior: Clip.antiAlias,
-      decoration: ShapeDecoration(
-        color: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        shadows: const [
-          BoxShadow(
-            color: Color(0x0A18181B),
-            blurRadius: 16,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          border: Border(
-            left: BorderSide(
-              width: 4,
-              color: isCritical
-                  ? const Color(0xFF192126)
-                  : const Color(0xFFC6C5CF),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          onTap: hasDetails
+              ? () => setState(() => _isExpanded = !_isExpanded)
+              : null,
+          child: Ink(
+            padding: const EdgeInsets.all(18),
+            decoration: AppTheme.cardDecoration(
+              radius: AppTheme.radiusLg,
+              elevated: true,
+              borderColor: isCritical ? AppTheme.warningSoft : AppTheme.border,
             ),
-          ),
-        ),
-        padding: const EdgeInsets.only(left: 16), // Spaced from the line
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Date & Status row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  record['date'],
-                  style: const TextStyle(
-                    color: Color(0xFF47464B),
-                    fontSize: 14,
-                    fontFamily: 'Plus Jakarta Sans',
-                    fontWeight: FontWeight.w500,
-                    height: 1.43,
-                    letterSpacing: 0.14,
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 4,
-                  ),
-                  decoration: ShapeDecoration(
-                    color: Color(record['color'] as int),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(9999),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      if (isCritical)
-                        const Icon(
-                          Icons.info,
-                          color: Color(0xFF192126),
-                          size: 16,
-                        ),
-                      if (!isCritical)
-                        const Icon(
-                          Icons.check_circle_outline,
-                          color: Color(0xFF5D7000),
-                          size: 14,
-                        ),
-                      const SizedBox(width: 4),
-                      Text(
-                        record['status'],
-                        style: TextStyle(
-                          color: Color(record['textColor'] as int),
-                          fontSize: 12,
-                          fontFamily: 'Plus Jakarta Sans',
-                          fontWeight: FontWeight.w600,
-                          height: 1.33,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            // Tensi, Suhu, and Dropdown Icon
-            InkWell(
-              onTap: () {
-                // Jika ada detail (symptoms/notes), toggle expand
-                if (hasDetails) {
-                  setState(() {
-                    _isExpanded = !_isExpanded;
-                  });
-                }
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4.0),
-                child: Row(
+                Row(
                   children: [
                     Expanded(
-                      child: Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Tensi ${record['tensi']} ',
-                              style: const TextStyle(
-                                color: Color(0xFF1C1B1C),
-                                fontSize: 18,
-                                fontFamily: 'Plus Jakarta Sans',
-                                fontWeight: FontWeight.w600,
-                                height: 1.56,
-                              ),
-                            ),
-                            const TextSpan(
-                              text: '• ',
-                              style: TextStyle(
-                                color: Color(0xFF1C1B1C),
-                                fontSize: 18,
-                                fontFamily: 'Plus Jakarta Sans',
-                                fontWeight: FontWeight.w700,
-                                height: 1.56,
-                              ),
-                            ),
-                            TextSpan(
-                              text: 'Suhu ${record['suhu']}',
-                              style: const TextStyle(
-                                color: Color(0xFF1C1B1C),
-                                fontSize: 18,
-                                fontFamily: 'Plus Jakarta Sans',
-                                fontWeight: FontWeight.w600,
-                                height: 1.56,
-                              ),
-                            ),
-                          ],
+                      child: Text(
+                        record['date']?.toString() ?? '-',
+                        style: textTheme.labelLarge?.copyWith(
+                          color: AppTheme.textTertiary,
                         ),
                       ),
                     ),
-                    // Ganti icon berdasarkan state _isExpanded
-                    if (hasDetails)
-                      Icon(
-                        _isExpanded
-                            ? Icons.keyboard_arrow_up
-                            : Icons.keyboard_arrow_down,
-                        color: const Color(0xFF1C1B1C),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
                       ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Animasi ringan untuk buka tutup
-            AnimatedSize(
-              duration: const Duration(milliseconds: 300),
-              alignment: Alignment.topCenter,
-              curve: Curves.easeInOut,
-              child: !_isExpanded
-                  ? const SizedBox(width: double.infinity)
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Divider(color: Color(0x7FC8C5CB), height: 32),
-
-                        if (hasSymptoms)
-                          Wrap(
-                            runSpacing: 8,
-                            children: (record['symptoms'] as List<String>).map((
-                              symptom,
-                            ) {
-                              return Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
-                                decoration: ShapeDecoration(
-                                  color: const Color(0xFFE2E2E2),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(9999),
-                                  ),
-                                ),
-                                child: Text(
-                                  symptom,
-                                  style: const TextStyle(
-                                    color: Color(0xFF63646C),
-                                    fontSize: 12,
-                                    fontFamily: 'Plus Jakarta Sans',
-                                    fontWeight: FontWeight.w600,
-                                    height: 1.33,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
+                      decoration: BoxDecoration(
+                        color: statusColor,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            isCritical
+                                ? Icons.info_outline_rounded
+                                : Icons.check_circle_outline_rounded,
+                            size: 14,
+                            color: textColor,
                           ),
-
-                        if (hasSymptoms) const SizedBox(height: 12),
-
-                        if (hasNotes) ...[
-                          const Text(
-                            'CATATAN CAREGIVER',
-                            style: TextStyle(
-                              color: Color(0xFF47464B),
-                              fontSize: 12,
-                              fontFamily: 'Plus Jakarta Sans',
-                              fontWeight: FontWeight.w600,
-                              height: 1.33,
-                              letterSpacing: 0.60,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
+                          const SizedBox(width: 5),
                           Text(
-                            record['notes'],
-                            style: const TextStyle(
-                              color: Color(0xFF1C1B1C),
-                              fontSize: 14,
-                              fontFamily: 'Plus Jakarta Sans',
-                              fontWeight: FontWeight.w400,
-                              height: 1.50,
+                            record['status']?.toString() ?? '-',
+                            style: textTheme.labelMedium?.copyWith(
+                              color: textColor,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ],
-
-                        const Divider(color: Color(0x7FC8C5CB), height: 32),
-
-                        InkWell(
-                          onTap: () {
-                            final ctrl = Get.find<PatientDetailController>();
-                            Get.toNamed(
-                              Routes.DETAIL_HISTORY,
-                              arguments: {
-                                'elderly_id': ctrl.elderlyId,
-                                'name': ctrl.patientName,
-                              },
-                            );
-                          },
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 4.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Lihat Riwayat Kesehatan',
-                                  style: TextStyle(
-                                    color: Color(0xFF1C1B1C),
-                                    fontSize: 16,
-                                    fontFamily: 'Plus Jakarta Sans',
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                Icon(
-                                  Icons.chevron_right,
-                                  color: Color(0xFF1C1B1C),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: [
+                          _VitalPill(
+                            label: 'Tensi',
+                            value: record['tensi']?.toString() ?? '—',
+                            icon: Icons.bloodtype_outlined,
+                          ),
+                          _VitalPill(
+                            label: 'Suhu',
+                            value: record['suhu']?.toString() ?? '—',
+                            icon: Icons.thermostat_outlined,
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (hasDetails) ...[
+                      const SizedBox(width: 8),
+                      Icon(
+                        _isExpanded
+                            ? Icons.keyboard_arrow_up_rounded
+                            : Icons.keyboard_arrow_down_rounded,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ],
+                  ],
+                ),
+                AnimatedSize(
+                  duration: AppTheme.motion,
+                  curve: Curves.easeOutCubic,
+                  alignment: Alignment.topCenter,
+                  child: !_isExpanded
+                      ? const SizedBox(width: double.infinity)
+                      : _buildDetails(context, symptoms, notes),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildDetails(
+    BuildContext context,
+    List<String> symptoms,
+    String notes,
+  ) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Divider(height: 30),
+        if (symptoms.isNotEmpty) ...[
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: symptoms.map((symptom) {
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 11,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: AppTheme.surfaceMuted,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  symptom,
+                  style: textTheme.labelMedium?.copyWith(
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 16),
+        ],
+        if (notes.isNotEmpty) ...[
+          Text(
+            'Catatan Caregiver',
+            style: textTheme.labelMedium?.copyWith(
+              color: AppTheme.textTertiary,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.4,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(notes, style: textTheme.bodyMedium),
+          const SizedBox(height: 18),
+        ],
+        Material(
+          color: AppTheme.surfaceMuted,
+          borderRadius: BorderRadius.circular(18),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(18),
+            onTap: () {
+              final ctrl = Get.find<PatientDetailController>();
+              Get.toNamed(
+                Routes.DETAIL_HISTORY,
+                arguments: {
+                  'elderly_id': ctrl.elderlyId,
+                  'name': ctrl.patientName,
+                },
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Lihat detail riwayat',
+                      style: textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right_rounded),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _VitalPill extends StatelessWidget {
+  const _VitalPill({
+    required this.label,
+    required this.value,
+    required this.icon,
+  });
+
+  final String label;
+  final String value;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppTheme.background,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppTheme.border),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 18, color: AppTheme.textTertiary),
+          const SizedBox(width: 8),
+          Text(
+            '$label ',
+            style: textTheme.labelMedium?.copyWith(
+              color: AppTheme.textTertiary,
+            ),
+          ),
+          Text(
+            value,
+            style: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
+          ),
+        ],
       ),
     );
   }

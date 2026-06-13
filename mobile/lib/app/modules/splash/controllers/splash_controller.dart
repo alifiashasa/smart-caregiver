@@ -9,19 +9,20 @@ class SplashController extends GetxController {
   SplashController({required AuthRepository authRepository})
     : _authRepository = authRepository;
 
-  @override
-  void onReady() {
-    super.onReady();
-    _checkSession();
-  }
+  final _isLoading = false.obs;
 
-  Future<void> _checkSession() async {
+  bool get isLoading => _isLoading.value;
+
+  Future<void> start() async {
+    if (_isLoading.value) return;
+
+    _isLoading.value = true;
     try {
-      await Future.delayed(const Duration(milliseconds: 1500));
       if (!_authRepository.isLoggedIn) {
         Get.offAllNamed(Routes.LOGIN);
         return;
       }
+
       final result = await _authRepository.getCurrentUser();
       result.when(
         success: (_) => Get.offAllNamed(Routes.HOME),
@@ -36,9 +37,10 @@ class SplashController extends GetxController {
         },
       );
     } catch (_) {
-      // If anything unexpected fails, go to login
       ApiClient.clearTokens();
       Get.offAllNamed(Routes.LOGIN);
+    } finally {
+      _isLoading.value = false;
     }
   }
 }

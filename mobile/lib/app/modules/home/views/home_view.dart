@@ -1,8 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:mobile/app/routes/app_pages.dart';
 
+import '../../../core/theme/app_theme.dart';
+import '../../../routes/app_pages.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -10,9 +11,11 @@ class HomeView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
+    final pagePadding = AppTheme.pagePadding(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFFDF8F8),
-      floatingActionButton: FloatingActionButton(
+      backgroundColor: AppTheme.background,
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           final result = await Get.toNamed(Routes.TAMBAH_LANSIA);
           if (result == true) {
@@ -20,398 +23,238 @@ class HomeView extends GetView<HomeController> {
             controller.loadUnreadCount();
           }
         },
-        backgroundColor: const Color(0xFF18181B),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        elevation: 8,
-        child: const Icon(Icons.add, color: Colors.white),
+        icon: const Icon(Icons.person_add_alt_1_rounded, size: 20),
+        label: const Text('Pasien'),
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            // Custom Top App Bar
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.only(
-                top: 16,
-                left: 20,
-                right: 20,
-                bottom: 16,
+        child: Obx(() {
+          final isFirstLoad =
+              controller.isLoading && controller.elderlyList.isEmpty;
+
+          if (isFirstLoad) {
+            return Column(
+              children: [
+                _buildTopBar(context, pagePadding),
+                const Expanded(
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              ],
+            );
+          }
+
+          return RefreshIndicator(
+            color: AppTheme.primary,
+            onRefresh: () async {
+              await controller.loadElderly();
+              await controller.loadUnreadCount();
+            },
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
               ),
-              decoration: const BoxDecoration(color: Color(0xFFFAFAFA)),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  GestureDetector(
-                    onTap: () => Get.toNamed(Routes.PROFIL_CAREGIVER),
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      clipBehavior: Clip.antiAlias,
-                      decoration: ShapeDecoration(
-                        color: const Color(0xFFE5E2E1),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(9999),
-                        ),
+              padding: EdgeInsets.fromLTRB(pagePadding, 16, pagePadding, 104),
+              children: [
+                _buildTopBar(context, 0),
+                const SizedBox(height: 28),
+                _buildGreeting(context),
+                const SizedBox(height: 24),
+                _buildStats(context),
+                const SizedBox(height: 20),
+                _buildSearchSurface(context),
+                const SizedBox(height: 28),
+                _buildPatientHeader(context),
+                const SizedBox(height: 16),
+                if (controller.elderlyList.isEmpty)
+                  _buildEmptyPatientState(context)
+                else
+                  ...controller.elderlyList.map((elderly) {
+                    return _buildPatientCard(
+                      context: context,
+                      name: elderly.fullName,
+                      age: elderly.ageLabel,
+                      status: HomeController.statusLabel(
+                        elderly.latestHealthStatus,
                       ),
-                      child: Image.asset(
-                        'assets/images/caregiver_profile.png',
-                        fit: BoxFit.fill,
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () async {
-                      await Get.toNamed(Routes.NOTIFIKASI);
-                      controller.loadUnreadCount();
-                    },
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: const ShapeDecoration(shape: CircleBorder()),
-                      child: Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          const Positioned.fill(
-                            child: Icon(
-                              Icons.notifications_none,
-                              color: Color(0xFF18181B),
-                            ),
-                          ),
-                          Obx(() {
-                            final count = controller.unreadCount;
-                            if (count <= 0) return const SizedBox.shrink();
-                            return Positioned(
-                              top: -2,
-                              right: -2,
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: const ShapeDecoration(
-                                  color: Color(0xFFEF4444),
-                                  shape: CircleBorder(),
-                                ),
-                                constraints: const BoxConstraints(
-                                  minWidth: 18,
-                                  minHeight: 18,
-                                ),
-                                child: Text(
-                                  count > 99 ? '99+' : count.toString(),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 9,
-                                    fontFamily: 'Plus Jakarta Sans',
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            );
-                          }),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                      isCritical: elderly.needsAttention,
+                      onTap: () => controller.navigateToDashboard(elderly),
+                    );
+                  }),
+              ],
             ),
-
-            Expanded(
-              child: Obx(() {
-                if (controller.isLoading) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF192126)),
-                  );
-                }
-
-                return SingleChildScrollView(
-                  padding: const EdgeInsets.only(
-                    top: 32,
-                    left: 20,
-                    right: 20,
-                    bottom: 80,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Greeting Section
-                      const Text(
-                        'Selamat Pagi, Sari',
-                        style: TextStyle(
-                          color: Color(0xFF1C1B1C),
-                          fontSize: 21,
-                          fontFamily: 'Plus Jakarta Sans',
-                          fontWeight: FontWeight.w700,
-                          height: 1.27,
-                          letterSpacing: -0.60,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        'Berikut adalah status pasien Anda hari ini.',
-                        style: TextStyle(
-                          color: Color(0xFF47464B),
-                          fontSize: 18,
-                          fontFamily: 'Plus Jakarta Sans',
-                          fontWeight: FontWeight.w400,
-                          height: 1.56,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Dashboard Cards (stats from API)
-                      Row(
-                        children: [
-                          _buildStatCard(
-                            icon: Icons.people_outline,
-                            iconColor: const Color(0xFF1B1B1E),
-                            iconBgColor: const Color(0x191B1B1E),
-                            value: '${controller.elderlyList.length}',
-                            label: 'Total Pasien',
-                            cardColor: Colors.white,
-                            borderColor: null,
-                          ),
-                          const SizedBox(width: 16),
-                          _buildStatCard(
-                            icon: Icons.warning_amber_rounded,
-                            iconColor: const Color(0xFFD97706),
-                            iconBgColor: const Color(0xFFFEF3C7),
-                            value: '${controller.needsAttentionCount}',
-                            label: 'Perlu Perhatian',
-                            cardColor: Colors.white,
-                            borderColor: const Color(0xFFFEF3C7),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Search Bar Placeholder
-                      Container(
-                        width: double.infinity,
-                        height: 48,
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        decoration: ShapeDecoration(
-                          color: const Color(0xFF192126),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          shadows: const [
-                            BoxShadow(
-                              color: Color(0x0F000000),
-                              blurRadius: 4,
-                              offset: Offset(0, 2),
-                              spreadRadius: 0,
-                            ),
-                          ],
-                        ),
-                        child: const Row(
-                          children: [
-                            Icon(
-                              Icons.search,
-                              color: Color(0xFF8C9093),
-                              size: 20,
-                            ),
-                            SizedBox(width: 16),
-                            Text(
-                              'Cari Pasien',
-                              style: TextStyle(
-                                color: Color(0xFF8C9093),
-                                fontSize: 16,
-                                fontFamily: 'Plus Jakarta Sans',
-                                fontWeight: FontWeight.w400,
-                                height: 1.50,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Patient List Header
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Pasien Anda',
-                            style: const TextStyle(
-                              color: Color(0xFF1C1B1C),
-                              fontSize: 24,
-                              fontFamily: 'Plus Jakarta Sans',
-                              fontWeight: FontWeight.w600,
-                              height: 1.33,
-                              letterSpacing: -0.24,
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            decoration: ShapeDecoration(
-                              color: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(9999),
-                              ),
-                              shadows: const [
-                                BoxShadow(
-                                  color: Color(0x19A1A1AA),
-                                  blurRadius: 8,
-                                  offset: Offset(0, 2),
-                                  spreadRadius: 0,
-                                ),
-                              ],
-                            ),
-                            child: const Row(
-                              children: [
-                                Icon(
-                                  Icons.filter_list,
-                                  size: 16,
-                                  color: Color(0xFF1C1B1C),
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  'Filter',
-                                  style: TextStyle(
-                                    color: Color(0xFF1C1B1C),
-                                    fontSize: 14,
-                                    fontFamily: 'Plus Jakarta Sans',
-                                    fontWeight: FontWeight.w500,
-                                    height: 1.43,
-                                    letterSpacing: 0.14,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Patient List from API
-                      if (controller.elderlyList.isEmpty)
-                        _buildEmptyPatientState()
-                      else
-                        ...controller.elderlyList.asMap().entries.map((entry) {
-                          final e = entry.value;
-                          return _buildPatientCard(
-                            name: e.fullName,
-                            age: e.ageLabel,
-                            status: HomeController.statusLabel(
-                              e.latestHealthStatus,
-                            ),
-                            isCritical: e.needsAttention,
-                            isLoading: false,
-                            onTap: () => controller.navigateToDashboard(e),
-                          );
-                        }),
-                    ],
-                  ),
-                );
-              }),
-            ),
-          ],
-        ),
+          );
+        }),
       ),
     );
   }
 
-  Widget _buildStatCard({
-    required IconData icon,
-    required Color iconColor,
-    required Color iconBgColor,
-    required String value,
-    required String label,
-    required Color cardColor,
-    Color? borderColor,
-  }) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: ShapeDecoration(
-          color: cardColor,
-          shape: RoundedRectangleBorder(
-            side: borderColor != null
-                ? BorderSide(width: 1, color: borderColor)
-                : BorderSide.none,
-            borderRadius: BorderRadius.circular(24),
+  Widget _buildTopBar(BuildContext context, double horizontalPadding) {
+    final content = Row(
+      children: [
+        Semantics(
+          button: true,
+          label: 'Buka profil caregiver',
+          child: Material(
+            color: Colors.transparent,
+            shape: const CircleBorder(),
+            child: InkWell(
+              customBorder: const CircleBorder(),
+              onTap: () => Get.toNamed(Routes.PROFIL_CAREGIVER),
+              child: Ink(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppTheme.surface,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppTheme.border),
+                  boxShadow: AppTheme.softShadow,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(3),
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/images/caregiver_profile.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
-          shadows: const [
-            BoxShadow(
-              color: Color(0x26A1A1AA),
-              blurRadius: 16,
-              offset: Offset(0, 4),
-              spreadRadius: 0,
-            ),
-          ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              margin: const EdgeInsets.only(bottom: 16),
-              decoration: ShapeDecoration(
-                color: iconBgColor,
-                shape: const CircleBorder(),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Smart Caregiver',
+                style: Theme.of(context).textTheme.titleMedium,
               ),
-              child: Icon(icon, color: iconColor),
-            ),
-            Text(
-              value,
-              style: const TextStyle(
-                color: Color(0xFF1C1B1C),
-                fontSize: 30,
-                fontFamily: 'Plus Jakarta Sans',
-                fontWeight: FontWeight.w700,
-                height: 1.27,
-                letterSpacing: -0.60,
+              Text(
+                'Pemantauan lansia',
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: AppTheme.textTertiary,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: const TextStyle(
-                color: Color(0xFF47464B),
-                fontSize: 14,
-                fontFamily: 'Plus Jakarta Sans',
-                fontWeight: FontWeight.w500,
-                height: 1.43,
-                letterSpacing: 0.14,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
+        Semantics(
+          button: true,
+          label: 'Buka notifikasi',
+          child: Material(
+            color: Colors.transparent,
+            shape: const CircleBorder(),
+            child: InkWell(
+              customBorder: const CircleBorder(),
+              onTap: () async {
+                await Get.toNamed(Routes.NOTIFIKASI);
+                controller.loadUnreadCount();
+              },
+              child: Ink(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppTheme.surface,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppTheme.border),
+                  boxShadow: AppTheme.softShadow,
+                ),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  alignment: Alignment.center,
+                  children: [
+                    const Icon(Icons.notifications_none_rounded),
+                    Obx(() {
+                      final count = controller.unreadCount;
+                      if (count <= 0) return const SizedBox.shrink();
+                      return Positioned(
+                        top: 7,
+                        right: 7,
+                        child: Container(
+                          constraints: const BoxConstraints(
+                            minWidth: 18,
+                            minHeight: 18,
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          decoration: const BoxDecoration(
+                            color: AppTheme.error,
+                            shape: BoxShape.circle,
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            count > 99 ? '99+' : count.toString(),
+                            style: Theme.of(context).textTheme.labelSmall
+                                ?.copyWith(
+                                  color: Colors.white,
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+
+    if (horizontalPadding == 0) return content;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: horizontalPadding,
+        vertical: 16,
       ),
+      child: content,
     );
   }
 
-  Widget _buildEmptyPatientState() {
+  Widget _buildGreeting(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 48),
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        color: AppTheme.primary,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        boxShadow: AppTheme.liftShadow,
       ),
-      child: const Column(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.people_outline, size: 48, color: Color(0xFFA3A1A6)),
-          SizedBox(height: 16),
-          Text(
-            'Belum ada pasien',
-            style: TextStyle(
-              color: Color(0xFF77767B),
-              fontSize: 16,
-              fontFamily: 'Plus Jakarta Sans',
-              fontWeight: FontWeight.w600,
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
+            ),
+            child: Text(
+              'Ringkasan hari ini',
+              style: textTheme.labelMedium?.copyWith(
+                color: AppTheme.accent,
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 16),
           Text(
-            'Tambahkan pasien pertama Anda',
-            style: TextStyle(
-              color: Color(0xFFA3A1A6),
-              fontSize: 14,
-              fontFamily: 'Plus Jakarta Sans',
+            'Selamat Pagi, Sari',
+            style: textTheme.headlineSmall?.copyWith(color: Colors.white),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Pantau status pasien, jadwal, dan notifikasi penting dari satu tempat.',
+            style: textTheme.bodyMedium?.copyWith(
+              color: Colors.white.withValues(alpha: 0.76),
+              height: 1.55,
             ),
           ),
         ],
@@ -419,111 +262,314 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
+  Widget _buildStats(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final cards = [
+          _buildStatCard(
+            context: context,
+            icon: Icons.groups_2_outlined,
+            iconColor: AppTheme.primary,
+            iconBgColor: AppTheme.surfaceMuted,
+            value: '${controller.elderlyList.length}',
+            label: 'Total Pasien',
+          ),
+          _buildStatCard(
+            context: context,
+            icon: Icons.priority_high_rounded,
+            iconColor: AppTheme.warning,
+            iconBgColor: AppTheme.warningSoft,
+            value: '${controller.needsAttentionCount}',
+            label: 'Perlu Perhatian',
+          ),
+        ];
+
+        if (constraints.maxWidth < 360) {
+          return Column(
+            children: [cards.first, const SizedBox(height: 12), cards.last],
+          );
+        }
+
+        return Row(
+          children: [
+            Expanded(child: cards.first),
+            const SizedBox(width: 12),
+            Expanded(child: cards.last),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildStatCard({
+    required BuildContext context,
+    required IconData icon,
+    required Color iconColor,
+    required Color iconBgColor,
+    required String value,
+    required String label,
+  }) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: AppTheme.cardDecoration(radius: 22),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: iconBgColor,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(icon, color: iconColor, size: 22),
+          ),
+          const SizedBox(height: 18),
+          Text(value, style: textTheme.displaySmall?.copyWith(fontSize: 30)),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: textTheme.labelMedium?.copyWith(
+              color: AppTheme.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchSurface(BuildContext context) {
+    return Semantics(
+      label: 'Kolom pencarian pasien',
+      child: Container(
+        width: double.infinity,
+        constraints: const BoxConstraints(minHeight: 54),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        decoration: AppTheme.cardDecoration(radius: 18, elevated: false),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.search_rounded,
+              color: AppTheme.textTertiary,
+              size: 22,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Cari pasien berdasarkan nama',
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: AppTheme.textTertiary),
+              ),
+            ),
+            const Icon(
+              Icons.tune_rounded,
+              color: AppTheme.textSecondary,
+              size: 20,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPatientHeader(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Pasien Anda', style: textTheme.titleLarge),
+              Text(
+                'Pilih pasien untuk melihat detail kesehatan.',
+                style: textTheme.bodyMedium?.copyWith(
+                  color: AppTheme.textTertiary,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+          decoration: BoxDecoration(
+            color: AppTheme.surface,
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(color: AppTheme.border),
+          ),
+          child: Text(
+            '${controller.elderlyList.length} pasien',
+            style: textTheme.labelMedium?.copyWith(color: AppTheme.primary),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmptyPatientState(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+      decoration: AppTheme.cardDecoration(),
+      child: Column(
+        children: [
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: AppTheme.accentSoft,
+              borderRadius: BorderRadius.circular(22),
+            ),
+            child: const Icon(
+              Icons.people_outline_rounded,
+              size: 34,
+              color: AppTheme.primary,
+            ),
+          ),
+          const SizedBox(height: 18),
+          Text('Belum ada pasien', style: textTheme.titleMedium),
+          const SizedBox(height: 6),
+          Text(
+            'Tambahkan pasien pertama Anda untuk mulai memantau kesehatan dan jadwal harian.',
+            textAlign: TextAlign.center,
+            style: textTheme.bodyMedium?.copyWith(color: AppTheme.textTertiary),
+          ),
+          const SizedBox(height: 20),
+          FilledButton.icon(
+            onPressed: () => Get.toNamed(Routes.TAMBAH_LANSIA),
+            icon: const Icon(Icons.person_add_alt_1_rounded, size: 18),
+            label: const Text('Tambah Pasien'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildPatientCard({
+    required BuildContext context,
     required String name,
     required String age,
     required String status,
     required bool isCritical,
-    required bool isLoading,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.all(16),
-        decoration: ShapeDecoration(
-          color: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+    final textTheme = Theme.of(context).textTheme;
+    final badgeColor = isCritical ? AppTheme.warningSoft : AppTheme.accentSoft;
+    final badgeTextColor = isCritical ? AppTheme.warning : AppTheme.primary;
+    final avatarBackground = isCritical ? 'f59e0b' : 'BBF246';
+    final avatarText = isCritical ? 'fff' : '192126';
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          onTap: onTap,
+          child: Ink(
+            decoration: AppTheme.cardDecoration(
+              borderColor: isCritical ? AppTheme.warningSoft : AppTheme.border,
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  width: 54,
+                  height: 54,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppTheme.surface, width: 3),
+                    boxShadow: AppTheme.softShadow,
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: CachedNetworkImage(
+                    imageUrl:
+                        'https://ui-avatars.com/api/?name=$name&background=$avatarBackground&color=$avatarText',
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => const Center(
+                      child: SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                    errorWidget: (context, url, error) => const Icon(
+                      Icons.person_rounded,
+                      color: AppTheme.textTertiary,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: textTheme.titleMedium?.copyWith(fontSize: 18),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        age,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: AppTheme.textTertiary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: badgeColor,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            isCritical
+                                ? Icons.warning_amber_rounded
+                                : Icons.check_circle_outline_rounded,
+                            size: 13,
+                            color: badgeTextColor,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            status,
+                            style: textTheme.labelMedium?.copyWith(
+                              color: badgeTextColor,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      color: AppTheme.textTertiary,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          shadows: const [
-            BoxShadow(
-              color: Color(0x0D000000),
-              blurRadius: 20,
-              offset: Offset(0, 4),
-              spreadRadius: 0,
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            // Profile Image
-            Container(
-              width: 44,
-              height: 44,
-              clipBehavior: Clip.antiAlias,
-              decoration: const ShapeDecoration(shape: CircleBorder()),
-              child: CachedNetworkImage(
-                imageUrl:
-                    "https://ui-avatars.com/api/?name=$name&background=${isCritical ? 'f59e0b' : 'BBF246'}&color=${isCritical ? 'fff' : '192126'}",
-                fit: BoxFit.cover,
-                placeholder: (context, url) => const Center(
-                  child: SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                ),
-                errorWidget: (context, url, error) =>
-                    const Icon(Icons.person, color: Color(0xFF71717A)),
-              ),
-            ),
-            const SizedBox(width: 16),
-            // Info
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    style: const TextStyle(
-                      color: Color(0xFF18181B),
-                      fontSize: 22,
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontWeight: FontWeight.w700,
-                      height: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    age,
-                    style: const TextStyle(
-                      color: Color(0xFF71717A),
-                      fontSize: 16,
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // Status Badge
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: ShapeDecoration(
-                color: isCritical
-                    ? const Color(0xFFE4E4E7)
-                    : const Color(0xFFBBF246),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(9999),
-                ),
-              ),
-              child: Text(
-                status,
-                style: TextStyle(
-                  color: isCritical
-                      ? const Color(0xFF18181B)
-                      : const Color(0xFF576755),
-                  fontSize: 12,
-                  fontFamily: 'Plus Jakarta Sans',
-                  fontWeight: FontWeight.w700,
-                  height: 1.33,
-                ),
-              ),
-            ),
-          ],
         ),
       ),
     );

@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:mobile/app/core/fcm_service.dart';
+import 'package:mobile/app/core/logger.dart';
 import 'package:mobile/app/core/ui/app_feedback.dart';
 import 'package:mobile/app/core/validators/app_validators.dart';
 import 'package:mobile/app/data/repositories/auth_repository.dart';
@@ -72,11 +74,21 @@ class LoginController extends GetxController {
         return;
       }
 
-      await FcmService().registerCurrentToken();
+      await _registerPushTokenBestEffort();
       await _checkFaceStatusAndNavigate();
     } catch (e) {
       _isLoading.value = false;
       AppFeedback.error('Error', 'Terjadi kesalahan jaringan. Coba lagi.');
+    }
+  }
+
+  Future<void> _registerPushTokenBestEffort() async {
+    if (kIsWeb) return;
+
+    try {
+      await FcmService().registerCurrentToken();
+    } catch (e) {
+      log.warn('FCM registration skipped after login', data: {'error': '$e'});
     }
   }
 

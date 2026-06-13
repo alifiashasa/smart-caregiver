@@ -114,25 +114,6 @@ class CalendarController extends GetxController {
 
   void refreshSchedules() => _loadSchedules();
 
-  void onScheduleCreated(dynamic result) {
-    if (result is Map && result['created'] == true) {
-      final rawSchedule = result['schedule'] ?? result['fallback'];
-      if (rawSchedule is Map) {
-        final normalized = ScheduleModel.fromJson(
-          Map<String, dynamic>.from(rawSchedule),
-        );
-        _upsertSchedule(normalized);
-        selectDate(normalized.scheduledAt);
-      }
-      _loadSchedules();
-      return;
-    }
-
-    if (result == true) {
-      _loadSchedules();
-    }
-  }
-
   void _upsertSchedule(ScheduleModel schedule) {
     final index = _schedules.indexWhere((s) => s.id == schedule.id);
     if (index == -1) {
@@ -174,12 +155,34 @@ class CalendarController extends GetxController {
     _upsertSchedule(ScheduleModel.fromJson(scheduleData));
   }
 
-  void navigateToAddSchedule() async {
+  Future<void> navigateToAddSchedule() async {
     final result = await Get.toNamed(
       Routes.JADWAL_LANSIA,
       arguments: {'elderly_id': _elderlyId.value},
     );
-    onScheduleCreated(result);
+
+    // User cancelled — nothing to do
+    if (result is! Map || result['created'] != true) return;
+
+    // Local upsert — feedback instan
+    final rawSchedule = result['schedule'] ?? result['fallback'];
+    if (rawSchedule is Map) {
+      final normalized = ScheduleModel.fromJson(
+        Map<String, dynamic>.from(rawSchedule),
+      );
+      _upsertSchedule(normalized);
+      selectDate(normalized.scheduledAt);
+    }
+
+    // Refresh server — konsistensi data
+    if (_elderlyId.value.isEmpty) return;
+    final serverResult = await _scheduleRepository.getScheduleItems(
+      _elderlyId.value,
+    );
+    serverResult.when(
+      success: (schedules) => _schedules.value = schedules,
+      failure: (_) {},
+    );
   }
 
   @override

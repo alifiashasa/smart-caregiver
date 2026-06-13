@@ -1,99 +1,175 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import '../../../core/theme/app_theme.dart';
 import '../controllers/splash_controller.dart';
 
 class SplashView extends GetView<SplashController> {
   const SplashView({super.key});
 
+  static const double _sheetOverlap = 34;
+
   @override
   Widget build(BuildContext context) {
-    // Reverting to MediaQuery as it's more reliable for the first frame's build
-    final size = MediaQuery.of(context).size;
+    final size = MediaQuery.sizeOf(context);
+    final headerHeight = size.height * 0.58;
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(
+      backgroundColor: AppTheme.surface,
+      body: Column(
         children: [
-          // Dark Blue Top Background with Curve (Original Layout Restored)
-          Positioned(
-            top: -size.height * 0.1,
-            left: -size.width * 0.5,
-            right: -size.width * 0.5,
-            height: size.height * 0.6,
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Color(0xFF192126), // Dark blue background
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(800), // Very wide curve
+          SizedBox(
+            height: headerHeight,
+            width: double.infinity,
+            child: _buildHeader(context),
+          ),
+          Expanded(
+            child: Transform.translate(
+              offset: const Offset(0, -_sheetOverlap),
+              child: _buildSheet(context),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(color: AppTheme.primary),
+      child: SafeArea(
+        bottom: false,
+        child: Stack(
+          children: [
+            Positioned(
+              top: 28,
+              right: -40,
+              child: _OutlineCircle(size: 128, color: AppTheme.accent),
+            ),
+            Positioned(
+              left: 34,
+              bottom: 90,
+              child: _OutlineCircle(
+                size: 70,
+                color: Colors.white.withValues(alpha: 0.28),
+              ),
+            ),
+            Positioned(
+              right: 50,
+              bottom: 64,
+              child: _OutlineCircle(
+                size: 44,
+                color: AppTheme.accent.withValues(alpha: 0.8),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(28, 42, 28, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Smart Caregiver',
+                    style: textTheme.labelLarge?.copyWith(
+                      color: AppTheme.accent,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Perawatan lansia\nlebih tenang dan\nterpantau.',
+                    style: textTheme.displaySmall?.copyWith(
+                      color: Colors.white,
+                      fontSize: 32,
+                      height: 1.18,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSheet(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(28, 38, 28, 28),
+      decoration: const BoxDecoration(
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(34)),
+      ),
+      child: Column(
+        children: [
+          const Spacer(),
+          Text(
+            'Smart Caregiver',
+            textAlign: TextAlign.center,
+            style: textTheme.displaySmall?.copyWith(
+              color: AppTheme.primary,
+              fontSize: 34,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Text(
+            'Pantau pasien, jadwal, dan catatan kesehatan dalam satu aplikasi.',
+            textAlign: TextAlign.center,
+            style: textTheme.bodyLarge?.copyWith(color: AppTheme.textTertiary),
+          ),
+          const Spacer(),
+          Obx(
+            () => ElevatedButton(
+              onPressed: controller.isLoading ? null : controller.start,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.accent,
+                foregroundColor: AppTheme.primary,
+                minimumSize: const Size.fromHeight(56),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(999),
                 ),
+              ),
+              child: AnimatedSwitcher(
+                duration: AppTheme.motionFast,
+                child: controller.isLoading
+                    ? const SizedBox(
+                        key: ValueKey('loading'),
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppTheme.primary,
+                        ),
+                      )
+                    : const Text(key: ValueKey('label'), 'Mulai'),
               ),
             ),
           ),
-
-          // Main Content
-          Column(
-            children: [
-              // Spacer to position the logo on the curve's edge (Original Spacing Restored)
-              SizedBox(
-                height: (size.height * 0.5 - 60).clamp(0.0, double.infinity),
-              ),
-
-              // Logo in a white circle
-              Center(
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 30,
-                        spreadRadius: 5,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: const Center(
-                    child: Icon(Icons.eco, size: 60, color: Color(0xFFBBF246)),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              // Brand Name
-              const Text(
-                'CareTrack',
-                style: TextStyle(
-                  fontFamily: 'Plus Jakarta Sans',
-                  fontSize: 40,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF1B1B1B),
-                  letterSpacing: -1.0,
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Tagline
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 40.0),
-                child: Text(
-                  'Pantau pasien, kelola perawatan dengan tenang',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: 'Plus Jakarta Sans',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF4C4546),
-                  ),
-                ),
-              ),
-
-              const Spacer(),
-            ],
-          ),
         ],
+      ),
+    );
+  }
+}
+
+class _OutlineCircle extends StatelessWidget {
+  const _OutlineCircle({required this.size, required this.color});
+
+  final double size;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: color.withValues(alpha: 0.26), width: 2),
       ),
     );
   }

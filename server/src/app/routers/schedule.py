@@ -327,13 +327,14 @@ async def mark_schedule_incomplete(
 
     try:
         schedule = await schedule_service.mark_incomplete(db, schedule_id)
+        await db.refresh(schedule)
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e),
         )
 
-    return _schedule_response(schedule)
+    return _to_schedule_response(schedule)
 
 
 @router.post(

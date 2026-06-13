@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../core/theme/app_theme.dart';
 import '../controllers/profil_caregiver_controller.dart';
 
 class ProfilCaregiverView extends GetView<ProfilCaregiverController> {
@@ -8,282 +9,190 @@ class ProfilCaregiverView extends GetView<ProfilCaregiverController> {
 
   @override
   Widget build(BuildContext context) {
+    final pagePadding = AppTheme.pagePadding(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFFDF8F8),
+      backgroundColor: AppTheme.background,
+      appBar: AppBar(
+        title: const Text('Profil Caregiver'),
+        leading: IconButton(
+          tooltip: 'Kembali',
+          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () => Get.back(),
+        ),
+      ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 884),
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.only(bottom: 174),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [_buildHeader(), _buildContent()],
-              ),
-            ),
-          ),
+        child: ListView(
+          physics: const BouncingScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(pagePadding, 24, pagePadding, 40),
+          children: [
+            _buildProfileCard(context),
+            const SizedBox(height: 18),
+            _buildMenuCard(context),
+            const SizedBox(height: 24),
+            _buildLogoutButton(),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
-    return Container(
-      width: double.infinity,
-      height: 64,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: const ShapeDecoration(
-        color: Color(0xE5FAFAFA),
-        shape: RoundedRectangleBorder(
-          side: BorderSide(width: 1, color: Color(0xFFF4F4F5)),
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          GestureDetector(
-            onTap: () => Get.back(),
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: ShapeDecoration(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(9999),
-                ),
-              ),
-              child: const Icon(Icons.arrow_back, color: Color(0xFF18181B)),
-            ),
-          ),
-          const SizedBox(width: 8),
-          const Text(
-            'Profile Caregiver',
-            style: TextStyle(
-              color: Color(0xFF18181B),
-              fontSize: 20,
-              fontFamily: 'Plus Jakarta Sans',
-              fontWeight: FontWeight.w600,
-              height: 1.60,
-              letterSpacing: -0.60,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildProfileCard(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
 
-  Widget _buildContent() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.only(top: 24, left: 20, right: 20, bottom: 100),
+      padding: const EdgeInsets.all(24),
+      decoration: AppTheme.cardDecoration(),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Profile Picture and Info
-          Column(
+          Stack(
+            alignment: Alignment.bottomRight,
             children: [
-              Stack(
-                alignment: Alignment.bottomRight,
-                children: [
-                  Container(
-                    width: 96,
-                    height: 96,
-                    clipBehavior: Clip.antiAlias,
-                    decoration: ShapeDecoration(
-                      shape: RoundedRectangleBorder(
-                        side: const BorderSide(
-                          width: 4,
-                          color: Color(0xFFFDF8F8),
-                        ),
-                        borderRadius: BorderRadius.circular(9999),
-                      ),
-                      shadows: const [
-                        BoxShadow(
-                          color: Color(0xCCE5E2E1),
-                          blurRadius: 16,
-                          offset: Offset(0, 4),
-                          spreadRadius: 0,
-                        ),
-                      ],
-                    ),
-                    child: Image.asset(
-                      'assets/images/caregiver_profile.png',
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: ShapeDecoration(
-                      color: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(9999),
-                      ),
-                      shadows: const [
-                        BoxShadow(
-                          color: Color(0x19000000),
-                          blurRadius: 4,
-                          offset: Offset(0, 2),
-                          spreadRadius: -2,
-                        ),
-                        BoxShadow(
-                          color: Color(0x19000000),
-                          blurRadius: 6,
-                          offset: Offset(0, 4),
-                          spreadRadius: -1,
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.camera_alt,
-                      color: Colors.white,
-                      size: 16,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Obx(
-                () => Text(
-                  controller.fullName.isNotEmpty
-                      ? controller.fullName
-                      : 'Memuat...',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Color(0xFF1C1B1C),
-                    fontSize: 24,
-                    fontFamily: 'Plus Jakarta Sans',
-                    fontWeight: FontWeight.w600,
-                    height: 1.33,
-                    letterSpacing: -0.24,
+              Container(
+                width: 108,
+                height: 108,
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppTheme.surface,
+                  boxShadow: AppTheme.softShadow,
+                  border: Border.all(color: AppTheme.border),
+                ),
+                child: ClipOval(
+                  child: Image.asset(
+                    'assets/images/caregiver_profile.png',
+                    fit: BoxFit.cover,
                   ),
                 ),
               ),
-              const SizedBox(height: 4),
-              Obx(
-                () => Text(
-                  controller.email,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Color(0xFF47464B),
-                    fontSize: 16,
-                    fontFamily: 'Plus Jakarta Sans',
-                    fontWeight: FontWeight.w400,
-                    height: 1.50,
-                  ),
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: AppTheme.primary,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppTheme.surface, width: 3),
+                ),
+                child: const Icon(
+                  Icons.camera_alt_outlined,
+                  color: Colors.white,
+                  size: 17,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 32),
-
-          // Menu Options
-          Container(
-            width: double.infinity,
-            clipBehavior: Clip.antiAlias,
-            decoration: ShapeDecoration(
-              color: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              shadows: const [
-                BoxShadow(
-                  color: Color(0x66E5E2E1),
-                  blurRadius: 16,
-                  offset: Offset(0, 4),
-                  spreadRadius: 0,
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                _buildMenuItem(
-                  icon: Icons.edit_outlined,
-                  text: 'Edit Profile',
-                  onTap: () {},
-                ),
-              ],
+          const SizedBox(height: 18),
+          Obx(
+            () => Text(
+              controller.fullName.isNotEmpty
+                  ? controller.fullName
+                  : 'Memuat...',
+              textAlign: TextAlign.center,
+              style: textTheme.headlineSmall?.copyWith(fontSize: 24),
             ),
           ),
-          const SizedBox(height: 32),
-
-          // Logout Button
-          GestureDetector(
-            onTap: controller.logout,
-            child: Container(
-              width: double.infinity,
-              height: 48,
-              decoration: ShapeDecoration(
-                color: const Color(0xFF192126),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
-                shadows: const [
-                  BoxShadow(
-                    color: Color(0x0F000000),
-                    blurRadius: 4,
-                    offset: Offset(0, 2),
-                    spreadRadius: 0,
-                  ),
-                ],
+          const SizedBox(height: 6),
+          Obx(
+            () => Text(
+              controller.email,
+              textAlign: TextAlign.center,
+              style: textTheme.bodyMedium?.copyWith(
+                color: AppTheme.textTertiary,
               ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.logout, color: Colors.white, size: 20),
-                  SizedBox(width: 8),
-                  Text(
-                    'Log Out',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontWeight: FontWeight.w500,
-                      height: 1.43,
-                      letterSpacing: 0.14,
-                    ),
-                  ),
-                ],
-              ),
+            ),
+          ),
+          const SizedBox(height: 18),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+            decoration: BoxDecoration(
+              color: AppTheme.accentSoft,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              'Caregiver aktif',
+              style: textTheme.labelMedium?.copyWith(color: AppTheme.primary),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildMenuCard(BuildContext context) {
+    return Container(
+      decoration: AppTheme.cardDecoration(),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          _buildMenuItem(
+            icon: Icons.edit_outlined,
+            text: 'Edit Profil',
+            subtitle: 'Perbarui informasi caregiver',
+            onTap: () {},
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLogoutButton() {
+    return OutlinedButton.icon(
+      onPressed: controller.logout,
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppTheme.error,
+        side: const BorderSide(color: AppTheme.errorSoft),
+      ),
+      icon: const Icon(Icons.logout_rounded, size: 20),
+      label: const Text('Log Out'),
     );
   }
 
   Widget _buildMenuItem({
     required IconData icon,
     required String text,
+    required String subtitle,
     required VoidCallback onTap,
   }) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: const Color(0xFF18181B), size: 24),
-                const SizedBox(width: 16),
-                Text(
-                  text,
-                  style: const TextStyle(
-                    color: Color(0xFF1C1B1C),
-                    fontSize: 14,
-                    fontFamily: 'Plus Jakarta Sans',
-                    fontWeight: FontWeight.w500,
-                    height: 1.43,
-                    letterSpacing: 0.14,
-                  ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: AppTheme.surfaceMuted,
+                  borderRadius: BorderRadius.circular(16),
                 ),
-              ],
-            ),
-            const Icon(Icons.chevron_right, color: Color(0xFF18181B), size: 24),
-          ],
+                child: Icon(icon, color: AppTheme.primary, size: 22),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(text, style: Get.textTheme.titleMedium),
+                    const SizedBox(height: 3),
+                    Text(
+                      subtitle,
+                      style: Get.textTheme.bodyMedium?.copyWith(
+                        color: AppTheme.textTertiary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.chevron_right_rounded,
+                color: AppTheme.textTertiary,
+              ),
+            ],
+          ),
         ),
       ),
     );

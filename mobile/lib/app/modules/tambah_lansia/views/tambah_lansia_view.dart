@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../core/theme/app_theme.dart';
 import '../controllers/tambah_lansia_controller.dart';
 
 class TambahLansiaView extends GetView<TambahLansiaController> {
@@ -8,467 +9,441 @@ class TambahLansiaView extends GetView<TambahLansiaController> {
 
   @override
   Widget build(BuildContext context) {
+    final pagePadding = AppTheme.pagePadding(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFFDF8F8),
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.white.withValues(alpha: 0.80),
-        elevation: 0,
-        shape: const Border(
-          bottom: BorderSide(color: Color(0xFFF5F5F4), width: 1),
-        ),
+        title: const Text('Tambah Lansia Baru'),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          tooltip: 'Kembali',
+          icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => Get.back(),
         ),
-        title: const Text(
-          'Tambah Lansia Baru',
-          style: TextStyle(
-            color: Color(0xFF1C1917),
-            fontSize: 19,
-            fontFamily: 'Plus Jakarta Sans',
-            fontWeight: FontWeight.w600,
-            letterSpacing: -0.40,
-          ),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 24.0),
-            child: Center(
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFFF5F5F4), width: 1),
-                  image: const DecorationImage(
-                    image: AssetImage('assets/images/caregiver_profile.png'),
-                    fit: BoxFit.fill,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+      body: SafeArea(
+        child: ListView(
+          physics: const BouncingScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(pagePadding, 24, pagePadding, 40),
           children: [
-            // 1. Informasi Dasar
-            _buildCard(
-              title: 'Informasi Dasar',
-              children: [
-                Center(
-                  child: GestureDetector(
-                    onTap: controller.pickImage,
-                    child: Column(
-                      children: [
-                        Obx(
-                          () => Container(
-                            width: 88,
-                            height: 88,
-                            clipBehavior: Clip.antiAlias,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF7F3F2),
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: const Color(0xFFC8C5CB),
-                                width: 1,
-                              ),
-                            ),
-                            child: controller.fotoProfilBytes == null
-                                ? const Icon(
-                                    Icons.camera_alt_outlined,
-                                    color: Color(0xFF858387),
-                                    size: 32,
-                                  )
-                                : Image.memory(
-                                    controller.fotoProfilBytes!,
-                                    fit: BoxFit.cover,
-                                  ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Unggah Foto Profil',
-                          style: TextStyle(
-                            color: Color(0xFF47464B),
-                            fontSize: 14,
-                            fontFamily: 'Plus Jakarta Sans',
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                _buildFieldLabel('Nama Lengkap'),
-                const SizedBox(height: 4),
-                _buildTextField(
-                  hint: 'Masukkan nama lengkap',
-                  onChanged: (val) => controller.namaLengkap = val,
-                ),
-                const SizedBox(height: 12),
-
-                _buildFieldLabel('Usia (Tahun)'),
-                const SizedBox(height: 4),
-                _buildTextField(
-                  hint: 'Contoh: 75',
-                  keyboardType: TextInputType.number,
-                  onChanged: (val) => controller.usia = val,
-                ),
-                const SizedBox(height: 12),
-
-                _buildFieldLabel('Jenis Kelamin'),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildRadioBtn(
-                        title: 'Laki-laki',
-                        groupValue: controller.jenisKelamin,
-                        activeColor: const Color(0xFF192126),
-                        activeTextColor: Colors.white,
-                        centerText: true,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _buildRadioBtn(
-                        title: 'Perempuan',
-                        groupValue: controller.jenisKelamin,
-                        activeColor: const Color(0xFF192126),
-                        activeTextColor: Colors.white,
-                        centerText: true,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
-
-            // 2. Latar Belakang Kesehatan
-            _buildCard(
-              title: 'Latar Belakang Kesehatan',
-              children: [
-                _buildFieldLabel('Riwayat Medis'),
-                const SizedBox(height: 4),
-                _buildTextField(
-                  hint: 'contoh: hipertensi, diabetes',
-                  maxLines: 3,
-                  onChanged: (val) => controller.riwayatMedis = val,
-                ),
-                const SizedBox(height: 12),
-
-                _buildFieldLabel('Kondisi Fisik'),
-                const SizedBox(height: 4),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _buildRadioBtn(
-                      title: 'Mandiri',
-                      groupValue: controller.kondisiFisik,
-                      activeColor: const Color(0xFFBBF246),
-                      activeTextColor: Colors.black,
-                      centerText: true,
-                    ),
-                    const SizedBox(height: 4),
-                    _buildRadioBtn(
-                      title: 'Butuh Bantuan Sebagian',
-                      groupValue: controller.kondisiFisik,
-                      activeColor: const Color(0xFFBBF246),
-                      activeTextColor: Colors.black,
-                      centerText: true,
-                    ),
-                    const SizedBox(height: 4),
-                    _buildRadioBtn(
-                      title: 'Butuh Bantuan Penuh',
-                      groupValue: controller.kondisiFisik,
-                      activeColor: const Color(0xFFBBF246),
-                      activeTextColor: Colors.black,
-                      centerText: true,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                _buildFieldLabel('Tingkat Mobilitas'),
-                const SizedBox(height: 4),
-                Wrap(
-                  runSpacing: 8,
-                  children: [
-                    _buildRadioBtn(
-                      title: 'Bisa Berjalan',
-                      groupValue: controller.mobilitas,
-                      activeColor: const Color(0xFFBBF246),
-                      activeTextColor: Colors.black,
-                      verticalPadding: 4,
-                    ),
-                    _buildRadioBtn(
-                      title: 'Alat Bantu',
-                      groupValue: controller.mobilitas,
-                      activeColor: const Color(0xFFBBF246),
-                      activeTextColor: Colors.black,
-                      verticalPadding: 4,
-                    ),
-                    _buildRadioBtn(
-                      title: 'Kursi Roda',
-                      groupValue: controller.mobilitas,
-                      activeColor: const Color(0xFFBBF246),
-                      activeTextColor: Colors.black,
-                      verticalPadding: 4,
-                    ),
-                    _buildRadioBtn(
-                      title: 'Berbaring',
-                      groupValue: controller.mobilitas,
-                      activeColor: const Color(0xFFBBF246),
-                      activeTextColor: Colors.black,
-                      verticalPadding: 4,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
-
-            // 3. Personal & Minat
-            _buildCard(
-              title: 'Personal & Minat',
-              children: [
-                _buildFieldLabel('Minat dan Hobi'),
-                const SizedBox(height: 4),
-                _buildTextField(
-                  hint: 'contoh: musik, berkebun, membaca',
-                  maxLines: 3,
-                  onChanged: (val) => controller.minatHobi = val,
-                ),
-                const SizedBox(height: 8),
-                const Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.info_outline,
-                      size: 16,
-                      color: Color(0xFF858387),
-                    ),
-                    SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        'Digunakan untuk rekomendasi aktivitas AI.',
-                        style: TextStyle(
-                          color: Color(0xFF858387),
-                          fontSize: 12,
-                          fontFamily: 'Plus Jakarta Sans',
-                          fontWeight: FontWeight.w600,
-                          height: 1.33,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
-
-            // Footer Actions
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Obx(
-                  () => ElevatedButton(
-                    onPressed: controller.isLoading ? null : controller.simpan,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF192126),
-                      disabledBackgroundColor: const Color(0xFF8C9093),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: controller.isLoading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Text(
-                            'Simpan Data',
-                            style: TextStyle(
-                              fontFamily: 'Plus Jakarta Sans',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: 0.14,
-                            ),
-                          ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextButton(
-                  onPressed: () => Get.back(),
-                  child: const Text(
-                    'Batal',
-                    style: TextStyle(
-                      color: Color(0xFF47464B),
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0.14,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            _buildIntro(context),
+            const SizedBox(height: 20),
+            _buildBasicInfoCard(context),
+            const SizedBox(height: 18),
+            _buildHealthBackgroundCard(context),
+            const SizedBox(height: 18),
+            _buildPersonalCard(context),
             const SizedBox(height: 24),
+            _buildFooterActions(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildFieldLabel(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        color: Color(0xFF47464B),
-        fontSize: 14,
-        fontFamily: 'Plus Jakarta Sans',
-        fontWeight: FontWeight.w500,
-        height: 1.43,
-        letterSpacing: 0.14,
+  Widget _buildIntro(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Profil Pasien', style: textTheme.headlineSmall),
+        const SizedBox(height: 8),
+        Text(
+          'Lengkapi data dasar agar pemantauan, jadwal, dan rekomendasi lebih akurat.',
+          style: textTheme.bodyMedium?.copyWith(color: AppTheme.textTertiary),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBasicInfoCard(BuildContext context) {
+    return _buildCard(
+      context: context,
+      icon: Icons.badge_outlined,
+      title: 'Informasi Dasar',
+      subtitle: 'Identitas utama pasien.',
+      children: [
+        _buildPhotoPicker(context),
+        const SizedBox(height: 22),
+        TextFormField(
+          onChanged: (value) => controller.namaLengkap = value,
+          textInputAction: TextInputAction.next,
+          autofillHints: const [AutofillHints.name],
+          decoration: AppTheme.inputDecoration(
+            labelText: 'Nama Lengkap',
+            hintText: 'Masukkan nama lengkap',
+            prefixIcon: const Icon(Icons.person_outline_rounded),
+          ),
+        ),
+        const SizedBox(height: 14),
+        TextFormField(
+          onChanged: (value) => controller.usia = value,
+          keyboardType: TextInputType.number,
+          textInputAction: TextInputAction.next,
+          decoration: AppTheme.inputDecoration(
+            labelText: 'Usia (Tahun)',
+            hintText: 'Contoh: 75',
+            prefixIcon: const Icon(Icons.cake_outlined),
+          ),
+        ),
+        const SizedBox(height: 18),
+        _buildSectionLabel(context, 'Jenis Kelamin'),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: _buildChoiceChip(
+                title: 'Laki-laki',
+                groupValue: controller.jenisKelamin,
+                selectedColor: AppTheme.primary,
+                selectedTextColor: Colors.white,
+                centerText: true,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _buildChoiceChip(
+                title: 'Perempuan',
+                groupValue: controller.jenisKelamin,
+                selectedColor: AppTheme.primary,
+                selectedTextColor: Colors.white,
+                centerText: true,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPhotoPicker(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Center(
+      child: Semantics(
+        button: true,
+        label: 'Unggah foto profil pasien',
+        child: Material(
+          color: Colors.transparent,
+          shape: const CircleBorder(),
+          child: InkWell(
+            customBorder: const CircleBorder(),
+            onTap: controller.pickImage,
+            child: Column(
+              children: [
+                Obx(
+                  () => Container(
+                    width: 104,
+                    height: 104,
+                    padding: controller.fotoProfilBytes == null
+                        ? const EdgeInsets.all(0)
+                        : EdgeInsets.zero,
+                    clipBehavior: Clip.antiAlias,
+                    decoration: BoxDecoration(
+                      color: AppTheme.surfaceMuted,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppTheme.border, width: 2),
+                      boxShadow: AppTheme.softShadow,
+                    ),
+                    child: controller.fotoProfilBytes == null
+                        ? const Icon(
+                            Icons.add_a_photo_outlined,
+                            color: AppTheme.textTertiary,
+                            size: 34,
+                          )
+                        : Image.memory(
+                            controller.fotoProfilBytes!,
+                            fit: BoxFit.cover,
+                          ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Unggah Foto Profil',
+                  style: textTheme.labelLarge?.copyWith(
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildCard({required String title, required List<Widget> children}) {
+  Widget _buildHealthBackgroundCard(BuildContext context) {
+    return _buildCard(
+      context: context,
+      icon: Icons.health_and_safety_outlined,
+      title: 'Latar Belakang Kesehatan',
+      subtitle: 'Kondisi umum untuk kebutuhan perawatan harian.',
+      children: [
+        TextFormField(
+          onChanged: (value) => controller.riwayatMedis = value,
+          maxLines: 3,
+          decoration: AppTheme.inputDecoration(
+            labelText: 'Riwayat Medis',
+            hintText: 'Contoh: hipertensi, diabetes',
+            prefixIcon: const Icon(Icons.medical_information_outlined),
+          ),
+        ),
+        const SizedBox(height: 18),
+        _buildSectionLabel(context, 'Kondisi Fisik'),
+        const SizedBox(height: 10),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildChoiceChip(
+              title: 'Mandiri',
+              groupValue: controller.kondisiFisik,
+              selectedColor: AppTheme.accent,
+              selectedTextColor: AppTheme.primary,
+              centerText: true,
+            ),
+            const SizedBox(height: 8),
+            _buildChoiceChip(
+              title: 'Butuh Bantuan Sebagian',
+              groupValue: controller.kondisiFisik,
+              selectedColor: AppTheme.accent,
+              selectedTextColor: AppTheme.primary,
+              centerText: true,
+            ),
+            const SizedBox(height: 8),
+            _buildChoiceChip(
+              title: 'Butuh Bantuan Penuh',
+              groupValue: controller.kondisiFisik,
+              selectedColor: AppTheme.accent,
+              selectedTextColor: AppTheme.primary,
+              centerText: true,
+            ),
+          ],
+        ),
+        const SizedBox(height: 18),
+        _buildSectionLabel(context, 'Tingkat Mobilitas'),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _buildChoiceChip(
+              title: 'Bisa Berjalan',
+              groupValue: controller.mobilitas,
+              selectedColor: AppTheme.accent,
+              selectedTextColor: AppTheme.primary,
+            ),
+            _buildChoiceChip(
+              title: 'Alat Bantu',
+              groupValue: controller.mobilitas,
+              selectedColor: AppTheme.accent,
+              selectedTextColor: AppTheme.primary,
+            ),
+            _buildChoiceChip(
+              title: 'Kursi Roda',
+              groupValue: controller.mobilitas,
+              selectedColor: AppTheme.accent,
+              selectedTextColor: AppTheme.primary,
+            ),
+            _buildChoiceChip(
+              title: 'Berbaring',
+              groupValue: controller.mobilitas,
+              selectedColor: AppTheme.accent,
+              selectedTextColor: AppTheme.primary,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPersonalCard(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return _buildCard(
+      context: context,
+      icon: Icons.interests_outlined,
+      title: 'Personal & Minat',
+      subtitle: 'Preferensi yang membantu rekomendasi aktivitas.',
+      children: [
+        TextFormField(
+          onChanged: (value) => controller.minatHobi = value,
+          maxLines: 3,
+          decoration: AppTheme.inputDecoration(
+            labelText: 'Minat dan Hobi',
+            hintText: 'Contoh: musik, berkebun, membaca',
+            prefixIcon: const Icon(Icons.favorite_border_rounded),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppTheme.accentSoft,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(
+                Icons.info_outline_rounded,
+                size: 18,
+                color: AppTheme.primary,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Informasi ini dipakai untuk membuat rekomendasi aktivitas AI yang lebih personal.',
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: AppTheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCard({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required List<Widget> children,
+  }) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x1418181B),
-            blurRadius: 16,
-            offset: Offset(0, 4),
-            spreadRadius: -4,
-          ),
-        ],
-      ),
+      decoration: AppTheme.cardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: Color(0xFF1C1B1C),
-              fontSize: 20,
-              fontFamily: 'Plus Jakarta Sans',
-              fontWeight: FontWeight.w600,
-              height: 1.40,
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: AppTheme.surfaceMuted,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(icon, color: AppTheme.primary, size: 22),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: textTheme.titleLarge),
+                    const SizedBox(height: 3),
+                    Text(
+                      subtitle,
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: AppTheme.textTertiary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 22),
           ...children,
         ],
       ),
     );
   }
 
-  Widget _buildTextField({
-    required String hint,
-    int maxLines = 1,
-    TextInputType keyboardType = TextInputType.text,
-    required Function(String) onChanged,
-  }) {
-    return TextFormField(
-      maxLines: maxLines,
-      keyboardType: keyboardType,
-      onChanged: onChanged,
-      style: const TextStyle(
-        fontFamily: 'Plus Jakarta Sans',
-        fontSize: 16,
-        color: Color(0xFF1B1B1B),
-      ),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: const TextStyle(
-          color: Color(0xFF6B7280),
-          fontSize: 16,
-          fontFamily: 'Plus Jakarta Sans',
-          fontWeight: FontWeight.w400,
-        ),
-        filled: true,
-        fillColor: const Color(0xFFF7F3F2),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFFC8C5CB)),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFFC8C5CB)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF858387)),
-        ),
-      ),
+  Widget _buildSectionLabel(BuildContext context, String text) {
+    return Text(
+      text,
+      style: Theme.of(
+        context,
+      ).textTheme.labelLarge?.copyWith(color: AppTheme.textSecondary),
     );
   }
 
-  Widget _buildRadioBtn({
+  Widget _buildChoiceChip({
     required String title,
     required RxString groupValue,
-    required Color activeColor,
-    required Color activeTextColor,
-    double verticalPadding = 8.0,
+    required Color selectedColor,
+    required Color selectedTextColor,
     bool centerText = false,
   }) {
     return Obx(() {
       final isSelected = groupValue.value == title;
-      return GestureDetector(
-        onTap: () => groupValue.value = title,
-        child: Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: verticalPadding,
-          ),
-          decoration: BoxDecoration(
-            color: isSelected ? activeColor : Colors.transparent,
-            borderRadius: BorderRadius.circular(9999),
-            border: Border.all(
-              color: isSelected ? activeColor : const Color(0xFFC8C5CB),
-            ),
-          ),
-          width: centerText ? double.infinity : null,
-          alignment: centerText ? Alignment.center : null,
-          child: Text(
-            title,
-            textAlign: centerText ? TextAlign.center : null,
-            style: TextStyle(
-              color: isSelected ? activeTextColor : const Color(0xFF47464B),
-              fontSize: 14,
-              fontFamily: 'Plus Jakarta Sans',
-              fontWeight: FontWeight.w500,
-              height: 1.43,
-              letterSpacing: 0.14,
+      return Semantics(
+        button: true,
+        selected: isSelected,
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(999),
+          child: InkWell(
+            onTap: () => groupValue.value = title,
+            borderRadius: BorderRadius.circular(999),
+            child: AnimatedContainer(
+              duration: AppTheme.motionFast,
+              curve: Curves.easeOutCubic,
+              constraints: const BoxConstraints(minHeight: 44),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+              decoration: BoxDecoration(
+                color: isSelected ? selectedColor : AppTheme.surface,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(
+                  color: isSelected ? selectedColor : AppTheme.borderStrong,
+                ),
+              ),
+              width: centerText ? double.infinity : null,
+              alignment: centerText ? Alignment.center : null,
+              child: Text(
+                title,
+                textAlign: centerText ? TextAlign.center : null,
+                style: Get.textTheme.labelLarge?.copyWith(
+                  color: isSelected
+                      ? selectedTextColor
+                      : AppTheme.textSecondary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
           ),
         ),
       );
     });
+  }
+
+  Widget _buildFooterActions() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Obx(
+          () => ElevatedButton(
+            onPressed: controller.isLoading ? null : controller.simpan,
+            child: AnimatedSwitcher(
+              duration: AppTheme.motionFast,
+              child: controller.isLoading
+                  ? const SizedBox(
+                      key: ValueKey('loading'),
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Text(key: ValueKey('label'), 'Simpan Data'),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        TextButton(onPressed: () => Get.back(), child: const Text('Batal')),
+      ],
+    );
   }
 }

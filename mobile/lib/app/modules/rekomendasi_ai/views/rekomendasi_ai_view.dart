@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import '../../../core/theme/app_theme.dart';
 import '../../../data/models/ai_recommendation_model.dart';
 import '../controllers/rekomendasi_ai_controller.dart';
 
@@ -8,175 +10,130 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
 
   @override
   Widget build(BuildContext context) {
+    final pagePadding = AppTheme.pagePadding(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.white.withValues(alpha: 0.80),
-        elevation: 0,
-        shape: const Border(
-          bottom: BorderSide(color: Color(0xFFF5F5F4), width: 1),
-        ),
+        title: const Text('Rekomendasi AI'),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          tooltip: 'Kembali',
+          icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => Get.back(),
         ),
-        title: const Text(
-          'Rekomendasi AI',
-          style: TextStyle(
-            color: Color(0xFF1C1917),
-            fontSize: 19,
-            fontFamily: 'Plus Jakarta Sans',
-            fontWeight: FontWeight.w600,
-            letterSpacing: -0.40,
-          ),
-        ),
       ),
-      body: Obx(() {
-        if (controller.isLoading) {
-          return const Center(
-            child: CircularProgressIndicator(color: Color(0xFF192126)),
-          );
-        }
+      body: SafeArea(
+        child: Obx(() {
+          if (controller.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-        if (controller.errorMessage != null) {
-          return _buildErrorState();
-        }
+          if (controller.errorMessage != null) {
+            return _buildErrorState(context);
+          }
 
-        return SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          return RefreshIndicator(
+            color: AppTheme.primary,
+            onRefresh: controller.fetchRecommendations,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
+              ),
+              padding: EdgeInsets.fromLTRB(pagePadding, 24, pagePadding, 40),
               children: [
-                _buildHeader(),
-                const SizedBox(height: 24),
+                _buildHeader(context),
+                const SizedBox(height: 22),
                 if (controller.recommendations.isEmpty &&
                     !controller.isGenerating)
-                  _buildEmptyState()
+                  _buildEmptyState(context)
                 else
-                  ...controller.recommendations.asMap().entries.map(
-                    (entry) => _buildAiCard(entry.value, entry.key),
+                  ...controller.recommendations.map(
+                    (recommendation) => _buildAiCard(context, recommendation),
                   ),
               ],
             ),
-          ),
-        );
-      }),
+          );
+        }),
+      ),
     );
   }
 
-  Widget _buildHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(
-          child: Row(
+  Widget _buildHeader(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppTheme.primary,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        boxShadow: AppTheme.liftShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFBBF246),
-                  shape: BoxShape.circle,
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: AppTheme.accent,
+                  borderRadius: BorderRadius.circular(18),
                 ),
                 child: const Icon(
-                  Icons.auto_awesome,
-                  color: Color(0xFF192126),
-                  size: 20,
+                  Icons.auto_awesome_rounded,
+                  color: AppTheme.primary,
+                  size: 25,
                 ),
               ),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Text(
-                  'Dianalisis dari data kesehatan dan aktivitas',
-                  style: TextStyle(
-                    color: Color(0xFF47464B),
-                    fontSize: 14,
-                    fontFamily: 'Plus Jakarta Sans',
-                    fontWeight: FontWeight.w500,
-                  ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Aktivitas yang disarankan',
+                      style: textTheme.titleLarge?.copyWith(
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Dianalisis dari data kesehatan dan rutinitas pasien.',
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.72),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-        ),
-        const SizedBox(width: 12),
-        Obx(
-          () => SizedBox(
-            height: 36,
-            child: ElevatedButton.icon(
+          const SizedBox(height: 18),
+          Obx(
+            () => ElevatedButton.icon(
               onPressed: controller.isGenerating
                   ? null
                   : () => controller.generateRecommendation(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.accent,
+                foregroundColor: AppTheme.primary,
+              ),
               icon: controller.isGenerating
                   ? const SizedBox(
-                      width: 14,
-                      height: 14,
+                      width: 18,
+                      height: 18,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: Color(0xFF192126),
+                        color: AppTheme.primary,
                       ),
                     )
-                  : const Icon(Icons.refresh, size: 16),
+                  : const Icon(Icons.refresh_rounded, size: 19),
               label: Text(
-                controller.isGenerating ? 'Memproses...' : 'Generate',
-                style: const TextStyle(
-                  fontFamily: 'Plus Jakarta Sans',
-                  fontWeight: FontWeight.w600,
-                  fontSize: 12,
-                ),
+                controller.isGenerating
+                    ? 'Menganalisis...'
+                    : 'Generate Rekomendasi',
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFBBF246),
-                foregroundColor: const Color(0xFF192126),
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE5E5E5)),
-      ),
-      child: Column(
-        children: [
-          Icon(
-            Icons.auto_awesome_outlined,
-            size: 48,
-            color: Colors.grey.shade300,
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'Belum ada rekomendasi',
-            style: TextStyle(
-              color: Color(0xFF77767B),
-              fontSize: 16,
-              fontFamily: 'Plus Jakarta Sans',
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Tekan tombol Generate untuk mendapatkan\nrekomendasi aktivitas dari AI',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Color(0xFFA3A1A6),
-              fontSize: 14,
-              fontFamily: 'Plus Jakarta Sans',
-              height: 1.5,
             ),
           ),
         ],
@@ -184,279 +141,261 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
     );
   }
 
-  Widget _buildErrorState() {
+  Widget _buildEmptyState(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 42, horizontal: 24),
+      decoration: AppTheme.cardDecoration(),
+      child: Column(
+        children: [
+          Container(
+            width: 70,
+            height: 70,
+            decoration: BoxDecoration(
+              color: AppTheme.accentSoft,
+              borderRadius: BorderRadius.circular(26),
+            ),
+            child: const Icon(
+              Icons.auto_awesome_outlined,
+              size: 36,
+              color: AppTheme.primary,
+            ),
+          ),
+          const SizedBox(height: 18),
+          Text('Belum ada rekomendasi', style: textTheme.titleMedium),
+          const SizedBox(height: 6),
+          Text(
+            'Tekan tombol generate untuk membuat rekomendasi aktivitas dari AI.',
+            textAlign: TextAlign.center,
+            style: textTheme.bodyMedium?.copyWith(color: AppTheme.textTertiary),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(24),
+        child: Container(
+          width: double.infinity,
+          constraints: const BoxConstraints(maxWidth: 420),
+          padding: const EdgeInsets.all(24),
+          decoration: AppTheme.cardDecoration(),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 70,
+                height: 70,
+                decoration: BoxDecoration(
+                  color: AppTheme.errorSoft,
+                  borderRadius: BorderRadius.circular(26),
+                ),
+                child: const Icon(
+                  Icons.cloud_off_outlined,
+                  size: 36,
+                  color: AppTheme.error,
+                ),
+              ),
+              const SizedBox(height: 18),
+              Text('Gagal memuat rekomendasi', style: textTheme.titleMedium),
+              const SizedBox(height: 8),
+              Text(
+                controller.errorMessage ?? 'Terjadi kesalahan',
+                textAlign: TextAlign.center,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: AppTheme.textTertiary,
+                ),
+              ),
+              const SizedBox(height: 22),
+              ElevatedButton.icon(
+                onPressed: controller.fetchRecommendations,
+                icon: const Icon(Icons.refresh_rounded, size: 18),
+                label: const Text('Coba Lagi'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAiCard(BuildContext context, AiRecommendationModel rec) {
+    final textTheme = Theme.of(context).textTheme;
+    final statusStyle = _statusStyle(rec);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Container(
+        decoration: AppTheme.cardDecoration(
+          borderColor: rec.isApproved ? AppTheme.accent : AppTheme.border,
+        ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(
-              Icons.cloud_off_outlined,
-              size: 48,
-              color: Colors.grey.shade400,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              controller.errorMessage ?? 'Terjadi kesalahan',
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Color(0xFF77767B),
-                fontSize: 14,
-                fontFamily: 'Plus Jakarta Sans',
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppTheme.accentSoft,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          RekomendasiAiController.categoryLabel(rec.category),
+                          style: textTheme.labelMedium?.copyWith(
+                            color: AppTheme.primary,
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      const Icon(
+                        Icons.timer_outlined,
+                        size: 15,
+                        color: AppTheme.textTertiary,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        RekomendasiAiController.durationLabel(
+                          rec.durationMinutes,
+                        ),
+                        style: textTheme.labelMedium?.copyWith(
+                          color: AppTheme.textTertiary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    rec.activityName,
+                    style: textTheme.titleLarge?.copyWith(fontSize: 19),
+                  ),
+                  if (rec.frequencySuggestion != null) ...[
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.repeat_rounded,
+                          size: 15,
+                          color: AppTheme.textTertiary,
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            rec.frequencySuggestion!,
+                            style: textTheme.labelMedium?.copyWith(
+                              color: AppTheme.textTertiary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                  if (rec.displayReason.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    Text(
+                      rec.displayReason,
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: AppTheme.textSecondary,
+                        height: 1.55,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: statusStyle.softColor,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      RekomendasiAiController.statusLabel(rec.status),
+                      style: textTheme.labelMedium?.copyWith(
+                        color: statusStyle.color,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: () => controller.fetchRecommendations(),
-              icon: const Icon(Icons.refresh, size: 18),
-              label: const Text('Coba Lagi'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF192126),
-                foregroundColor: Colors.white,
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+            if (rec.isPending) ...[
+              const Divider(height: 1),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton.icon(
+                      onPressed: () => controller.approveRecommendation(rec),
+                      icon: const Icon(Icons.add_task_rounded, size: 18),
+                      label: const Text('Tambahkan'),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                    ),
+                  ),
+                  Container(width: 1, height: 28, color: AppTheme.border),
+                  Expanded(
+                    child: TextButton.icon(
+                      onPressed: () => controller.rejectRecommendation(rec),
+                      icon: const Icon(Icons.close_rounded, size: 18),
+                      label: const Text('Tolak'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppTheme.textTertiary,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
+            ],
           ],
         ),
       ),
     );
   }
 
-  Widget _buildAiCard(AiRecommendationModel rec, int index) {
-    final status = rec.status;
-    final isApproved = rec.isApproved;
-    final isRejected = rec.isRejected;
-    final isPending = rec.isPending;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isApproved
-              ? const Color(0xFFBBF246)
-              : isRejected
-              ? const Color(0xFFE5E5E5)
-              : const Color(0xFFE5E5E5),
-          width: isApproved ? 1.5 : 1,
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0A000000),
-            blurRadius: 10,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isApproved
-                            ? const Color(0xFFBBF246).withValues(alpha: 0.3)
-                            : const Color(0xFFF2F2F2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        RekomendasiAiController.categoryLabel(rec.category),
-                        style: const TextStyle(
-                          color: Color(0xFF47464B),
-                          fontSize: 12,
-                          fontFamily: 'Plus Jakarta Sans',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.timer_outlined,
-                          size: 14,
-                          color: Color(0xFF77767B),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          RekomendasiAiController.durationLabel(
-                            rec.durationMinutes,
-                          ),
-                          style: const TextStyle(
-                            color: Color(0xFF77767B),
-                            fontSize: 12,
-                            fontFamily: 'Plus Jakarta Sans',
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  rec.activityName,
-                  style: const TextStyle(
-                    color: Color(0xFF1C1B1C),
-                    fontSize: 18,
-                    fontFamily: 'Plus Jakarta Sans',
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                if (rec.frequencySuggestion != null) ...[
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.repeat,
-                        size: 14,
-                        color: Color(0xFF77767B),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        rec.frequencySuggestion!,
-                        style: const TextStyle(
-                          color: Color(0xFF77767B),
-                          fontSize: 12,
-                          fontFamily: 'Plus Jakarta Sans',
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-                const SizedBox(height: 8),
-                Text(
-                  rec.displayReason,
-                  style: const TextStyle(
-                    color: Color(0xFF47464B),
-                    fontSize: 14,
-                    fontFamily: 'Plus Jakarta Sans',
-                    height: 1.5,
-                  ),
-                ),
-                if (!isPending) ...[
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isApproved
-                          ? const Color(0xFFBBF246).withValues(alpha: 0.2)
-                          : const Color(0xFFF2F2F2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      RekomendasiAiController.statusLabel(status),
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontFamily: 'Plus Jakarta Sans',
-                        fontWeight: FontWeight.w600,
-                        color: isApproved
-                            ? const Color(0xFF192126)
-                            : const Color(0xFF77767B),
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          if (isPending)
-            Container(
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: Color(0xFFF5F5F4), width: 1),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextButton.icon(
-                      onPressed: () => controller.approveRecommendation(rec),
-                      icon: const Icon(
-                        Icons.add_task,
-                        color: Color(0xFF192126),
-                        size: 18,
-                      ),
-                      label: const Text(
-                        'Tambahkan ke Jadwal',
-                        style: TextStyle(
-                          color: Color(0xFF192126),
-                          fontSize: 14,
-                          fontFamily: 'Plus Jakarta Sans',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(16),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: 1,
-                    height: 24,
-                    color: const Color(0xFFF5F5F4),
-                  ),
-                  Expanded(
-                    child: TextButton.icon(
-                      onPressed: () => controller.rejectRecommendation(rec),
-                      icon: const Icon(
-                        Icons.close,
-                        color: Color(0xFF77767B),
-                        size: 18,
-                      ),
-                      label: const Text(
-                        'Tolak',
-                        style: TextStyle(
-                          color: Color(0xFF77767B),
-                          fontSize: 14,
-                          fontFamily: 'Plus Jakarta Sans',
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                            bottomRight: Radius.circular(16),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-        ],
-      ),
+  _RecommendationStatusStyle _statusStyle(AiRecommendationModel rec) {
+    if (rec.isApproved) {
+      return const _RecommendationStatusStyle(
+        color: AppTheme.primary,
+        softColor: AppTheme.accentSoft,
+      );
+    }
+    if (rec.isRejected) {
+      return const _RecommendationStatusStyle(
+        color: AppTheme.textTertiary,
+        softColor: AppTheme.surfaceMuted,
+      );
+    }
+    return const _RecommendationStatusStyle(
+      color: AppTheme.warning,
+      softColor: AppTheme.warningSoft,
     );
   }
+}
+
+class _RecommendationStatusStyle {
+  final Color color;
+  final Color softColor;
+
+  const _RecommendationStatusStyle({
+    required this.color,
+    required this.softColor,
+  });
 }

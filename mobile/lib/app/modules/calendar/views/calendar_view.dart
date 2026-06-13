@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import '../../../core/theme/app_theme.dart';
 import '../../../data/models/schedule_model.dart';
 import '../../../routes/app_pages.dart';
 import '../controllers/calendar_controller.dart';
@@ -9,267 +11,326 @@ class CalendarView extends GetView<CalendarController> {
 
   @override
   Widget build(BuildContext context) {
+    final pagePadding = AppTheme.pagePadding(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFFDF8F8),
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.white.withValues(alpha: 0.80),
-        elevation: 0,
-        shape: const Border(
-          bottom: BorderSide(color: Color(0xFFF5F5F4), width: 1),
-        ),
+        title: const Text('Jadwal Perawatan'),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          tooltip: 'Kembali',
+          icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => Get.back(),
         ),
-        title: const Text(
-          'CareTrack',
-          style: TextStyle(
-            color: Color(0xFF1C1917),
-            fontSize: 19,
-            fontFamily: 'Plus Jakarta Sans',
-            fontWeight: FontWeight.w600,
-            letterSpacing: -0.40,
+      ),
+      body: SafeArea(
+        child: RefreshIndicator(
+          color: AppTheme.primary,
+          onRefresh: () async => controller.refreshSchedules(),
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            padding: EdgeInsets.fromLTRB(pagePadding, 20, pagePadding, 112),
+            children: [
+              _buildHeader(context),
+              const SizedBox(height: 20),
+              _buildDateTabs(context),
+              const SizedBox(height: 16),
+              _buildAddScheduleButton(context),
+              const SizedBox(height: 22),
+              _buildScheduleSection(context),
+            ],
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            minHeight: MediaQuery.of(context).size.height,
-          ),
-          child: Container(
-            width: double.infinity,
-            decoration: const BoxDecoration(color: Color(0xFFFDF8F8)),
-            child: Stack(
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Obx(() {
+      final selected = controller.selectedDate;
+      final count = controller.selectedDateSchedules.length;
+
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // --- Konten Utama ---
-                Container(
-                  width: double.infinity,
-                  // Padding bottom disesuaikan
-                  padding: const EdgeInsets.only(top: 24, bottom: 100),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 24,
-                    children: [
-                      _buildDateTabs(),
-                      _buildAddScheduleButton(),
-                      Obx(
-                        () => Column(
-                          children: controller.selectedDateSchedules
-                              .map(
-                                (schedule) =>
-                                    _buildScheduleCard(schedule, controller),
-                              )
-                              .toList(),
-                        ),
-                      ),
-                    ],
+                Text(
+                  '${_weekdayFull(selected)}, ${selected.day} ${_monthName(selected.month)}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: _dateHeaderStyle(context),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  count == 0
+                      ? 'Belum ada kegiatan hari ini'
+                      : '$count kegiatan terjadwal',
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: AppTheme.textTertiary,
                   ),
                 ),
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDateTabs() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Obx(
-        () => SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: controller.dateTabs
-                .map((date) => _buildDateChip(date))
-                .toList(),
+          const SizedBox(width: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+            decoration: BoxDecoration(
+              color: count == 0 ? AppTheme.surfaceMuted : AppTheme.accentSoft,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              '$count kegiatan',
+              style: textTheme.labelMedium?.copyWith(
+                color: AppTheme.primary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
+        ],
+      );
+    });
+  }
+
+  TextStyle? _dateHeaderStyle(BuildContext context) {
+    return Theme.of(context).textTheme.titleLarge?.copyWith(
+      fontSize: 22,
+      fontWeight: FontWeight.w700,
+      letterSpacing: -0.25,
+      color: AppTheme.textPrimary,
+    );
+  }
+
+  Widget _buildDateTabs(BuildContext context) {
+    return Obx(
+      () => SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        child: Row(
+          children: controller.dateTabs.map((date) {
+            return _buildDateChip(context, date);
+          }).toList(),
         ),
       ),
     );
   }
 
-  Widget _buildDateChip(DateTime date) {
+  Widget _buildDateChip(BuildContext context, DateTime date) {
     final selected = controller.isSelectedDate(date);
+    final textTheme = Theme.of(context).textTheme;
     const days = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 
-    return GestureDetector(
-      onTap: () => controller.selectDate(date),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOutCubic,
-        constraints: const BoxConstraints(minWidth: 64),
-        margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: selected ? const Color(0xFF192126) : const Color(0xFFBBF246),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: selected ? const Color(0xFF192126) : const Color(0x33C8C5CB),
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: Semantics(
+        button: true,
+        selected: selected,
+        label: '${days[date.weekday - 1]} ${date.day}',
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          child: InkWell(
+            onTap: () => controller.selectDate(date),
+            borderRadius: BorderRadius.circular(16),
+            child: AnimatedContainer(
+              duration: AppTheme.motion,
+              curve: Curves.easeOutCubic,
+              constraints: const BoxConstraints(minWidth: 58, minHeight: 66),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: selected ? AppTheme.primary : AppTheme.surface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: selected ? AppTheme.primary : AppTheme.border,
+                ),
+                boxShadow: selected ? AppTheme.softShadow : null,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    days[date.weekday - 1],
+                    style: textTheme.labelSmall?.copyWith(
+                      color: selected
+                          ? Colors.white.withValues(alpha: 0.72)
+                          : AppTheme.textTertiary,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    date.day.toString(),
+                    style: textTheme.titleMedium?.copyWith(
+                      color: selected ? Colors.white : AppTheme.textPrimary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: selected
-                  ? const Color(0x26000000)
-                  : const Color(0x0CA1A1AA),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              days[date.weekday - 1],
-              style: TextStyle(
-                color: selected
-                    ? Colors.white.withValues(alpha: 0.8)
-                    : const Color(0xFF47464B),
-                fontSize: 12,
-                fontFamily: 'Plus Jakarta Sans',
-                fontWeight: FontWeight.w600,
-                height: 1.33,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              date.day.toString(),
-              style: TextStyle(
-                color: selected ? Colors.white : const Color(0xFF1C1B1C),
-                fontSize: 20,
-                fontFamily: 'Plus Jakarta Sans',
-                fontWeight: FontWeight.w700,
-                height: 1.40,
-              ),
-            ),
-          ],
         ),
       ),
     );
   }
 
-  Widget _buildAddScheduleButton() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: InkWell(
-        onTap: _showCreateBottomSheet,
-        borderRadius: BorderRadius.circular(18),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-          decoration: BoxDecoration(
-            color: const Color(0xFF192126),
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x1A000000),
-                blurRadius: 16,
-                offset: Offset(0, 6),
-              ),
-            ],
+  Widget _buildAddScheduleButton(BuildContext context) {
+    return ElevatedButton.icon(
+      onPressed: _showCreateBottomSheet,
+      icon: const Icon(Icons.add_rounded, size: 18),
+      label: const Text('Tambah Kegiatan'),
+    );
+  }
+
+  Widget _buildScheduleSection(BuildContext context) {
+    return Obx(() {
+      if (controller.isLoading) {
+        return const Padding(
+          padding: EdgeInsets.symmetric(vertical: 48),
+          child: Center(child: CircularProgressIndicator()),
+        );
+      }
+
+      final schedules = controller.selectedDateSchedules;
+      if (schedules.isEmpty) {
+        return _buildEmptyScheduleState(context);
+      }
+
+      return Column(
+        children: schedules
+            .map((schedule) => _buildScheduleCard(context, schedule))
+            .toList(),
+      );
+    });
+  }
+
+  Widget _buildEmptyScheduleState(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 24),
+      decoration: AppTheme.cardDecoration(),
+      child: Column(
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: AppTheme.accentSoft,
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: const Icon(
+              Icons.calendar_month_rounded,
+              color: AppTheme.primary,
+              size: 26,
+            ),
           ),
-          child: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.add, color: Colors.white, size: 20),
-              SizedBox(width: 10),
-              Text(
-                'Tambah Kegiatan',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                  fontFamily: 'Plus Jakarta Sans',
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
+          const SizedBox(height: 14),
+          Text(
+            'Belum ada kegiatan',
+            style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
           ),
-        ),
+          const SizedBox(height: 4),
+          Text(
+            'Tambahkan kegiatan manual, pilih template,\natau gunakan rekomendasi AI.',
+            textAlign: TextAlign.center,
+            style: textTheme.bodySmall?.copyWith(color: AppTheme.textTertiary),
+          ),
+          const SizedBox(height: 16),
+          FilledButton.icon(
+            onPressed: _showCreateBottomSheet,
+            icon: const Icon(Icons.add_rounded, size: 16),
+            label: const Text('Tambah Kegiatan'),
+          ),
+        ],
       ),
     );
   }
 
   void _showCreateBottomSheet() {
     Get.bottomSheet(
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(24),
-            topRight: Radius.circular(24),
+      SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: AppTheme.borderStrong,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+              ),
+              Text('Tambah Kegiatan', style: Get.textTheme.titleLarge),
+              const SizedBox(height: 4),
+              Text(
+                'Pilih cara paling cepat untuk membuat jadwal hari ini.',
+                style: Get.textTheme.bodySmall?.copyWith(
+                  color: AppTheme.textTertiary,
+                ),
+              ),
+              const SizedBox(height: 20),
+              _buildBottomSheetOption(
+                icon: Icons.edit_calendar_outlined,
+                title: 'Input Manual',
+                subtitle: 'Masukkan detail kegiatan sendiri',
+                onTap: () {
+                  Get.back();
+                  controller.navigateToAddSchedule();
+                },
+              ),
+              const SizedBox(height: 10),
+              _buildBottomSheetOption(
+                icon: Icons.view_list_outlined,
+                title: 'Pilih dari Template',
+                subtitle: 'Gunakan template kegiatan rutin',
+                onTap: () {
+                  Get.back();
+                  Get.toNamed(
+                    Routes.TEMPLATE_JADWAL,
+                    arguments: {'elderly_id': controller.elderlyId},
+                  );
+                },
+              ),
+              const SizedBox(height: 10),
+              _buildBottomSheetOption(
+                icon: Icons.auto_awesome_outlined,
+                title: 'Rekomendasi AI',
+                subtitle: 'Saran berdasarkan riwayat kesehatan',
+                iconColor: AppTheme.primary,
+                iconBgColor: AppTheme.accent,
+                onTap: () {
+                  Get.back();
+                  Get.toNamed(
+                    Routes.REKOMENDASI_AI,
+                    arguments: {'elderly_id': controller.elderlyId},
+                  );
+                },
+              ),
+            ],
           ),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Tambah Kegiatan',
-              style: TextStyle(
-                color: Color(0xFF1C1B1C),
-                fontSize: 20,
-                fontFamily: 'Plus Jakarta Sans',
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Pilih metode penambahan kegiatan untuk jadwal hari ini.',
-              style: TextStyle(
-                color: Color(0xFF77767B),
-                fontSize: 14,
-                fontFamily: 'Plus Jakarta Sans',
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-            const SizedBox(height: 24),
-            _buildBottomSheetOption(
-              icon: Icons.edit_calendar_outlined,
-              title: 'Input Manual',
-              subtitle: 'Masukkan detail kegiatan secara manual',
-              onTap: () {
-                Get.back(); // close bottom sheet
-                controller.navigateToAddSchedule();
-              },
-            ),
-            const SizedBox(height: 16),
-            _buildBottomSheetOption(
-              icon: Icons.view_list_outlined,
-              title: 'Pilih dari Template',
-              subtitle: 'Gunakan template kegiatan yang sering dipakai',
-              onTap: () {
-                Get.back();
-                Get.toNamed(
-                  Routes.TEMPLATE_JADWAL,
-                  arguments: {'elderly_id': controller.elderlyId},
-                );
-              },
-            ),
-            const SizedBox(height: 16),
-            _buildBottomSheetOption(
-              icon: Icons.auto_awesome_outlined,
-              title: 'Rekomendasi AI',
-              subtitle: 'Dapatkan saran kegiatan berdasarkan riwayat',
-              iconColor: const Color(0xFF192126),
-              iconBgColor: const Color(0xFFBBF246),
-              onTap: () {
-                Get.back();
-                Get.toNamed(
-                  Routes.REKOMENDASI_AI,
-                  arguments: {'elderly_id': controller.elderlyId},
-                );
-              },
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
       ),
+      backgroundColor: AppTheme.surface,
       isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
     );
   }
 
@@ -278,211 +339,246 @@ class CalendarView extends GetView<CalendarController> {
     required String title,
     required String subtitle,
     required VoidCallback onTap,
-    Color iconColor = const Color(0xFF1C1B1C),
-    Color iconBgColor = const Color(0xFFF2F2F2),
+    Color iconColor = AppTheme.textPrimary,
+    Color iconBgColor = AppTheme.surfaceMuted,
   }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: const Color(0xFFE5E5E5)),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: iconBgColor,
-                shape: BoxShape.circle,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Ink(
+          padding: const EdgeInsets.all(14),
+          decoration: AppTheme.cardDecoration(radius: 16, elevated: false),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: iconBgColor,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(icon, color: iconColor, size: 20),
               ),
-              child: Icon(icon, color: iconColor),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: Get.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: Get.textTheme.bodySmall?.copyWith(
+                        color: AppTheme.textTertiary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.chevron_right_rounded,
+                color: AppTheme.textTertiary,
+                size: 20,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScheduleCard(BuildContext context, ScheduleModel schedule) {
+    final textTheme = Theme.of(context).textTheme;
+    final isCompleted = schedule.isCompleted;
+    final time = schedule.scheduledAt;
+    final typeStyle = _typeStyle(schedule.scheduleType);
+    final hour12 = time.hour > 12
+        ? time.hour - 12
+        : (time.hour == 0 ? 12 : time.hour);
+    final timeString =
+        '${hour12.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+    final amPm = time.hour >= 12 ? 'PM' : 'AM';
+
+    return AnimatedOpacity(
+      duration: AppTheme.motionFast,
+      opacity: isCompleted ? 0.55 : 1,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: AppTheme.cardDecoration(
+            radius: 18,
+            elevated: !isCompleted,
+            borderColor: isCompleted ? AppTheme.border : typeStyle.softColor,
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: typeStyle.softColor,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(typeStyle.icon, color: typeStyle.color, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      schedule.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        decoration: isCompleted
+                            ? TextDecoration.lineThrough
+                            : null,
+                        color: isCompleted
+                            ? AppTheme.textTertiary
+                            : AppTheme.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.timer_outlined,
+                          size: 13,
+                          color: AppTheme.textTertiary,
+                        ),
+                        const SizedBox(width: 3),
+                        Text(
+                          '${schedule.durationMinutes ?? 0} menit',
+                          style: textTheme.labelSmall?.copyWith(
+                            color: AppTheme.textTertiary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    title,
-                    style: const TextStyle(
-                      color: Color(0xFF1C1B1C),
-                      fontSize: 16,
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontWeight: FontWeight.w600,
+                    timeString,
+                    style: textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 4),
                   Text(
-                    subtitle,
-                    style: const TextStyle(
-                      color: Color(0xFF77767B),
-                      fontSize: 12,
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontWeight: FontWeight.w400,
+                    amPm,
+                    style: textTheme.labelSmall?.copyWith(
+                      color: AppTheme.textTertiary,
                     ),
                   ),
                 ],
               ),
-            ),
-            const Icon(Icons.chevron_right, color: Color(0xFFC8C5CB)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildScheduleCard(
-    ScheduleModel schedule,
-    CalendarController controller,
-  ) {
-    final isCompleted = schedule.isCompleted;
-    final time = schedule.scheduledAt;
-    final title = schedule.title;
-    final type = schedule.scheduleType;
-
-    IconData iconData = Icons.event;
-    Color iconBgColor = const Color(0xFFE3E1EC);
-    if (type == 'medication') {
-      iconData = Icons.medication_outlined;
-      iconBgColor = const Color(0xFFFFE6E6);
-    } else if (type == 'routine_checkup') {
-      iconData = Icons.health_and_safety_outlined;
-      iconBgColor = const Color(0xFFE6F3E6);
-    } else if (type == 'daily_activity') {
-      iconData = Icons.directions_walk_outlined;
-      iconBgColor = const Color(0xFFFFEBDD);
-    }
-
-    String timeString =
-        "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
-    String amPm = time.hour >= 12 ? "PM" : "AM";
-    int hour12 = time.hour > 12
-        ? time.hour - 12
-        : (time.hour == 0 ? 12 : time.hour);
-    timeString =
-        "${hour12.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
-
-    Widget cardContent = Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      decoration: ShapeDecoration(
-        color: isCompleted
-            ? Colors.white.withValues(alpha: 0.50)
-            : Colors.white,
-        shape: RoundedRectangleBorder(
-          side: isCompleted
-              ? const BorderSide(width: 1, color: Color(0x33C8C5CB))
-              : BorderSide.none,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        shadows: isCompleted
-            ? []
-            : const [
-                BoxShadow(
-                  color: Color(0x1EA1A1AA),
-                  blurRadius: 16,
-                  offset: Offset(0, 4),
-                  spreadRadius: 0,
-                ),
-              ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: ShapeDecoration(
-              color: iconBgColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(9999),
-              ),
-            ),
-            child: Icon(iconData, color: const Color(0xFF1C1B1C), size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    decoration: isCompleted ? TextDecoration.lineThrough : null,
-                    color: const Color(0xFF1C1B1C),
-                    fontSize: 14,
-                    fontFamily: 'Plus Jakarta Sans',
-                    fontWeight: FontWeight.w500,
-                    height: 1.43,
-                    letterSpacing: 0.14,
-                  ),
-                ),
-                Text(
-                  '${schedule.durationMinutes ?? 0} min',
-                  style: const TextStyle(
-                    color: Color(0xFF47464B),
-                    fontSize: 14,
-                    fontFamily: 'Plus Jakarta Sans',
-                    fontWeight: FontWeight.w400,
-                    height: 1.43,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                timeString,
-                textAlign: TextAlign.right,
-                style: TextStyle(
-                  decoration: isCompleted ? TextDecoration.lineThrough : null,
-                  color: const Color(0xFF1C1B1C),
-                  fontSize: 14,
-                  fontFamily: 'Plus Jakarta Sans',
-                  fontWeight: FontWeight.w500,
-                  height: 1.43,
-                  letterSpacing: 0.14,
-                ),
-              ),
-              Text(
-                amPm,
-                textAlign: TextAlign.right,
-                style: const TextStyle(
-                  color: Color(0xFF47464B),
-                  fontSize: 12,
-                  fontFamily: 'Plus Jakarta Sans',
-                  fontWeight: FontWeight.w600,
-                  height: 1.33,
+              const SizedBox(width: 4),
+              IconButton(
+                tooltip: isCompleted
+                    ? 'Tandai belum selesai'
+                    : 'Tandai selesai',
+                visualDensity: VisualDensity.compact,
+                onPressed: () =>
+                    controller.toggleScheduleCompletion(schedule.id),
+                icon: Icon(
+                  isCompleted
+                      ? Icons.check_circle_rounded
+                      : Icons.radio_button_unchecked_rounded,
+                  size: 22,
+                  color: isCompleted ? AppTheme.success : AppTheme.textTertiary,
                 ),
               ),
             ],
           ),
-          const SizedBox(width: 16),
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => controller.toggleScheduleCompletion(schedule.id),
-            child: Padding(
-              padding: const EdgeInsets.all(4),
-              child: Icon(
-                isCompleted ? Icons.check_circle : Icons.radio_button_unchecked,
-                color: isCompleted ? const Color(0xFFBBF246) : Colors.grey,
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
-
-    return isCompleted
-        ? Opacity(opacity: 0.60, child: cardContent)
-        : cardContent;
   }
+
+  _ScheduleTypeStyle _typeStyle(String type) {
+    switch (type) {
+      case 'medication':
+        return const _ScheduleTypeStyle(
+          icon: Icons.medication_outlined,
+          color: AppTheme.error,
+          softColor: AppTheme.errorSoft,
+        );
+      case 'routine_checkup':
+        return const _ScheduleTypeStyle(
+          icon: Icons.health_and_safety_outlined,
+          color: AppTheme.success,
+          softColor: AppTheme.successSoft,
+        );
+      case 'daily_activity':
+        return const _ScheduleTypeStyle(
+          icon: Icons.directions_walk_rounded,
+          color: AppTheme.warning,
+          softColor: AppTheme.warningSoft,
+        );
+      default:
+        return const _ScheduleTypeStyle(
+          icon: Icons.event_rounded,
+          color: AppTheme.primary,
+          softColor: AppTheme.surfaceMuted,
+        );
+    }
+  }
+
+  String _weekdayFull(DateTime date) {
+    const days = [
+      'Senin',
+      'Selasa',
+      'Rabu',
+      'Kamis',
+      'Jumat',
+      'Sabtu',
+      'Minggu',
+    ];
+    return days[date.weekday - 1];
+  }
+
+  String _monthName(int month) {
+    const months = [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ];
+    return months[month - 1];
+  }
+}
+
+class _ScheduleTypeStyle {
+  final IconData icon;
+  final Color color;
+  final Color softColor;
+
+  const _ScheduleTypeStyle({
+    required this.icon,
+    required this.color,
+    required this.softColor,
+  });
 }

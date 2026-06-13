@@ -35,11 +35,12 @@ void main() async {
 
   runApp(
     GetMaterialApp(
-      title: "Application",
+      title: 'Smart Caregiver',
       initialBinding: InitialBinding(),
       initialRoute: AppPages.INITIAL,
       getPages: AppPages.routes,
       theme: AppTheme.light,
+      themeMode: ThemeMode.light,
       debugShowCheckedModeBanner: false,
     ),
   );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
+
+import '../../../core/theme/app_theme.dart';
 import '../controllers/jadwal_lansia_controller.dart';
 
 class JadwalLansiaView extends GetView<JadwalLansiaController> {
@@ -8,252 +9,183 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
 
   @override
   Widget build(BuildContext context) {
+    final pagePadding = AppTheme.pagePadding(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.white.withValues(alpha: 0.80),
-        elevation: 0,
-        shape: const Border(
-          bottom: BorderSide(color: Color(0xFFF5F5F4), width: 1),
-        ),
+        title: const Text('Jadwal Caregiver'),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          tooltip: 'Kembali',
+          icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => Get.back(),
         ),
-        title: const Text(
-          'Jadwal Oleh Caregiver',
-          style: TextStyle(
-            color: Color(0xFF1C1917),
-            fontSize: 19,
-            fontFamily: 'Plus Jakarta Sans',
-            fontWeight: FontWeight.w600,
-            letterSpacing: -0.40,
-          ),
+      ),
+      body: SafeArea(
+        child: ListView(
+          physics: const BouncingScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(pagePadding, 24, pagePadding, 40),
+          children: [
+            _buildHeader(context),
+            const SizedBox(height: 20),
+            _buildFormCard(context),
+            const SizedBox(height: 24),
+            _buildSaveButton(),
+          ],
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 24.0),
-            child: Center(
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFFF5F5F4), width: 1),
-                  image: const DecorationImage(
-                    image: AssetImage('assets/images/caregiver_profile.png'),
-                    fit: BoxFit.fill,
-                  ),
-                ),
-              ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Tambah Kegiatan', style: textTheme.headlineSmall),
+        const SizedBox(height: 8),
+        Text(
+          'Buat pengingat perawatan, aktivitas harian, atau pemeriksaan rutin.',
+          style: textTheme.bodyMedium?.copyWith(color: AppTheme.textTertiary),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFormCard(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: AppTheme.cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextFormField(
+            controller: controller.titleController,
+            textInputAction: TextInputAction.next,
+            decoration: AppTheme.inputDecoration(
+              labelText: 'Nama Aktivitas',
+              hintText: 'Contoh: Jalan pagi, minum obat',
+              prefixIcon: const Icon(Icons.edit_calendar_outlined),
             ),
           ),
+          const SizedBox(height: 14),
+          TextFormField(
+            controller: controller.descriptionController,
+            maxLines: 3,
+            decoration: AppTheme.inputDecoration(
+              labelText: 'Deskripsi',
+              hintText: 'Catatan singkat untuk kegiatan ini (opsional)',
+              prefixIcon: const Icon(Icons.notes_outlined),
+            ),
+          ),
+          const SizedBox(height: 20),
+          _buildLabel(context, 'Tipe Kegiatan'),
+          const SizedBox(height: 10),
+          Obx(
+            () => Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: JadwalLansiaController.typeOptions.map((option) {
+                final value = option['value'] as String;
+                final label = option['label'] as String;
+                final icon = option['icon'] as IconData;
+                final isSelected = controller.selectedType == value;
+                return _buildTypeChip(
+                  label: label,
+                  icon: icon,
+                  isSelected: isSelected,
+                  onTap: () => controller.selectType(value, label),
+                );
+              }).toList(),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Obx(
+            () => _buildPickerField(
+              context: context,
+              label: 'Tanggal',
+              value: controller.dateDisplay,
+              icon: Icons.calendar_today_rounded,
+              onTap: _pickDate,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Obx(
+            () => _buildPickerField(
+              context: context,
+              label: 'Waktu',
+              value: controller.timeDisplay,
+              icon: Icons.access_time_rounded,
+              onTap: _pickTime,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Obx(
+            () => _buildPickerField(
+              context: context,
+              label: 'Mengulang',
+              value: controller.recurrenceLabel,
+              icon: Icons.repeat_rounded,
+              onTap: _pickRecurrence,
+            ),
+          ),
+          const SizedBox(height: 20),
+          _buildAlarmSection(context),
         ],
       ),
-      body: SingleChildScrollView(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 884),
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.only(bottom: 48),
-            decoration: const BoxDecoration(color: Color(0xFFFAFAFA)),
-            child: Column(
+    );
+  }
+
+  Widget _buildLabel(BuildContext context, String label) {
+    return Text(
+      label,
+      style: Theme.of(
+        context,
+      ).textTheme.labelLarge?.copyWith(color: AppTheme.textSecondary),
+    );
+  }
+
+  Widget _buildTypeChip({
+    required String label,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(999),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(999),
+          child: AnimatedContainer(
+            duration: AppTheme.motionFast,
+            curve: Curves.easeOutCubic,
+            constraints: const BoxConstraints(minHeight: 44),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: isSelected ? AppTheme.primary : AppTheme.surface,
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(
+                color: isSelected ? AppTheme.primary : AppTheme.borderStrong,
+              ),
+            ),
+            child: Row(
               mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 672),
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.only(
-                        top: 32,
-                        left: 20,
-                        right: 20,
-                        bottom: 66,
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Nama Aktivitas',
-                            style: TextStyle(
-                              color: Color(0xFF47464B),
-                              fontSize: 14,
-                              fontFamily: 'Plus Jakarta Sans',
-                              fontWeight: FontWeight.w500,
-                              height: 1.43,
-                              letterSpacing: 0.14,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          _buildTitleField(),
-                          const SizedBox(height: 24),
-                          const Text(
-                            'Tipe',
-                            style: TextStyle(
-                              color: Color(0xFF47464B),
-                              fontSize: 14,
-                              fontFamily: 'Plus Jakarta Sans',
-                              fontWeight: FontWeight.w500,
-                              height: 1.43,
-                              letterSpacing: 0.14,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Obx(
-                            () => SizedBox(
-                              width: double.infinity,
-                              child: Wrap(
-                                runSpacing: 8,
-                                children: [
-                                  _buildTypeChip(
-                                    'Medis',
-                                    Icons.medical_services,
-                                    controller.selectedType == 'medication',
-                                    () => controller.selectType(
-                                      'medication',
-                                      'Medis',
-                                    ),
-                                  ),
-                                  _buildTypeChip(
-                                    'Pemeriksaan',
-                                    Icons.assignment,
-                                    controller.selectedType ==
-                                        'routine_checkup',
-                                    () => controller.selectType(
-                                      'routine_checkup',
-                                      'Pemeriksaan',
-                                    ),
-                                  ),
-                                  _buildTypeChip(
-                                    'Aktivitas',
-                                    Icons.directions_run,
-                                    controller.selectedType == 'daily_activity',
-                                    () => controller.selectType(
-                                      'daily_activity',
-                                      'Aktivitas',
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          const Text(
-                            'Tanggal',
-                            style: TextStyle(
-                              color: Color(0xFF47464B),
-                              fontSize: 14,
-                              fontFamily: 'Plus Jakarta Sans',
-                              fontWeight: FontWeight.w500,
-                              height: 1.43,
-                              letterSpacing: 0.14,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Obx(
-                            () => _buildInputField(
-                              controller.dateDisplay,
-                              Icons.calendar_today,
-                              onTap: _pickDate,
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          const Text(
-                            'Waktu',
-                            style: TextStyle(
-                              color: Color(0xFF47464B),
-                              fontSize: 14,
-                              fontFamily: 'Plus Jakarta Sans',
-                              fontWeight: FontWeight.w500,
-                              height: 1.43,
-                              letterSpacing: 0.14,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Obx(
-                            () => _buildInputField(
-                              controller.timeDisplay,
-                              Icons.access_time,
-                              onTap: _pickTime,
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          const Text(
-                            'Mengulang',
-                            style: TextStyle(
-                              color: Color(0xFF47464B),
-                              fontSize: 14,
-                              fontFamily: 'Plus Jakarta Sans',
-                              fontWeight: FontWeight.w500,
-                              height: 1.43,
-                              letterSpacing: 0.14,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Obx(
-                            () => _buildInputField(
-                              controller.recurrenceLabel,
-                              Icons.keyboard_arrow_down,
-                              onTap: _pickRecurrence,
-                            ),
-                          ),
-                          const SizedBox(height: 32),
-                          _buildAlarmSection(),
-                          const SizedBox(height: 48),
-                          Obx(
-                            () => GestureDetector(
-                              onTap: controller.isLoading
-                                  ? null
-                                  : controller.saveSchedule,
-                              child: Container(
-                                width: double.infinity,
-                                height: 48,
-                                decoration: ShapeDecoration(
-                                  color: controller.isLoading
-                                      ? const Color(0xFF999999)
-                                      : const Color(0xFF192126),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(25),
-                                  ),
-                                  shadows: const [
-                                    BoxShadow(
-                                      color: Color(0x0F000000),
-                                      blurRadius: 4,
-                                      offset: Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: Center(
-                                  child: controller.isLoading
-                                      ? const SizedBox(
-                                          width: 24,
-                                          height: 24,
-                                          child: CircularProgressIndicator(
-                                            color: Colors.white,
-                                            strokeWidth: 2,
-                                          ),
-                                        )
-                                      : const Text(
-                                          'Simpan Jadwal',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 14,
-                                            fontFamily: 'Plus Jakarta Sans',
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                Icon(
+                  icon,
+                  size: 17,
+                  color: isSelected ? Colors.white : AppTheme.textSecondary,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: Get.textTheme.labelLarge?.copyWith(
+                    color: isSelected ? Colors.white : AppTheme.textSecondary,
                   ),
                 ),
               ],
@@ -264,222 +196,138 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
     );
   }
 
-  Widget _buildTitleField() {
-    return Container(
-      width: double.infinity,
-      height: 56,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: ShapeDecoration(
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          side: const BorderSide(width: 1, color: Color(0xFFC8C5CB)),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        shadows: const [
-          BoxShadow(
-            color: Color(0x0C000000),
-            blurRadius: 2,
-            offset: Offset(0, 1),
-          ),
-        ],
-      ),
-      child: TextField(
-        controller: controller.titleController,
-        decoration: const InputDecoration(
-          hintText: 'Contoh: Jalan Pagi, Minum Obat',
-          hintStyle: TextStyle(
-            color: Color(0xFF77767B),
-            fontSize: 16,
-            fontFamily: 'Plus Jakarta Sans',
-            fontWeight: FontWeight.w400,
-          ),
-          border: InputBorder.none,
-          isDense: true,
-          contentPadding: EdgeInsets.zero,
-        ),
-        style: const TextStyle(
-          color: Color(0xFF1C1B1C),
-          fontSize: 16,
-          fontFamily: 'Plus Jakarta Sans',
-          fontWeight: FontWeight.w400,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTypeChip(
-    String label,
-    IconData icon,
-    bool isSelected,
-    VoidCallback onTap,
-  ) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: ShapeDecoration(
-          color: isSelected ? const Color(0xFF192126) : const Color(0xFFFDF8F8),
-          shape: RoundedRectangleBorder(
-            side: BorderSide(
-              width: 1,
-              color: isSelected
-                  ? const Color(0xFF192126)
-                  : const Color(0xFFC8C5CB),
-            ),
-            borderRadius: BorderRadius.circular(9999),
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 16,
-              color: isSelected ? Colors.white : const Color(0xFF47464B),
-            ),
-            const SizedBox(width: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? Colors.white : const Color(0xFF47464B),
-                fontSize: 14,
-                fontFamily: 'Plus Jakarta Sans',
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInputField(
-    String displayText,
-    IconData icon, {
-    VoidCallback? onTap,
+  Widget _buildPickerField({
+    required BuildContext context,
+    required String label,
+    required String value,
+    required IconData icon,
+    required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        height: 56,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: ShapeDecoration(
-          color: Colors.white,
-          shape: RoundedRectangleBorder(
-            side: const BorderSide(width: 1, color: Color(0xFFC8C5CB)),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          shadows: const [
-            BoxShadow(
-              color: Color(0x0C000000),
-              blurRadius: 2,
-              offset: Offset(0, 1),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              displayText,
-              style: const TextStyle(
-                color: Color(0xFF1C1B1C),
-                fontSize: 16,
-                fontFamily: 'Plus Jakarta Sans',
+    final textTheme = Theme.of(context).textTheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildLabel(context, label),
+        const SizedBox(height: 8),
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(18),
+            child: Ink(
+              height: 56,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: AppTheme.cardDecoration(
+                radius: 18,
+                elevated: false,
+                borderColor: AppTheme.borderStrong,
+              ),
+              child: Row(
+                children: [
+                  Icon(icon, color: AppTheme.textSecondary, size: 21),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      value,
+                      style: textTheme.bodyLarge?.copyWith(
+                        color: AppTheme.textPrimary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  const Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: AppTheme.textTertiary,
+                  ),
+                ],
               ),
             ),
-            Icon(icon, size: 20, color: const Color(0xFF47464B)),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
-  Widget _buildAlarmSection() {
-    return GestureDetector(
-      onTap: () => controller.toggleAlarm(!controller.alarmEnabled),
-      child: Obx(
-        () => Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: ShapeDecoration(
-            color: Colors.white,
-            shape: RoundedRectangleBorder(
-              side: BorderSide(width: 1, color: const Color(0x4CC8C5CB)),
-              borderRadius: BorderRadius.circular(16),
+  Widget _buildAlarmSection(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Obx(
+      () => Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          onTap: () => controller.toggleAlarm(!controller.alarmEnabled),
+          borderRadius: BorderRadius.circular(20),
+          child: Ink(
+            padding: const EdgeInsets.all(16),
+            decoration: AppTheme.cardDecoration(
+              radius: 20,
+              elevated: false,
+              borderColor: controller.alarmEnabled
+                  ? AppTheme.accent
+                  : AppTheme.border,
             ),
-            shadows: const [
-              BoxShadow(
-                color: Color(0x0A18181B),
-                blurRadius: 16,
-                offset: Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: const ShapeDecoration(
-                        color: Color(0xFFF1FFD4),
-                        shape: CircleBorder(),
-                      ),
-                      child: const Icon(
-                        Icons.notifications_active,
-                        color: Color(0xFF576755),
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Pemberitahuan Alarm',
-                            style: TextStyle(
-                              color: Color(0xFF1C1B1C),
-                              fontSize: 14,
-                              fontFamily: 'Plus Jakarta Sans',
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            'Dapatkan pemberitahuan \n15 menit sebelumnya',
-                            style: TextStyle(
-                              color: Color(0xFF47464B),
-                              fontSize: 12,
-                              fontFamily: 'Plus Jakarta Sans',
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+            child: Row(
+              children: [
+                Container(
+                  width: 46,
+                  height: 46,
+                  decoration: BoxDecoration(
+                    color: AppTheme.accentSoft,
+                    borderRadius: BorderRadius.circular(17),
+                  ),
+                  child: const Icon(
+                    Icons.notifications_active_outlined,
+                    color: AppTheme.primary,
+                    size: 22,
+                  ),
                 ),
-              ),
-              SizedBox(
-                width: 44,
-                height: 24,
-                child: Switch.adaptive(
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Pemberitahuan Alarm', style: textTheme.titleMedium),
+                      const SizedBox(height: 3),
+                      Text(
+                        '${controller.reminderMinutes} menit sebelum kegiatan',
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: AppTheme.textTertiary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Switch.adaptive(
                   value: controller.alarmEnabled,
                   onChanged: controller.toggleAlarm,
-                  activeThumbColor: const Color(0xFF192126),
-                  activeTrackColor: const Color(0xFFBBF246),
-                  inactiveThumbColor: Colors.white,
-                  inactiveTrackColor: const Color(0xFFE5E5E5),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSaveButton() {
+    return Obx(
+      () => ElevatedButton(
+        onPressed: controller.isLoading ? null : controller.saveSchedule,
+        child: AnimatedSwitcher(
+          duration: AppTheme.motionFast,
+          child: controller.isLoading
+              ? const SizedBox(
+                  key: ValueKey('loading'),
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                )
+              : const Text(key: ValueKey('label'), 'Simpan Jadwal'),
         ),
       ),
     );
@@ -509,46 +357,43 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
 
   void _pickRecurrence() {
     Get.bottomSheet(
-      Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        padding: const EdgeInsets.all(24),
-        child: SafeArea(
+      SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Frekuensi Pengulangan',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontFamily: 'Plus Jakarta Sans',
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF1C1917),
+              Center(
+                child: Container(
+                  width: 44,
+                  height: 5,
+                  margin: const EdgeInsets.only(bottom: 18),
+                  decoration: BoxDecoration(
+                    color: AppTheme.borderStrong,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
                 ),
               ),
-              const SizedBox(height: 16),
-              ...JadwalLansiaController.recurrenceOptions.map((opt) {
-                final value = opt['value'] as String;
-                final label = opt['label'] as String;
+              Text('Frekuensi Pengulangan', style: Get.textTheme.titleLarge),
+              const SizedBox(height: 12),
+              ...JadwalLansiaController.recurrenceOptions.map((option) {
+                final value = option['value'] as String;
+                final label = option['label'] as String;
                 final isSelected = controller.selectedRecurrence == value;
                 return ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  minVerticalPadding: 10,
                   title: Text(
                     label,
-                    style: TextStyle(
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontWeight: isSelected
-                          ? FontWeight.w600
-                          : FontWeight.w400,
+                    style: Get.textTheme.titleMedium?.copyWith(
                       color: isSelected
-                          ? const Color(0xFF192126)
-                          : const Color(0xFF47464B),
+                          ? AppTheme.primary
+                          : AppTheme.textSecondary,
                     ),
                   ),
                   trailing: isSelected
-                      ? const Icon(Icons.check, color: Color(0xFF192126))
+                      ? const Icon(Icons.check_rounded, color: AppTheme.primary)
                       : null,
                   onTap: () {
                     controller.selectRecurrence(value);
@@ -559,6 +404,11 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
             ],
           ),
         ),
+      ),
+      backgroundColor: AppTheme.surface,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
     );
   }

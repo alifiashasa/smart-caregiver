@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/patient_shell_controller.dart';
-import '../../dashboard/views/dashboard_view.dart';
+
+import '../../../core/theme/app_theme.dart';
 import '../../calendar/views/calendar_view.dart';
+import '../../dashboard/views/dashboard_view.dart';
 import '../../patient_detail/views/patient_detail_view.dart';
 import '../../profil-lansia/views/profil_lansia_view.dart';
+import '../controllers/patient_shell_controller.dart';
 
 class PatientShellView extends GetView<PatientShellController> {
   final int initialTab;
@@ -16,6 +18,7 @@ class PatientShellView extends GetView<PatientShellController> {
     controller.applyInitialTab(initialTab);
 
     return Scaffold(
+      extendBody: true,
       body: Obx(
         () => IndexedStack(
           index: controller.currentIndex,
@@ -28,23 +31,27 @@ class PatientShellView extends GetView<PatientShellController> {
         ),
       ),
       bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(16, 0, 16, 14),
         child: Container(
-          margin: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          decoration: ShapeDecoration(
-            color: const Color(0xFF192126),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(32),
-            ),
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: AppTheme.primary,
+            borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.primary.withValues(alpha: 0.18),
+                blurRadius: 28,
+                offset: const Offset(0, 14),
+              ),
+            ],
           ),
           child: Obx(
             () => Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildNavItem(0, Icons.home_filled, 'Home'),
-                _buildNavItem(1, Icons.calendar_today_outlined, 'Calendar'),
-                _buildNavItem(2, Icons.medical_services_outlined, 'Riwayat'),
-                _buildNavItem(3, Icons.person_outline, 'Profile'),
+                _buildNavItem(0, Icons.dashboard_rounded, 'Home'),
+                _buildNavItem(1, Icons.calendar_today_rounded, 'Jadwal'),
+                _buildNavItem(2, Icons.monitor_heart_rounded, 'Riwayat'),
+                _buildNavItem(3, Icons.person_rounded, 'Profil'),
               ],
             ),
           ),
@@ -54,39 +61,58 @@ class PatientShellView extends GetView<PatientShellController> {
   }
 
   Widget _buildNavItem(int index, IconData icon, String label) {
-    bool isSelected = controller.currentIndex == index;
-    return GestureDetector(
-      onTap: () => controller.changeTab(index),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        padding: EdgeInsets.symmetric(
-          horizontal: isSelected ? 16 : 12,
-          vertical: 10,
-        ),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFBBF246) : Colors.transparent,
-          borderRadius: BorderRadius.circular(43),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? const Color(0xFF192126) : Colors.white70,
-              size: 24,
-            ),
-            if (isSelected && label.isNotEmpty) ...[
-              const SizedBox(width: 4),
-              Text(
-                label,
-                style: const TextStyle(
-                  color: Color(0xFF192126),
-                  fontWeight: FontWeight.w500,
-                  fontFamily: 'Lato',
-                  fontSize: 13,
-                ),
+    final isSelected = controller.currentIndex == index;
+
+    return Expanded(
+      child: Semantics(
+        button: true,
+        selected: isSelected,
+        label: label,
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(26),
+          child: InkWell(
+            onTap: () => controller.changeTab(index),
+            borderRadius: BorderRadius.circular(26),
+            child: AnimatedContainer(
+              duration: AppTheme.motion,
+              curve: Curves.easeOutCubic,
+              constraints: const BoxConstraints(minHeight: 52),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+              decoration: BoxDecoration(
+                color: isSelected ? AppTheme.accent : Colors.transparent,
+                borderRadius: BorderRadius.circular(26),
               ),
-            ],
-          ],
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    icon,
+                    color: isSelected
+                        ? AppTheme.primary
+                        : Colors.white.withValues(alpha: 0.72),
+                    size: 21,
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: isSelected
+                          ? AppTheme.primary
+                          : Colors.white.withValues(alpha: 0.72),
+                      fontSize: 11,
+                      fontWeight: isSelected
+                          ? FontWeight.w800
+                          : FontWeight.w600,
+                      letterSpacing: -0.1,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
