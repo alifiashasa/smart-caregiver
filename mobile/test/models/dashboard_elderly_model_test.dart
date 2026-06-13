@@ -21,6 +21,20 @@ void main() {
       expect(model.latestRecordedAt, isNotNull);
     });
 
+    test('serializes back to cache json', () {
+      final model = DashboardElderlyModel.fromJson({
+        'elderly_id': 'elderly-1',
+        'full_name': 'Ibu Siti',
+        'age': 72,
+        'mobility_level': 'assisted',
+        'latest_health_status': 'normal',
+      });
+
+      expect(model.toJson(), containsPair('elderly_id', 'elderly-1'));
+      expect(model.toJson(), containsPair('full_name', 'Ibu Siti'));
+      expect(model.toJson(), containsPair('age', 72));
+    });
+
     test('builds route arguments for patient shell navigation', () {
       final model = DashboardElderlyModel.fromJson({
         'elderly_id': 'elderly-1',

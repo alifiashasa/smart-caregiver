@@ -35,6 +35,11 @@ class HomeController extends GetxController {
   Future<void> loadElderly() async {
     _isLoading.value = true;
 
+    final cached = _dashboardRepository.getCachedOverviewItems();
+    if (cached.isNotEmpty && _elderlyList.isEmpty) {
+      _elderlyList.value = cached;
+    }
+
     final result = await _dashboardRepository.getOverviewItems();
 
     _isLoading.value = false;

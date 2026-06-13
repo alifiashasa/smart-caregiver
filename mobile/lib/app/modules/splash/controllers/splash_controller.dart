@@ -22,18 +22,19 @@ class SplashController extends GetxController {
         Get.offAllNamed(Routes.LOGIN);
         return;
       }
-      final result = await _authRepository.getMe();
-      if (result['error'] == false) {
-        Get.offAllNamed(Routes.HOME);
-      } else {
-        final refreshResult = await _authRepository.refreshToken();
-        if (refreshResult['error'] == false) {
-          Get.offAllNamed(Routes.HOME);
-        } else {
-          ApiClient.clearTokens();
-          Get.offAllNamed(Routes.LOGIN);
-        }
-      }
+      final result = await _authRepository.getCurrentUser();
+      result.when(
+        success: (_) => Get.offAllNamed(Routes.HOME),
+        failure: (_) async {
+          final refreshResult = await _authRepository.refreshToken();
+          if (refreshResult['error'] == false) {
+            Get.offAllNamed(Routes.HOME);
+          } else {
+            ApiClient.clearTokens();
+            Get.offAllNamed(Routes.LOGIN);
+          }
+        },
+      );
     } catch (_) {
       // If anything unexpected fails, go to login
       ApiClient.clearTokens();

@@ -1,7 +1,9 @@
 import 'dart:typed_data';
+import '../../core/api_result.dart';
 import '../api_client.dart';
 import '../auth_api.dart';
 import '../auth_face_api.dart';
+import '../models/user_model.dart';
 
 class AuthRepository {
   final AuthApi _authApi;
@@ -26,6 +28,21 @@ class AuthRepository {
   }) => _authApi.verifyOtp(email: email, otp: otp);
 
   Future<Map<String, dynamic>> getMe() => _authApi.getMe();
+
+  Future<ApiResult<UserModel>> getCurrentUser() async {
+    final response = await _authApi.getMe();
+    final result = response.toApiResult();
+
+    return result.when(
+      success: (data) => ApiResult.success(UserModel.fromJson(data)),
+      failure: (failure) => ApiResult.failure(
+        failure.message,
+        statusCode: failure.statusCode,
+        sessionExpired: failure.sessionExpired,
+        detailBody: failure.detailBody,
+      ),
+    );
+  }
 
   Future<Map<String, dynamic>> refreshToken() => _authApi.refreshToken();
 

@@ -37,6 +37,19 @@ class DashboardElderlyModel {
       latestHealthStatus == 'critical' ||
       latestHealthStatus == 'needs_attention';
 
+  Map<String, dynamic> toJson() {
+    return {
+      'elderly_id': elderlyId,
+      'full_name': fullName,
+      'age': age,
+      'gender': gender,
+      'photo_url': photoUrl,
+      'mobility_level': mobilityLevel,
+      'latest_health_status': latestHealthStatus,
+      'latest_recorded_at': latestRecordedAt?.toIso8601String(),
+    };
+  }
+
   Map<String, dynamic> toRouteArguments() {
     return {
       'name': fullName,

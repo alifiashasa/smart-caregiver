@@ -24,24 +24,24 @@ class ProfilCaregiverController extends GetxController {
   }
 
   Future<void> _loadProfile() async {
-    final result = await _authRepository.getMe();
-    if (result['error'] == false) {
-      final data = result['data'] as Map<String, dynamic>;
-      _fullName.value = data['full_name'] ?? '';
-      _email.value = data['email'] ?? '';
-      log.info(
-        'Profile loaded',
-        data: {'email': _email.value, 'full_name': _fullName.value},
-      );
-    } else {
-      log.error(
-        'Gagal load profil caregiver',
-        data: {
-          'message': result['message'],
-          'statusCode': result['statusCode'],
-        },
-      );
-    }
+    final result = await _authRepository.getCurrentUser();
+
+    result.when(
+      success: (user) {
+        _fullName.value = user.fullName;
+        _email.value = user.email;
+        log.info(
+          'Profile loaded',
+          data: {'email': _email.value, 'full_name': _fullName.value},
+        );
+      },
+      failure: (failure) {
+        log.error(
+          'Gagal load profil caregiver',
+          data: {'message': failure.message, 'statusCode': failure.statusCode},
+        );
+      },
+    );
   }
 
   void logout() {
