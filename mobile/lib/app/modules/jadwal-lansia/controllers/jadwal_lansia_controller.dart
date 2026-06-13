@@ -6,7 +6,7 @@ class JadwalLansiaController extends GetxController {
   final ScheduleRepository _scheduleRepository;
 
   JadwalLansiaController({required ScheduleRepository scheduleRepository})
-      : _scheduleRepository = scheduleRepository;
+    : _scheduleRepository = scheduleRepository;
 
   // ── Form controllers ──
   final titleController = TextEditingController();
@@ -96,6 +96,8 @@ class JadwalLansiaController extends GetxController {
   }
 
   Future<void> saveSchedule() async {
+    if (_isLoading.value) return;
+
     final title = titleController.text.trim();
     if (title.isEmpty) {
       Get.snackbar('Error', 'Nama aktivitas harus diisi');
@@ -136,7 +138,25 @@ class JadwalLansiaController extends GetxController {
       return;
     }
 
-    Get.back(result: true);
+    Get.back(
+      result: {
+        'created': true,
+        'schedule': result['data'],
+        'fallback': {
+          'id': DateTime.now().millisecondsSinceEpoch.toString(),
+          'title': title,
+          'schedule_type': _selectedType.value,
+          'scheduled_at': scheduledAt.toIso8601String(),
+          'duration_minutes': 30,
+          'is_completed': false,
+          'description': descriptionController.text.trim().isNotEmpty
+              ? descriptionController.text.trim()
+              : null,
+          'is_active': true,
+          'alarms': [],
+        },
+      },
+    );
     Get.snackbar(
       'Sukses',
       'Jadwal berhasil ditambahkan',

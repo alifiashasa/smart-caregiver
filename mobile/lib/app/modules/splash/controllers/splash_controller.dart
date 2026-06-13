@@ -18,14 +18,11 @@ class SplashController extends GetxController {
   Future<void> _checkSession() async {
     try {
       await Future.delayed(const Duration(milliseconds: 1500));
-
       if (!_authRepository.isLoggedIn) {
         Get.offAllNamed(Routes.LOGIN);
         return;
       }
-
       final result = await _authRepository.getMe();
-
       if (result['error'] == false) {
         Get.offAllNamed(Routes.HOME);
       } else {

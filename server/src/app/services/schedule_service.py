@@ -216,6 +216,25 @@ async def mark_complete(
     return schedule
 
 
+async def mark_incomplete(
+    db: AsyncSession,
+    schedule_id: uuid.UUID,
+) -> Schedule:
+    """Mark a schedule as incomplete."""
+    stmt = select(Schedule).where(Schedule.id == schedule_id)
+    result = await db.execute(stmt)
+    schedule = result.scalar_one_or_none()
+
+    if not schedule:
+        raise ValueError(f"Schedule {schedule_id} not found")
+
+    schedule.is_completed = False
+    schedule.completed_at = None
+
+    await db.flush()
+    return schedule
+
+
 async def dispatch_due_alarms(
     db: AsyncSession,
 ) -> tuple[int, int]:

@@ -1,17 +1,18 @@
 import 'package:get/get.dart';
 import '../../../data/repositories/elderly_repository.dart';
 import '../../../data/repositories/health_repository.dart';
-import '../../../routes/app_pages.dart';
+import '../../patient_shell/controllers/patient_shell_controller.dart';
 
 class PatientDetailController extends GetxController {
   final ElderlyRepository _elderlyRepository;
   final HealthRepository _healthRepository;
+  final _shellWorkers = <Worker>[];
 
   PatientDetailController({
     required ElderlyRepository elderlyRepository,
     required HealthRepository healthRepository,
-  })  : _elderlyRepository = elderlyRepository,
-        _healthRepository = healthRepository;
+  }) : _elderlyRepository = elderlyRepository,
+       _healthRepository = healthRepository;
 
   // ── Reactive state ──
   final _patientName = ''.obs;
@@ -26,7 +27,6 @@ class PatientDetailController extends GetxController {
   final _isLoading = false.obs;
   final _records = <Map<String, dynamic>>[].obs;
   final _isLoadingRecords = false.obs;
-  final _currentIndex = 2.obs;
 
   // ── Public getters ──
   String get patientName => _patientName.value;
@@ -41,9 +41,6 @@ class PatientDetailController extends GetxController {
   bool get isLoading => _isLoading.value;
   List<Map<String, dynamic>> get records => _records;
   bool get isLoadingRecords => _isLoadingRecords.value;
-  int get currentIndex => _currentIndex.value;
-
-  set currentIndex(int value) => _currentIndex.value = value;
 
   String? _elderlyId;
   String? get elderlyId => _elderlyId;
@@ -52,25 +49,36 @@ class PatientDetailController extends GetxController {
   void onInit() {
     super.onInit();
 
-    if (Get.arguments != null && Get.arguments is Map) {
-      final args = Get.arguments as Map;
-      _elderlyId = args['elderly_id']?.toString();
-
-      if (args['from'] != null) {
-        _currentIndex.value = args['from'];
-      }
-
-      _patientName.value = args['name'] ?? '';
-      if (_patientName.value.isNotEmpty) {
-        _patientGender.value = args['gender'] ?? '';
-        _patientPhotoUrl.value = args['image'] ?? '';
-      }
-    }
+    final shell = Get.find<PatientShellController>();
+    _readFromShell(shell);
+    _bindShellProfile(shell);
 
     if (_elderlyId != null && _elderlyId!.isNotEmpty) {
       loadDetail(_elderlyId!);
       loadHealthRecords(_elderlyId!);
     }
+  }
+
+  void _readFromShell(PatientShellController shell) {
+    _elderlyId = shell.elderlyId.value.isNotEmpty
+        ? shell.elderlyId.value
+        : null;
+    _patientName.value = shell.patientName.value;
+    _patientAge.value = shell.patientAge.value.replaceAll(' Tahun', '');
+    _patientGender.value = shell.patientGender.value;
+    _patientPhotoUrl.value = shell.patientImage.value;
+  }
+
+  void _bindShellProfile(PatientShellController shell) {
+    _shellWorkers.addAll([
+      ever(shell.patientName, (value) => _patientName.value = value),
+      ever(
+        shell.patientAge,
+        (value) => _patientAge.value = value.replaceAll(' Tahun', ''),
+      ),
+      ever(shell.patientGender, (value) => _patientGender.value = value),
+      ever(shell.patientImage, (value) => _patientPhotoUrl.value = value),
+    ]);
   }
 
   Future<void> loadDetail(String id) async {
@@ -126,8 +134,18 @@ class PatientDetailController extends GetxController {
     try {
       final dt = DateTime.parse(rec['recorded_at'] as String);
       final months = [
-        'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-        'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'Mei',
+        'Jun',
+        'Jul',
+        'Agu',
+        'Sep',
+        'Okt',
+        'Nov',
+        'Des',
       ];
       dateStr = '${dt.day} ${months[dt.month - 1]} ${dt.year}';
     } catch (_) {
@@ -229,29 +247,11 @@ class PatientDetailController extends GetxController {
     return value.toString();
   }
 
-  void changePage(int index) {
-    if (_currentIndex.value == index) return;
-
-    int previousIndex = _currentIndex.value;
-    _currentIndex.value = index;
-
-    final args = {
-      'from': previousIndex,
-      'name': _patientName.value,
-      'age': _patientAge.value,
-      'image': _patientPhotoUrl.value,
-      'gender': _patientGender.value,
-      if (_elderlyId != null) 'elderly_id': _elderlyId,
-    };
-
-    if (index == 0) {
-      Get.offNamed(Routes.DASHBOARD, arguments: args);
-    } else if (index == 1) {
-      Get.offNamed(Routes.CALENDAR, arguments: args);
-    } else if (index == 2) {
-      Get.offNamed(Routes.PATIENT_DETAIL, arguments: args);
-    } else if (index == 3) {
-      Get.offNamed(Routes.PROFIL_LANSIA, arguments: args);
+  @override
+  void onClose() {
+    for (final worker in _shellWorkers) {
+      worker.dispose();
     }
+    super.onClose();
   }
 }

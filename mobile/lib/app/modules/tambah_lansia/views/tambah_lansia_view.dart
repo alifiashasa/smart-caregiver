@@ -278,25 +278,37 @@ class TambahLansiaView extends GetView<TambahLansiaController> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                ElevatedButton(
-                  onPressed: controller.simpan,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF192126),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
+                Obx(
+                  () => ElevatedButton(
+                    onPressed: controller.isLoading ? null : controller.simpan,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF192126),
+                      disabledBackgroundColor: const Color(0xFF8C9093),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      elevation: 0,
                     ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'Simpan Data',
-                    style: TextStyle(
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0.14,
-                    ),
+                    child: controller.isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text(
+                            'Simpan Data',
+                            style: TextStyle(
+                              fontFamily: 'Plus Jakarta Sans',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.14,
+                            ),
+                          ),
                   ),
                 ),
                 const SizedBox(height: 12),

@@ -11,8 +11,8 @@ class HomeController extends GetxController {
   HomeController({
     required DashboardRepository dashboardRepository,
     required NotificationRepository notificationRepository,
-  })  : _dashboardRepository = dashboardRepository,
-        _notificationRepository = notificationRepository;
+  }) : _dashboardRepository = dashboardRepository,
+       _notificationRepository = notificationRepository;
 
   // ── Reactive state ──
   final _elderlyList = <Map<String, dynamic>>[].obs;
@@ -39,10 +39,13 @@ class HomeController extends GetxController {
     _isLoading.value = false;
 
     if (result['error'] == true) {
-      log.error('loadElderly gagal', data: {
-        'message': result['message'],
-        'statusCode': result['statusCode'],
-      });
+      log.error(
+        'loadElderly gagal',
+        data: {
+          'message': result['message'],
+          'statusCode': result['statusCode'],
+        },
+      );
       if (result['session_expired'] == true) {
         Get.offAllNamed(Routes.LOGIN);
       }
@@ -56,8 +59,10 @@ class HomeController extends GetxController {
         log.info('loadElderly sukses', data: {'count': elderly.length});
         _elderlyList.value = elderly.cast<Map<String, dynamic>>();
       } else {
-        log.warn('loadElderly: field "elderly" tidak ditemukan di response',
-            data: {'response': data});
+        log.warn(
+          'loadElderly: field "elderly" tidak ditemukan di response',
+          data: {'response': data},
+        );
       }
     } else {
       log.warn('loadElderly: result["data"] null');
@@ -81,13 +86,13 @@ class HomeController extends GetxController {
     }).length;
   }
 
-  void navigateToDashboard(Map<String, dynamic> elderly) {
+  Future<void> navigateToDashboard(Map<String, dynamic> elderly) async {
     final name = elderly['full_name'] as String? ?? '';
     final age = elderly['age'];
     final gender = elderly['gender'] as String? ?? 'Laki-laki';
     final elderlyId = elderly['elderly_id']?.toString() ?? '';
 
-    Get.toNamed(
+    await Get.toNamed(
       Routes.DASHBOARD,
       arguments: {
         'name': name,
@@ -97,6 +102,9 @@ class HomeController extends GetxController {
         'image': 'assets/images/patient_ibu_siti.png',
       },
     );
+
+    loadElderly();
+    loadUnreadCount();
   }
 
   /// Human-readable status label

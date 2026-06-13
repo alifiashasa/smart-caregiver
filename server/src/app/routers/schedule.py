@@ -306,6 +306,36 @@ async def mark_schedule_complete(
     )
 
 
+@router.patch(
+    "/schedules/{schedule_id}/incomplete",
+    response_model=ScheduleResponse,
+)
+async def mark_schedule_incomplete(
+    schedule_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Mark a schedule as incomplete."""
+    schedule = await schedule_service.get_schedule(db, schedule_id)
+    if not schedule:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Schedule {schedule_id} not found",
+        )
+
+    await require_elderly_access(schedule.elderly_id, current_user, db)
+
+    try:
+        schedule = await schedule_service.mark_incomplete(db, schedule_id)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        )
+
+    return _schedule_response(schedule)
+
+
 @router.post(
     "/internal/jobs/dispatch-due-alarms",
     response_model=AlarmDispatchResponse,

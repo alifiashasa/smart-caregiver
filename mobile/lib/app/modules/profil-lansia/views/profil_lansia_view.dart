@@ -199,1052 +199,1329 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                             ],
                           ),
                         ),
+                        _buildProfileTabs(),
+                        const SizedBox(height: 16),
                         // INFORMASI DASAR container
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(20),
-                          decoration: ShapeDecoration(
-                            color: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            shadows: const [
-                              BoxShadow(
-                                color: Color(0x14A1A1AA),
-                                blurRadius: 16,
-                                offset: Offset(0, 4),
-                                spreadRadius: 0,
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: const Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          SizedBox(
-                                            width: 310,
-                                            child: Text(
-                                              'INFORMASI DASAR',
-                                              style: TextStyle(
-                                                color: Color(0xFF5D5E66),
-                                                fontSize: 14,
-                                                fontFamily: 'Plus Jakarta Sans',
-                                                fontWeight: FontWeight.w500,
-                                                height: 1.43,
-                                                letterSpacing: 0.70,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
+                        Obx(
+                          () => AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 220),
+                            switchInCurve: Curves.easeOutCubic,
+                            switchOutCurve: Curves.easeInCubic,
+                            child: controller.selectedProfileTab == 0
+                                ? Container(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.all(20),
+                                    decoration: ShapeDecoration(
+                                      color: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
                                       ),
+                                      shadows: const [
+                                        BoxShadow(
+                                          color: Color(0x14A1A1AA),
+                                          blurRadius: 16,
+                                          offset: Offset(0, 4),
+                                          spreadRadius: 0,
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(
-                                width: double.infinity,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      width: double.infinity,
-                                      padding: const EdgeInsets.only(left: 4),
-                                      child: const Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          SizedBox(
-                                            width: double.infinity,
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                SizedBox(
-                                                  width: 306,
-                                                  child: Text(
-                                                    'Nama Lengkap',
-                                                    style: TextStyle(
-                                                      color: Color(0xFF47464B),
-                                                      fontSize: 12,
-                                                      fontFamily:
-                                                          'Plus Jakarta Sans',
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      height: 1.33,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          width: double.infinity,
+                                          padding: const EdgeInsets.only(
+                                            bottom: 8,
+                                          ),
+                                          child: const Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              SizedBox(
+                                                width: double.infinity,
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    SizedBox(
+                                                      width: 310,
+                                                      child: Text(
+                                                        'INFORMASI DASAR',
+                                                        style: TextStyle(
+                                                          color: Color(
+                                                            0xFF5D5E66,
+                                                          ),
+                                                          fontSize: 14,
+                                                          fontFamily:
+                                                              'Plus Jakarta Sans',
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          height: 1.43,
+                                                          letterSpacing: 0.70,
+                                                        ),
+                                                      ),
                                                     ),
-                                                  ),
+                                                  ],
                                                 ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    TextField(
-                                      controller: controller.namaController,
-                                      style: const TextStyle(
-                                        color: Color(0xFF1C1B1C),
-                                        fontSize: 16,
-                                        fontFamily: 'Plus Jakarta Sans',
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                      decoration: InputDecoration(
-                                        filled: true,
-                                        fillColor: const Color(0xFFFDF8F8),
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              horizontal: 16,
-                                              vertical: 12,
-                                            ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                          borderSide: const BorderSide(
-                                            color: Color(0xFFC8C5CB),
-                                            width: 1,
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                          borderSide: const BorderSide(
-                                            color: Color(0xFF192126),
-                                            width: 1.5,
+                                        SizedBox(
+                                          width: double.infinity,
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Container(
+                                                width: double.infinity,
+                                                padding: const EdgeInsets.only(
+                                                  left: 4,
+                                                ),
+                                                child: const Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    SizedBox(
+                                                      width: double.infinity,
+                                                      child: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .start,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          SizedBox(
+                                                            width: 306,
+                                                            child: Text(
+                                                              'Nama Lengkap',
+                                                              style: TextStyle(
+                                                                color: Color(
+                                                                  0xFF47464B,
+                                                                ),
+                                                                fontSize: 12,
+                                                                fontFamily:
+                                                                    'Plus Jakarta Sans',
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                                height: 1.33,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              TextField(
+                                                controller:
+                                                    controller.namaController,
+                                                style: const TextStyle(
+                                                  color: Color(0xFF1C1B1C),
+                                                  fontSize: 16,
+                                                  fontFamily:
+                                                      'Plus Jakarta Sans',
+                                                  fontWeight: FontWeight.w400,
+                                                ),
+                                                decoration: InputDecoration(
+                                                  filled: true,
+                                                  fillColor: const Color(
+                                                    0xFFFDF8F8,
+                                                  ),
+                                                  contentPadding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 16,
+                                                        vertical: 12,
+                                                      ),
+                                                  enabledBorder:
+                                                      OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              16,
+                                                            ),
+                                                        borderSide:
+                                                            const BorderSide(
+                                                              color: Color(
+                                                                0xFFC8C5CB,
+                                                              ),
+                                                              width: 1,
+                                                            ),
+                                                      ),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              16,
+                                                            ),
+                                                        borderSide:
+                                                            const BorderSide(
+                                                              color: Color(
+                                                                0xFF192126,
+                                                              ),
+                                                              width: 1.5,
+                                                            ),
+                                                      ),
+                                                  isDense: true,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        isDense: true,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(
-                                width: double.infinity,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                            width: double.infinity,
-                                            padding: const EdgeInsets.only(
-                                              left: 4,
-                                            ),
-                                            child: const Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                SizedBox(
-                                                  width: double.infinity,
-                                                  child: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      SizedBox(
-                                                        width: 143,
-                                                        child: Text(
-                                                          'Umur',
-                                                          style: TextStyle(
-                                                            color: Color(
-                                                              0xFF47464B,
-                                                            ),
-                                                            fontSize: 12,
-                                                            fontFamily:
-                                                                'Plus Jakarta Sans',
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            height: 1.33,
+                                        SizedBox(
+                                          width: double.infinity,
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              SizedBox(
+                                                width: double.infinity,
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Container(
+                                                      width: double.infinity,
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                            left: 4,
                                                           ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          TextField(
-                                            controller:
-                                                controller.umurController,
-                                            keyboardType: TextInputType.number,
-                                            style: const TextStyle(
-                                              color: Color(0xFF1C1B1C),
-                                              fontSize: 16,
-                                              fontFamily: 'Plus Jakarta Sans',
-                                              fontWeight: FontWeight.w400,
-                                            ),
-                                            decoration: InputDecoration(
-                                              filled: true,
-                                              fillColor: const Color(
-                                                0xFFFDF8F8,
-                                              ),
-                                              contentPadding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 16,
-                                                    vertical: 12,
-                                                  ),
-                                              enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(16),
-                                                borderSide: const BorderSide(
-                                                  color: Color(0xFFC8C5CB),
-                                                  width: 1,
-                                                ),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(16),
-                                                borderSide: const BorderSide(
-                                                  color: Color(0xFF192126),
-                                                  width: 1.5,
-                                                ),
-                                              ),
-                                              isDense: true,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 12),
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                            width: double.infinity,
-                                            padding: const EdgeInsets.only(
-                                              left: 4,
-                                            ),
-                                            child: const Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                SizedBox(
-                                                  width: double.infinity,
-                                                  child: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      SizedBox(
-                                                        width: 143,
-                                                        child: Text(
-                                                          'Jenis Kelamin',
-                                                          style: TextStyle(
-                                                            color: Color(
-                                                              0xFF47464B,
+                                                      child: const Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .start,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          SizedBox(
+                                                            width:
+                                                                double.infinity,
+                                                            child: Column(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .min,
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .start,
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                SizedBox(
+                                                                  width: 143,
+                                                                  child: Text(
+                                                                    'Umur',
+                                                                    style: TextStyle(
+                                                                      color: Color(
+                                                                        0xFF47464B,
+                                                                      ),
+                                                                      fontSize:
+                                                                          12,
+                                                                      fontFamily:
+                                                                          'Plus Jakarta Sans',
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600,
+                                                                      height:
+                                                                          1.33,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ],
                                                             ),
-                                                            fontSize: 12,
-                                                            fontFamily:
-                                                                'Plus Jakarta Sans',
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            height: 1.33,
                                                           ),
-                                                        ),
+                                                        ],
                                                       ),
-                                                    ],
-                                                  ),
+                                                    ),
+                                                    TextField(
+                                                      controller: controller
+                                                          .umurController,
+                                                      keyboardType:
+                                                          TextInputType.number,
+                                                      style: const TextStyle(
+                                                        color: Color(
+                                                          0xFF1C1B1C,
+                                                        ),
+                                                        fontSize: 16,
+                                                        fontFamily:
+                                                            'Plus Jakarta Sans',
+                                                        fontWeight:
+                                                            FontWeight.w400,
+                                                      ),
+                                                      decoration: InputDecoration(
+                                                        filled: true,
+                                                        fillColor: const Color(
+                                                          0xFFFDF8F8,
+                                                        ),
+                                                        contentPadding:
+                                                            const EdgeInsets.symmetric(
+                                                              horizontal: 16,
+                                                              vertical: 12,
+                                                            ),
+                                                        enabledBorder:
+                                                            OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    16,
+                                                                  ),
+                                                              borderSide:
+                                                                  const BorderSide(
+                                                                    color: Color(
+                                                                      0xFFC8C5CB,
+                                                                    ),
+                                                                    width: 1,
+                                                                  ),
+                                                            ),
+                                                        focusedBorder:
+                                                            OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    16,
+                                                                  ),
+                                                              borderSide:
+                                                                  const BorderSide(
+                                                                    color: Color(
+                                                                      0xFF192126,
+                                                                    ),
+                                                                    width: 1.5,
+                                                                  ),
+                                                            ),
+                                                        isDense: true,
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
-                                              ],
-                                            ),
+                                              ),
+                                              const SizedBox(height: 12),
+                                              SizedBox(
+                                                width: double.infinity,
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Container(
+                                                      width: double.infinity,
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                            left: 4,
+                                                          ),
+                                                      child: const Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .start,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          SizedBox(
+                                                            width:
+                                                                double.infinity,
+                                                            child: Column(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .min,
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .start,
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                SizedBox(
+                                                                  width: 143,
+                                                                  child: Text(
+                                                                    'Jenis Kelamin',
+                                                                    style: TextStyle(
+                                                                      color: Color(
+                                                                        0xFF47464B,
+                                                                      ),
+                                                                      fontSize:
+                                                                          12,
+                                                                      fontFamily:
+                                                                          'Plus Jakarta Sans',
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600,
+                                                                      height:
+                                                                          1.33,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    TextField(
+                                                      controller: controller
+                                                          .jenisKelaminController,
+                                                      style: const TextStyle(
+                                                        color: Color(
+                                                          0xFF1C1B1C,
+                                                        ),
+                                                        fontSize: 16,
+                                                        fontFamily:
+                                                            'Plus Jakarta Sans',
+                                                        fontWeight:
+                                                            FontWeight.w400,
+                                                      ),
+                                                      decoration: InputDecoration(
+                                                        filled: true,
+                                                        fillColor: const Color(
+                                                          0xFFFDF8F8,
+                                                        ),
+                                                        contentPadding:
+                                                            const EdgeInsets.symmetric(
+                                                              horizontal: 16,
+                                                              vertical: 12,
+                                                            ),
+                                                        enabledBorder:
+                                                            OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    16,
+                                                                  ),
+                                                              borderSide:
+                                                                  const BorderSide(
+                                                                    color: Color(
+                                                                      0xFFC8C5CB,
+                                                                    ),
+                                                                    width: 1,
+                                                                  ),
+                                                            ),
+                                                        focusedBorder:
+                                                            OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    16,
+                                                                  ),
+                                                              borderSide:
+                                                                  const BorderSide(
+                                                                    color: Color(
+                                                                      0xFF192126,
+                                                                    ),
+                                                                    width: 1.5,
+                                                                  ),
+                                                            ),
+                                                        isDense: true,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                          TextField(
-                                            controller: controller
-                                                .jenisKelaminController,
-                                            style: const TextStyle(
-                                              color: Color(0xFF1C1B1C),
-                                              fontSize: 16,
-                                              fontFamily: 'Plus Jakarta Sans',
-                                              fontWeight: FontWeight.w400,
-                                            ),
-                                            decoration: InputDecoration(
-                                              filled: true,
-                                              fillColor: const Color(
-                                                0xFFFDF8F8,
-                                              ),
-                                              contentPadding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 16,
-                                                    vertical: 12,
-                                                  ),
-                                              enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(16),
-                                                borderSide: const BorderSide(
-                                                  color: Color(0xFFC8C5CB),
-                                                  width: 1,
-                                                ),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(16),
-                                                borderSide: const BorderSide(
-                                                  color: Color(0xFF192126),
-                                                  width: 1.5,
-                                                ),
-                                              ),
-                                              isDense: true,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                                  )
+                                : const SizedBox.shrink(),
                           ),
                         ),
                         // LATAR BELAKANG KESEHATAN container
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(20),
-                          decoration: ShapeDecoration(
-                            color: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            shadows: const [
-                              BoxShadow(
-                                color: Color(0x14A1A1AA),
-                                blurRadius: 16,
-                                offset: Offset(0, 4),
-                                spreadRadius: 0,
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: const Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          SizedBox(
-                                            width: 310,
-                                            child: Text(
-                                              'LATAR BELAKANG KESEHATAN',
-                                              style: TextStyle(
-                                                color: Color(0xFF5D5E66),
-                                                fontSize: 14,
-                                                fontFamily: 'Plus Jakarta Sans',
-                                                fontWeight: FontWeight.w500,
-                                                height: 2,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
+                        Obx(
+                          () => AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 220),
+                            switchInCurve: Curves.easeOutCubic,
+                            switchOutCurve: Curves.easeInCubic,
+                            child: controller.selectedProfileTab == 1
+                                ? Container(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.all(20),
+                                    decoration: ShapeDecoration(
+                                      color: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(
-                                width: double.infinity,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      width: double.infinity,
-                                      padding: const EdgeInsets.only(left: 4),
-                                      child: const Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          SizedBox(
-                                            width: double.infinity,
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                SizedBox(
-                                                  width: 306,
-                                                  child: Text(
-                                                    'Riwayat Medis',
-                                                    style: TextStyle(
-                                                      color: Color(0xFF47464B),
-                                                      fontSize: 12,
-                                                      fontFamily:
-                                                          'Plus Jakarta Sans',
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      height: 1.33,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    TextField(
-                                      controller:
-                                          controller.riwayatMedisController,
-                                      style: const TextStyle(
-                                        color: Color(0xFF1C1B1C),
-                                        fontSize: 16,
-                                        fontFamily: 'Plus Jakarta Sans',
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                      decoration: InputDecoration(
-                                        filled: true,
-                                        fillColor: const Color(0xFFFDF8F8),
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              horizontal: 16,
-                                              vertical: 12,
-                                            ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                          borderSide: const BorderSide(
-                                            color: Color(0xFFC8C5CB),
-                                            width: 1,
-                                          ),
+                                      shadows: const [
+                                        BoxShadow(
+                                          color: Color(0x14A1A1AA),
+                                          blurRadius: 16,
+                                          offset: Offset(0, 4),
+                                          spreadRadius: 0,
                                         ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                          borderSide: const BorderSide(
-                                            color: Color(0xFF192126),
-                                            width: 1.5,
-                                          ),
-                                        ),
-                                        isDense: true,
-                                      ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.only(top: 8),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                            width: double.infinity,
-                                            padding: const EdgeInsets.only(
-                                              left: 4,
-                                            ),
-                                            child: const Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                SizedBox(
-                                                  width: double.infinity,
-                                                  child: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      SizedBox(
-                                                        width: 306,
-                                                        child: Text(
-                                                          'Kondisi Fisik',
-                                                          style: TextStyle(
-                                                            color: Color(
-                                                              0xFF47464B,
-                                                            ),
-                                                            fontSize: 12,
-                                                            fontFamily:
-                                                                'Plus Jakarta Sans',
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            height: 1.33,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          width: double.infinity,
+                                          padding: const EdgeInsets.only(
+                                            bottom: 8,
+                                          ),
+                                          child: const Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              SizedBox(
+                                                width: double.infinity,
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    SizedBox(
+                                                      width: 310,
+                                                      child: Text(
+                                                        'LATAR BELAKANG KESEHATAN',
+                                                        style: TextStyle(
+                                                          color: Color(
+                                                            0xFF5D5E66,
                                                           ),
+                                                          fontSize: 14,
+                                                          fontFamily:
+                                                              'Plus Jakarta Sans',
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          height: 2,
                                                         ),
                                                       ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Wrap(
-                                            runSpacing: 8,
-                                            children: [
-                                              Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 16,
-                                                      vertical: 8,
                                                     ),
-                                                decoration: ShapeDecoration(
-                                                  color: const Color(
-                                                    0xFF192126,
-                                                  ),
-                                                  shape: RoundedRectangleBorder(
-                                                    side: const BorderSide(
-                                                      width: 1,
-                                                      color: Color(0xFF192126),
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          9999,
-                                                        ),
-                                                  ),
-                                                ),
-                                                child: const Text(
-                                                  'Mandiri',
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 14,
-                                                    fontFamily:
-                                                        'Plus Jakarta Sans',
-                                                    fontWeight: FontWeight.w500,
-                                                    height: 1.43,
-                                                    letterSpacing: 0.14,
-                                                  ),
-                                                ),
-                                              ),
-                                              Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 16,
-                                                      vertical: 8,
-                                                    ),
-                                                decoration: ShapeDecoration(
-                                                  color: const Color(
-                                                    0xFFFDF8F8,
-                                                  ),
-                                                  shape: RoundedRectangleBorder(
-                                                    side: const BorderSide(
-                                                      width: 1,
-                                                      color: Color(0xFFC8C5CB),
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          9999,
-                                                        ),
-                                                  ),
-                                                ),
-                                                child: const Text(
-                                                  'Butuh Bantuan Sebagian',
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                    color: Color(0xFF1C1B1C),
-                                                    fontSize: 14,
-                                                    fontFamily:
-                                                        'Plus Jakarta Sans',
-                                                    fontWeight: FontWeight.w500,
-                                                    height: 1.43,
-                                                    letterSpacing: 0.14,
-                                                  ),
-                                                ),
-                                              ),
-                                              Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 16,
-                                                      vertical: 8,
-                                                    ),
-                                                decoration: ShapeDecoration(
-                                                  color: const Color(
-                                                    0xFFFDF8F8,
-                                                  ),
-                                                  shape: RoundedRectangleBorder(
-                                                    side: const BorderSide(
-                                                      width: 1,
-                                                      color: Color(0xFFC8C5CB),
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          9999,
-                                                        ),
-                                                  ),
-                                                ),
-                                                child: const Text(
-                                                  'Butuh Bantuan Penuh',
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                    color: Color(0xFF1C1B1C),
-                                                    fontSize: 14,
-                                                    fontFamily:
-                                                        'Plus Jakarta Sans',
-                                                    fontWeight: FontWeight.w500,
-                                                    height: 1.43,
-                                                    letterSpacing: 0.14,
-                                                  ),
+                                                  ],
                                                 ),
                                               ),
                                             ],
                                           ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.only(top: 8),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                            width: double.infinity,
-                                            padding: const EdgeInsets.only(
-                                              left: 4,
-                                            ),
-                                            child: const Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                SizedBox(
-                                                  width: double.infinity,
-                                                  child: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      SizedBox(
-                                                        width: 306,
-                                                        child: Text(
-                                                          'Tingkat Mobilitas',
-                                                          style: TextStyle(
-                                                            color: Color(
-                                                              0xFF47464B,
-                                                            ),
-                                                            fontSize: 12,
-                                                            fontFamily:
-                                                                'Plus Jakarta Sans',
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            height: 1.33,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Wrap(
-                                            runSpacing: 8,
+                                        ),
+                                        SizedBox(
+                                          width: double.infinity,
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 16,
-                                                      vertical: 8,
-                                                    ),
-                                                decoration: ShapeDecoration(
-                                                  color: const Color(
-                                                    0xFFFDF8F8,
-                                                  ),
-                                                  shape: RoundedRectangleBorder(
-                                                    side: const BorderSide(
-                                                      width: 1,
-                                                      color: Color(0xFFC8C5CB),
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          9999,
-                                                        ),
-                                                  ),
+                                                width: double.infinity,
+                                                padding: const EdgeInsets.only(
+                                                  left: 4,
                                                 ),
-                                                child: const Text(
-                                                  'Bisa Berjalan',
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                    color: Color(0xFF1C1B1C),
-                                                    fontSize: 14,
-                                                    fontFamily:
-                                                        'Plus Jakarta Sans',
-                                                    fontWeight: FontWeight.w500,
-                                                    height: 1.43,
-                                                    letterSpacing: 0.14,
-                                                  ),
-                                                ),
-                                              ),
-                                              Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 16,
-                                                      vertical: 8,
+                                                child: const Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    SizedBox(
+                                                      width: double.infinity,
+                                                      child: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .start,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          SizedBox(
+                                                            width: 306,
+                                                            child: Text(
+                                                              'Riwayat Medis',
+                                                              style: TextStyle(
+                                                                color: Color(
+                                                                  0xFF47464B,
+                                                                ),
+                                                                fontSize: 12,
+                                                                fontFamily:
+                                                                    'Plus Jakarta Sans',
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                                height: 1.33,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
-                                                decoration: ShapeDecoration(
-                                                  color: const Color(
-                                                    0xFFBBF246,
-                                                  ),
-                                                  shape: RoundedRectangleBorder(
-                                                    side: const BorderSide(
-                                                      width: 1,
-                                                      color: Color(0xFFBBF246),
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          9999,
-                                                        ),
-                                                  ),
-                                                ),
-                                                child: const Text(
-                                                  'Alat Bantu',
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                    color: Color(0xFF192126),
-                                                    fontSize: 14,
-                                                    fontFamily:
-                                                        'Plus Jakarta Sans',
-                                                    fontWeight: FontWeight.w500,
-                                                    height: 1.43,
-                                                    letterSpacing: 0.14,
-                                                  ),
+                                                  ],
                                                 ),
                                               ),
-                                              Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 16,
-                                                      vertical: 8,
-                                                    ),
-                                                decoration: ShapeDecoration(
-                                                  color: const Color(
+                                              TextField(
+                                                controller: controller
+                                                    .riwayatMedisController,
+                                                style: const TextStyle(
+                                                  color: Color(0xFF1C1B1C),
+                                                  fontSize: 16,
+                                                  fontFamily:
+                                                      'Plus Jakarta Sans',
+                                                  fontWeight: FontWeight.w400,
+                                                ),
+                                                decoration: InputDecoration(
+                                                  filled: true,
+                                                  fillColor: const Color(
                                                     0xFFFDF8F8,
                                                   ),
-                                                  shape: RoundedRectangleBorder(
-                                                    side: const BorderSide(
-                                                      width: 1,
-                                                      color: Color(0xFFC8C5CB),
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          9999,
-                                                        ),
-                                                  ),
-                                                ),
-                                                child: const Text(
-                                                  'Kursi Roda',
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                    color: Color(0xFF1C1B1C),
-                                                    fontSize: 14,
-                                                    fontFamily:
-                                                        'Plus Jakarta Sans',
-                                                    fontWeight: FontWeight.w500,
-                                                    height: 1.43,
-                                                    letterSpacing: 0.14,
-                                                  ),
-                                                ),
-                                              ),
-                                              Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 16,
-                                                      vertical: 8,
-                                                    ),
-                                                decoration: ShapeDecoration(
-                                                  color: const Color(
-                                                    0xFFFDF8F8,
-                                                  ),
-                                                  shape: RoundedRectangleBorder(
-                                                    side: const BorderSide(
-                                                      width: 1,
-                                                      color: Color(0xFFC8C5CB),
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          9999,
-                                                        ),
-                                                  ),
-                                                ),
-                                                child: const Text(
-                                                  'Berbaring',
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                    color: Color(0xFF1C1B1C),
-                                                    fontSize: 14,
-                                                    fontFamily:
-                                                        'Plus Jakarta Sans',
-                                                    fontWeight: FontWeight.w500,
-                                                    height: 1.43,
-                                                    letterSpacing: 0.14,
-                                                  ),
+                                                  contentPadding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 16,
+                                                        vertical: 12,
+                                                      ),
+                                                  enabledBorder:
+                                                      OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              16,
+                                                            ),
+                                                        borderSide:
+                                                            const BorderSide(
+                                                              color: Color(
+                                                                0xFFC8C5CB,
+                                                              ),
+                                                              width: 1,
+                                                            ),
+                                                      ),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              16,
+                                                            ),
+                                                        borderSide:
+                                                            const BorderSide(
+                                                              color: Color(
+                                                                0xFF192126,
+                                                              ),
+                                                              width: 1.5,
+                                                            ),
+                                                      ),
+                                                  isDense: true,
                                                 ),
                                               ),
                                             ],
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                        Container(
+                                          width: double.infinity,
+                                          padding: const EdgeInsets.only(
+                                            top: 8,
+                                          ),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              SizedBox(
+                                                width: double.infinity,
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Container(
+                                                      width: double.infinity,
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                            left: 4,
+                                                          ),
+                                                      child: const Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .start,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          SizedBox(
+                                                            width:
+                                                                double.infinity,
+                                                            child: Column(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .min,
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .start,
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                SizedBox(
+                                                                  width: 306,
+                                                                  child: Text(
+                                                                    'Kondisi Fisik',
+                                                                    style: TextStyle(
+                                                                      color: Color(
+                                                                        0xFF47464B,
+                                                                      ),
+                                                                      fontSize:
+                                                                          12,
+                                                                      fontFamily:
+                                                                          'Plus Jakarta Sans',
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600,
+                                                                      height:
+                                                                          1.33,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    Wrap(
+                                                      runSpacing: 8,
+                                                      children: [
+                                                        Container(
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                horizontal: 16,
+                                                                vertical: 8,
+                                                              ),
+                                                          decoration: ShapeDecoration(
+                                                            color: const Color(
+                                                              0xFF192126,
+                                                            ),
+                                                            shape: RoundedRectangleBorder(
+                                                              side: const BorderSide(
+                                                                width: 1,
+                                                                color: Color(
+                                                                  0xFF192126,
+                                                                ),
+                                                              ),
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    9999,
+                                                                  ),
+                                                            ),
+                                                          ),
+                                                          child: const Text(
+                                                            'Mandiri',
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                            style: TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontSize: 14,
+                                                              fontFamily:
+                                                                  'Plus Jakarta Sans',
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                              height: 1.43,
+                                                              letterSpacing:
+                                                                  0.14,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        Container(
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                horizontal: 16,
+                                                                vertical: 8,
+                                                              ),
+                                                          decoration: ShapeDecoration(
+                                                            color: const Color(
+                                                              0xFFFDF8F8,
+                                                            ),
+                                                            shape: RoundedRectangleBorder(
+                                                              side: const BorderSide(
+                                                                width: 1,
+                                                                color: Color(
+                                                                  0xFFC8C5CB,
+                                                                ),
+                                                              ),
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    9999,
+                                                                  ),
+                                                            ),
+                                                          ),
+                                                          child: const Text(
+                                                            'Butuh Bantuan Sebagian',
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                            style: TextStyle(
+                                                              color: Color(
+                                                                0xFF1C1B1C,
+                                                              ),
+                                                              fontSize: 14,
+                                                              fontFamily:
+                                                                  'Plus Jakarta Sans',
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                              height: 1.43,
+                                                              letterSpacing:
+                                                                  0.14,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        Container(
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                horizontal: 16,
+                                                                vertical: 8,
+                                                              ),
+                                                          decoration: ShapeDecoration(
+                                                            color: const Color(
+                                                              0xFFFDF8F8,
+                                                            ),
+                                                            shape: RoundedRectangleBorder(
+                                                              side: const BorderSide(
+                                                                width: 1,
+                                                                color: Color(
+                                                                  0xFFC8C5CB,
+                                                                ),
+                                                              ),
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    9999,
+                                                                  ),
+                                                            ),
+                                                          ),
+                                                          child: const Text(
+                                                            'Butuh Bantuan Penuh',
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                            style: TextStyle(
+                                                              color: Color(
+                                                                0xFF1C1B1C,
+                                                              ),
+                                                              fontSize: 14,
+                                                              fontFamily:
+                                                                  'Plus Jakarta Sans',
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                              height: 1.43,
+                                                              letterSpacing:
+                                                                  0.14,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Container(
+                                          width: double.infinity,
+                                          padding: const EdgeInsets.only(
+                                            top: 8,
+                                          ),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              SizedBox(
+                                                width: double.infinity,
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Container(
+                                                      width: double.infinity,
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                            left: 4,
+                                                          ),
+                                                      child: const Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .start,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          SizedBox(
+                                                            width:
+                                                                double.infinity,
+                                                            child: Column(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .min,
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .start,
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                SizedBox(
+                                                                  width: 306,
+                                                                  child: Text(
+                                                                    'Tingkat Mobilitas',
+                                                                    style: TextStyle(
+                                                                      color: Color(
+                                                                        0xFF47464B,
+                                                                      ),
+                                                                      fontSize:
+                                                                          12,
+                                                                      fontFamily:
+                                                                          'Plus Jakarta Sans',
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600,
+                                                                      height:
+                                                                          1.33,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    Wrap(
+                                                      runSpacing: 8,
+                                                      children: [
+                                                        Container(
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                horizontal: 16,
+                                                                vertical: 8,
+                                                              ),
+                                                          decoration: ShapeDecoration(
+                                                            color: const Color(
+                                                              0xFFFDF8F8,
+                                                            ),
+                                                            shape: RoundedRectangleBorder(
+                                                              side: const BorderSide(
+                                                                width: 1,
+                                                                color: Color(
+                                                                  0xFFC8C5CB,
+                                                                ),
+                                                              ),
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    9999,
+                                                                  ),
+                                                            ),
+                                                          ),
+                                                          child: const Text(
+                                                            'Bisa Berjalan',
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                            style: TextStyle(
+                                                              color: Color(
+                                                                0xFF1C1B1C,
+                                                              ),
+                                                              fontSize: 14,
+                                                              fontFamily:
+                                                                  'Plus Jakarta Sans',
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                              height: 1.43,
+                                                              letterSpacing:
+                                                                  0.14,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        Container(
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                horizontal: 16,
+                                                                vertical: 8,
+                                                              ),
+                                                          decoration: ShapeDecoration(
+                                                            color: const Color(
+                                                              0xFFBBF246,
+                                                            ),
+                                                            shape: RoundedRectangleBorder(
+                                                              side: const BorderSide(
+                                                                width: 1,
+                                                                color: Color(
+                                                                  0xFFBBF246,
+                                                                ),
+                                                              ),
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    9999,
+                                                                  ),
+                                                            ),
+                                                          ),
+                                                          child: const Text(
+                                                            'Alat Bantu',
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                            style: TextStyle(
+                                                              color: Color(
+                                                                0xFF192126,
+                                                              ),
+                                                              fontSize: 14,
+                                                              fontFamily:
+                                                                  'Plus Jakarta Sans',
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                              height: 1.43,
+                                                              letterSpacing:
+                                                                  0.14,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        Container(
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                horizontal: 16,
+                                                                vertical: 8,
+                                                              ),
+                                                          decoration: ShapeDecoration(
+                                                            color: const Color(
+                                                              0xFFFDF8F8,
+                                                            ),
+                                                            shape: RoundedRectangleBorder(
+                                                              side: const BorderSide(
+                                                                width: 1,
+                                                                color: Color(
+                                                                  0xFFC8C5CB,
+                                                                ),
+                                                              ),
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    9999,
+                                                                  ),
+                                                            ),
+                                                          ),
+                                                          child: const Text(
+                                                            'Kursi Roda',
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                            style: TextStyle(
+                                                              color: Color(
+                                                                0xFF1C1B1C,
+                                                              ),
+                                                              fontSize: 14,
+                                                              fontFamily:
+                                                                  'Plus Jakarta Sans',
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                              height: 1.43,
+                                                              letterSpacing:
+                                                                  0.14,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        Container(
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                horizontal: 16,
+                                                                vertical: 8,
+                                                              ),
+                                                          decoration: ShapeDecoration(
+                                                            color: const Color(
+                                                              0xFFFDF8F8,
+                                                            ),
+                                                            shape: RoundedRectangleBorder(
+                                                              side: const BorderSide(
+                                                                width: 1,
+                                                                color: Color(
+                                                                  0xFFC8C5CB,
+                                                                ),
+                                                              ),
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    9999,
+                                                                  ),
+                                                            ),
+                                                          ),
+                                                          child: const Text(
+                                                            'Berbaring',
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                            style: TextStyle(
+                                                              color: Color(
+                                                                0xFF1C1B1C,
+                                                              ),
+                                                              fontSize: 14,
+                                                              fontFamily:
+                                                                  'Plus Jakarta Sans',
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                              height: 1.43,
+                                                              letterSpacing:
+                                                                  0.14,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                                  )
+                                : const SizedBox.shrink(),
                           ),
                         ),
                         // PERSONAL & MINAT
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(20),
-                          decoration: ShapeDecoration(
-                            color: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            shadows: const [
-                              BoxShadow(
-                                color: Color(0x14A1A1AA),
-                                blurRadius: 16,
-                                offset: Offset(0, 4),
-                                spreadRadius: 0,
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: const Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          SizedBox(
-                                            width: 310,
-                                            child: Text(
-                                              'PERSONAL & MINAT',
-                                              style: TextStyle(
-                                                color: Color(0xFF5D5E66),
-                                                fontSize: 14,
-                                                fontFamily: 'Plus Jakarta Sans',
-                                                fontWeight: FontWeight.w500,
-                                                height: 1.43,
-                                                letterSpacing: 0.70,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
+                        Obx(
+                          () => AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 220),
+                            switchInCurve: Curves.easeOutCubic,
+                            switchOutCurve: Curves.easeInCubic,
+                            child: controller.selectedProfileTab == 2
+                                ? Container(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.all(20),
+                                    decoration: ShapeDecoration(
+                                      color: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
                                       ),
+                                      shadows: const [
+                                        BoxShadow(
+                                          color: Color(0x14A1A1AA),
+                                          blurRadius: 16,
+                                          offset: Offset(0, 4),
+                                          spreadRadius: 0,
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(
-                                width: double.infinity,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      width: double.infinity,
-                                      padding: const EdgeInsets.only(left: 4),
-                                      child: const Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          SizedBox(
-                                            width: double.infinity,
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                SizedBox(
-                                                  width: 306,
-                                                  child: Text(
-                                                    'Minat & Hobi',
-                                                    style: TextStyle(
-                                                      color: Color(0xFF47464B),
-                                                      fontSize: 12,
-                                                      fontFamily:
-                                                          'Plus Jakarta Sans',
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      height: 1.33,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          width: double.infinity,
+                                          padding: const EdgeInsets.only(
+                                            bottom: 8,
+                                          ),
+                                          child: const Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              SizedBox(
+                                                width: double.infinity,
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    SizedBox(
+                                                      width: 310,
+                                                      child: Text(
+                                                        'PERSONAL & MINAT',
+                                                        style: TextStyle(
+                                                          color: Color(
+                                                            0xFF5D5E66,
+                                                          ),
+                                                          fontSize: 14,
+                                                          fontFamily:
+                                                              'Plus Jakarta Sans',
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          height: 1.43,
+                                                          letterSpacing: 0.70,
+                                                        ),
+                                                      ),
                                                     ),
-                                                  ),
+                                                  ],
                                                 ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    TextField(
-                                      controller:
-                                          controller.minatHobiController,
-                                      style: const TextStyle(
-                                        color: Color(0xFF1C1B1C),
-                                        fontSize: 16,
-                                        fontFamily: 'Plus Jakarta Sans',
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                      decoration: InputDecoration(
-                                        filled: true,
-                                        fillColor: const Color(0xFFFDF8F8),
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              horizontal: 16,
-                                              vertical: 12,
-                                            ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                          borderSide: const BorderSide(
-                                            color: Color(0xFFC8C5CB),
-                                            width: 1,
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                          borderSide: const BorderSide(
-                                            color: Color(0xFF192126),
-                                            width: 1.5,
+                                        SizedBox(
+                                          width: double.infinity,
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Container(
+                                                width: double.infinity,
+                                                padding: const EdgeInsets.only(
+                                                  left: 4,
+                                                ),
+                                                child: const Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    SizedBox(
+                                                      width: double.infinity,
+                                                      child: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .start,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          SizedBox(
+                                                            width: 306,
+                                                            child: Text(
+                                                              'Minat & Hobi',
+                                                              style: TextStyle(
+                                                                color: Color(
+                                                                  0xFF47464B,
+                                                                ),
+                                                                fontSize: 12,
+                                                                fontFamily:
+                                                                    'Plus Jakarta Sans',
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                                height: 1.33,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              TextField(
+                                                controller: controller
+                                                    .minatHobiController,
+                                                style: const TextStyle(
+                                                  color: Color(0xFF1C1B1C),
+                                                  fontSize: 16,
+                                                  fontFamily:
+                                                      'Plus Jakarta Sans',
+                                                  fontWeight: FontWeight.w400,
+                                                ),
+                                                decoration: InputDecoration(
+                                                  filled: true,
+                                                  fillColor: const Color(
+                                                    0xFFFDF8F8,
+                                                  ),
+                                                  contentPadding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 16,
+                                                        vertical: 12,
+                                                      ),
+                                                  enabledBorder:
+                                                      OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              16,
+                                                            ),
+                                                        borderSide:
+                                                            const BorderSide(
+                                                              color: Color(
+                                                                0xFFC8C5CB,
+                                                              ),
+                                                              width: 1,
+                                                            ),
+                                                      ),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              16,
+                                                            ),
+                                                        borderSide:
+                                                            const BorderSide(
+                                                              color: Color(
+                                                                0xFF192126,
+                                                              ),
+                                                              width: 1.5,
+                                                            ),
+                                                      ),
+                                                  isDense: true,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        isDense: true,
-                                      ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                                  )
+                                : const SizedBox.shrink(),
                           ),
                         ),
                         // Buttons at the bottom
@@ -1256,38 +1533,53 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              InkWell(
-                                onTap: () => controller.saveChanges(),
-                                borderRadius: BorderRadius.circular(25),
-                                child: Container(
-                                  width: double.infinity,
-                                  height: 48,
-                                  decoration: ShapeDecoration(
-                                    color: const Color(0xFF192126),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(25),
+                              Obx(
+                                () => InkWell(
+                                  onTap: controller.isLoading
+                                      ? null
+                                      : controller.saveChanges,
+                                  borderRadius: BorderRadius.circular(25),
+                                  child: Container(
+                                    width: double.infinity,
+                                    height: 48,
+                                    decoration: ShapeDecoration(
+                                      color: controller.isLoading
+                                          ? const Color(0xFF8C9093)
+                                          : const Color(0xFF192126),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(25),
+                                      ),
+                                      shadows: const [
+                                        BoxShadow(
+                                          color: Color(0x0F000000),
+                                          blurRadius: 4,
+                                          offset: Offset(0, 2),
+                                          spreadRadius: 0,
+                                        ),
+                                      ],
                                     ),
-                                    shadows: const [
-                                      BoxShadow(
-                                        color: Color(0x0F000000),
-                                        blurRadius: 4,
-                                        offset: Offset(0, 2),
-                                        spreadRadius: 0,
-                                      ),
-                                    ],
-                                  ),
-                                  child: const Center(
-                                    child: Text(
-                                      'Simpan Perubahan',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 14,
-                                        fontFamily: 'Plus Jakarta Sans',
-                                        fontWeight: FontWeight.w500,
-                                        height: 1.43,
-                                        letterSpacing: 0.14,
-                                      ),
+                                    child: Center(
+                                      child: controller.isLoading
+                                          ? const SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: Colors.white,
+                                              ),
+                                            )
+                                          : const Text(
+                                              'Simpan Perubahan',
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 14,
+                                                fontFamily: 'Plus Jakarta Sans',
+                                                fontWeight: FontWeight.w500,
+                                                height: 1.43,
+                                                letterSpacing: 0.14,
+                                              ),
+                                            ),
                                     ),
                                   ),
                                 ),
@@ -1377,66 +1669,63 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
           ),
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          margin: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          decoration: ShapeDecoration(
-            color: const Color(0xFF192126),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(32),
-            ),
-          ),
-          child: Obx(
-            () => Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItem(0, Icons.home_filled, "Home"),
-                _buildNavItem(1, Icons.calendar_today_outlined, "Calendar"),
-                _buildNavItem(2, Icons.medical_services_outlined, "medical"),
-                _buildNavItem(3, Icons.person_outline, "Person"),
-              ],
-            ),
-          ),
+    );
+  }
+
+  Widget _buildProfileTabs() {
+    return Obx(
+      () => Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: const Color(0xFFEFEFF1),
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Row(
+          children: [
+            _buildProfileTabItem(0, 'Dasar'),
+            _buildProfileTabItem(1, 'Kesehatan'),
+            _buildProfileTabItem(2, 'Minat'),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, String label) {
-    bool isSelected = controller.currentIndex == index;
-    return GestureDetector(
-      onTap: () => controller.changePage(index),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        padding: EdgeInsets.symmetric(
-          horizontal: isSelected ? 16 : 12,
-          vertical: 10,
-        ),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFBBF246) : Colors.transparent,
-          borderRadius: BorderRadius.circular(43),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? const Color(0xFF192126) : Colors.white70,
-              size: 24,
+  Widget _buildProfileTabItem(int index, String label) {
+    final isSelected = controller.selectedProfileTab == index;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => controller.changeProfileTab(index),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            color: isSelected ? const Color(0xFF192126) : Colors.transparent,
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: isSelected
+                ? const [
+                    BoxShadow(
+                      color: Color(0x1A000000),
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: isSelected ? Colors.white : const Color(0xFF47464B),
+              fontSize: 13,
+              fontFamily: 'Plus Jakarta Sans',
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+              height: 1.3,
             ),
-            if (isSelected && label.isNotEmpty) ...[
-              const SizedBox(width: 4),
-              Text(
-                label,
-                style: const TextStyle(
-                  color: Color(0xFF192126),
-                  fontWeight: FontWeight.w500,
-                  fontFamily: 'Lato',
-                  fontSize: 13,
-                ),
-              ),
-            ],
-          ],
+          ),
         ),
       ),
     );

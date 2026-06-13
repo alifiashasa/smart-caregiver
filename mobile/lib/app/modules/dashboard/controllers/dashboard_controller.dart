@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../data/repositories/dashboard_repository.dart';
-import '../../../routes/app_pages.dart';
+import '../../patient_shell/controllers/patient_shell_controller.dart';
 
 class DashboardController extends GetxController {
   final DashboardRepository _dashboardRepository;
+  final _shellWorkers = <Worker>[];
 
   DashboardController({required DashboardRepository dashboardRepository})
-      : _dashboardRepository = dashboardRepository;
+    : _dashboardRepository = dashboardRepository;
 
   // ── Reactive state ──
-  final _currentIndex = 0.obs;
   final _selectedTrendFilter = '7 Hari'.obs;
 
   // Patient Data
@@ -104,7 +104,6 @@ class DashboardController extends GetxController {
   final _availableParams = <String>[].obs;
 
   // ── Public getters ──
-  int get currentIndex => _currentIndex.value;
   String get selectedTrendFilter => _selectedTrendFilter.value;
   String get patientName => _patientName.value;
   String get patientAge => _patientAge.value;
@@ -118,7 +117,6 @@ class DashboardController extends GetxController {
   String get selectedTrendParam => _selectedTrendParam.value;
   List<String> get availableParams => _availableParams;
 
-  set currentIndex(int value) => _currentIndex.value = value;
   set selectedTrendFilter(String value) => _selectedTrendFilter.value = value;
   set selectedTrendParam(String value) => _selectedTrendParam.value = value;
 
@@ -132,32 +130,6 @@ class DashboardController extends GetxController {
     }
   }
 
-  void changePage(int index) {
-    if (_currentIndex.value == index) return;
-
-    int previousIndex = _currentIndex.value;
-    _currentIndex.value = index;
-
-    final args = {
-      'from': previousIndex,
-      'name': _patientName.value,
-      'age': _patientAge.value,
-      'image': _patientImage.value,
-      'gender': _patientGender.value,
-      'elderly_id': _elderlyId.value,
-    };
-
-    if (index == 0) {
-      Get.offNamed(Routes.DASHBOARD, arguments: args);
-    } else if (index == 1) {
-      Get.offNamed(Routes.CALENDAR, arguments: args);
-    } else if (index == 2) {
-      Get.offNamed(Routes.PATIENT_DETAIL, arguments: args);
-    } else if (index == 3) {
-      Get.offNamed(Routes.PROFIL_LANSIA, arguments: args);
-    }
-  }
-
   Future<void> loadTrends() => _loadTrends();
 
   Future<void> _loadPatientProfile(String id) async {
@@ -167,8 +139,9 @@ class DashboardController extends GetxController {
 
     final data = result['data'] as Map<String, dynamic>;
     _patientName.value = data['full_name'] ?? _patientName.value;
-    _patientAge.value =
-        data['age'] != null ? '${data['age']} Tahun' : _patientAge.value;
+    _patientAge.value = data['age'] != null
+        ? '${data['age']} Tahun'
+        : _patientAge.value;
     _patientGender.value = data['gender'] ?? _patientGender.value;
     _patientImage.value = data['photo_url'] ?? _patientImage.value;
   }
@@ -180,8 +153,10 @@ class DashboardController extends GetxController {
 
     final range = _selectedTrendFilter.value == '30 Hari' ? '30d' : '7d';
 
-    final result =
-        await _dashboardRepository.getTrends(_elderlyId.value, range: range);
+    final result = await _dashboardRepository.getTrends(
+      _elderlyId.value,
+      range: range,
+    );
 
     _isLoading.value = false;
 
@@ -191,9 +166,11 @@ class DashboardController extends GetxController {
     if (data != null) {
       if (data['data_points'] != null) {
         _trendDataPoints.value = (data['data_points'] as List<dynamic>)
-            .map((point) => _normalizeTrendDataPoint(
-                  Map<String, dynamic>.from(point as Map),
-                ))
+            .map(
+              (point) => _normalizeTrendDataPoint(
+                Map<String, dynamic>.from(point as Map),
+              ),
+            )
             .toList();
       }
       if (data['summary'] != null) {
@@ -208,8 +185,10 @@ class DashboardController extends GetxController {
   Future<void> _loadLatestRecord() async {
     if (_elderlyId.value.isEmpty) return;
 
-    final result =
-        await _dashboardRepository.getLatestHealthRecord(_elderlyId.value, limit: 1);
+    final result = await _dashboardRepository.getLatestHealthRecord(
+      _elderlyId.value,
+      limit: 1,
+    );
 
     if (result['error'] == true || result['data'] == null) return;
 
@@ -300,32 +279,33 @@ class DashboardController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    if (Get.arguments != null && Get.arguments is Map) {
-      if (Get.arguments['from'] != null) {
-        _currentIndex.value = Get.arguments['from'];
-      }
-      if (Get.arguments['name'] != null) {
-        _patientName.value = Get.arguments['name'];
-      }
-      if (Get.arguments['age'] != null) {
-        _patientAge.value = Get.arguments['age'];
-      }
-      if (Get.arguments['image'] != null) {
-        _patientImage.value = Get.arguments['image'];
-      }
-      if (Get.arguments['gender'] != null) {
-        _patientGender.value = Get.arguments['gender'];
-      }
-      if (Get.arguments['elderly_id'] != null) {
-        _elderlyId.value = Get.arguments['elderly_id'].toString();
-      }
-    }
+
+    final shell = Get.find<PatientShellController>();
+    _readFromShell(shell);
+    _bindShellProfile(shell);
 
     if (_elderlyId.value.isNotEmpty) {
       _loadDashboardData();
     }
 
     ever(_selectedTrendFilter, (_) => loadTrends());
+  }
+
+  void _readFromShell(PatientShellController shell) {
+    _patientName.value = shell.patientName.value;
+    _patientAge.value = shell.patientAge.value;
+    _patientGender.value = shell.patientGender.value;
+    _patientImage.value = shell.patientImage.value;
+    _elderlyId.value = shell.elderlyId.value;
+  }
+
+  void _bindShellProfile(PatientShellController shell) {
+    _shellWorkers.addAll([
+      ever(shell.patientName, (value) => _patientName.value = value),
+      ever(shell.patientAge, (value) => _patientAge.value = value),
+      ever(shell.patientGender, (value) => _patientGender.value = value),
+      ever(shell.patientImage, (value) => _patientImage.value = value),
+    ]);
   }
 
   Future<void> _loadDashboardData() async {
@@ -337,12 +317,10 @@ class DashboardController extends GetxController {
   }
 
   @override
-  void onReady() {
-    super.onReady();
-    if (_currentIndex.value != 0) {
-      Future.delayed(const Duration(milliseconds: 10), () {
-        _currentIndex.value = 0;
-      });
+  void onClose() {
+    for (final worker in _shellWorkers) {
+      worker.dispose();
     }
+    super.onClose();
   }
 }

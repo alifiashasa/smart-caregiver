@@ -83,8 +83,10 @@ class ScheduleApi {
 
   /// GET /schedules/{scheduleId}
   Future<Map<String, dynamic>> getById(String scheduleId) async {
-    final response =
-        await _client.get('/schedules/$scheduleId', authenticated: true);
+    final response = await _client.get(
+      '/schedules/$scheduleId',
+      authenticated: true,
+    );
 
     if (response['error'] == true) {
       return response;
@@ -146,8 +148,10 @@ class ScheduleApi {
 
   /// DELETE /schedules/{scheduleId}
   Future<Map<String, dynamic>> delete(String scheduleId) async {
-    final response =
-        await _client.delete('/schedules/$scheduleId', authenticated: true);
+    final response = await _client.delete(
+      '/schedules/$scheduleId',
+      authenticated: true,
+    );
 
     if (response['error'] == true) {
       return response;
@@ -164,6 +168,24 @@ class ScheduleApi {
   Future<Map<String, dynamic>> markComplete(String scheduleId) async {
     final response = await _client.patch(
       '/schedules/$scheduleId/complete',
+      authenticated: true,
+    );
+
+    if (response['error'] == true) {
+      return response;
+    }
+
+    return {
+      'error': false,
+      'statusCode': response['statusCode'],
+      'data': response['data'],
+    };
+  }
+
+  /// PATCH /schedules/{scheduleId}/incomplete
+  Future<Map<String, dynamic>> markIncomplete(String scheduleId) async {
+    final response = await _client.patch(
+      '/schedules/$scheduleId/incomplete',
       authenticated: true,
     );
 

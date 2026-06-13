@@ -8,7 +8,7 @@ class LogKesehatanController extends GetxController {
   final HealthRepository _healthRepository;
 
   LogKesehatanController({required HealthRepository healthRepository})
-      : _healthRepository = healthRepository;
+    : _healthRepository = healthRepository;
 
   // ── Form controllers ──
   final cholesterolController = TextEditingController();
@@ -58,6 +58,8 @@ class LogKesehatanController extends GetxController {
   }
 
   Future<void> submitHealthRecord() async {
+    if (_isLoading.value) return;
+
     double? systolicBp;
     double? diastolicBp;
     if (tensiController.text.contains('/')) {
@@ -116,14 +118,18 @@ class LogKesehatanController extends GetxController {
     double fuzzyInfectionScore = 0.0;
 
     if (result['error'] == true) {
-      final errMsg = result['message'] as String? ??
+      final errMsg =
+          result['message'] as String? ??
           'Gagal menyimpan data kesehatan. Periksa koneksi Anda.';
       final detailBody = result['detail_body'] as Map<String, dynamic>?;
-      log.error('submitHealthRecord gagal', data: {
-        'message': errMsg,
-        'statusCode': result['statusCode'],
-        if (detailBody case final body?) 'detail': body,
-      });
+      log.error(
+        'submitHealthRecord gagal',
+        data: {
+          'message': errMsg,
+          'statusCode': result['statusCode'],
+          if (detailBody case final body?) 'detail': body,
+        },
+      );
       Get.snackbar(
         'Gagal',
         errMsg,
@@ -152,8 +158,7 @@ class LogKesehatanController extends GetxController {
         if (fuzzy != null) {
           final status = fuzzy['final_status'] as String?;
           if (status != null) {
-            healthStatus =
-                status.toString().capitalizeFirst ?? healthStatus;
+            healthStatus = status.toString().capitalizeFirst ?? healthStatus;
           }
         }
 

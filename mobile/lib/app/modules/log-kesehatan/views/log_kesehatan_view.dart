@@ -343,25 +343,37 @@ class LogKesehatanView extends GetView<LogKesehatanController> {
                       SizedBox(
                         width: double.infinity,
                         height: 52,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            controller.submitHealthRecord();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF192126),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(26),
+                        child: Obx(
+                          () => ElevatedButton(
+                            onPressed: controller.isLoading
+                                ? null
+                                : controller.submitHealthRecord,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF192126),
+                              disabledBackgroundColor: const Color(0xFF8C9093),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(26),
+                              ),
+                              elevation: 0,
                             ),
-                            elevation: 0,
-                          ),
-                          child: const Text(
-                            'Simpan Data Kesehatan',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontFamily: 'Plus Jakarta Sans',
-                              fontWeight: FontWeight.w500,
-                            ),
+                            child: controller.isLoading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : const Text(
+                                    'Simpan Data Kesehatan',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontFamily: 'Plus Jakarta Sans',
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
                           ),
                         ),
                       ),

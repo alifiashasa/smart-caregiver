@@ -7,7 +7,7 @@ class TambahLansiaController extends GetxController {
   final ElderlyRepository _elderlyRepository;
 
   TambahLansiaController({required ElderlyRepository elderlyRepository})
-      : _elderlyRepository = elderlyRepository;
+    : _elderlyRepository = elderlyRepository;
 
   // ── Reactive state ──
   final _namaLengkap = ''.obs;
@@ -57,6 +57,8 @@ class TambahLansiaController extends GetxController {
   }
 
   Future<void> simpan() async {
+    if (_isLoading.value) return;
+
     if (_namaLengkap.value.isEmpty || _usia.value.isEmpty) {
       Get.snackbar('Error', 'Nama dan Usia harus diisi');
       return;
@@ -92,15 +94,15 @@ class TambahLansiaController extends GetxController {
       fullName: _namaLengkap.value,
       age: usiaInt,
       gender: gender,
-      photoUrl:
-          _fotoProfilPath.value.isNotEmpty ? _fotoProfilPath.value : null,
-      medicalHistory:
-          _riwayatMedis.value.isNotEmpty ? _riwayatMedis.value : null,
-      physicalCondition:
-          kondisiFisik.value.isNotEmpty ? kondisiFisik.value : null,
+      photoUrl: _fotoProfilPath.value.isNotEmpty ? _fotoProfilPath.value : null,
+      medicalHistory: _riwayatMedis.value.isNotEmpty
+          ? _riwayatMedis.value
+          : null,
+      physicalCondition: kondisiFisik.value.isNotEmpty
+          ? kondisiFisik.value
+          : null,
       mobilityLevel: mobilityLevel,
-      hobbiesInterests:
-          _minatHobi.value.isNotEmpty ? _minatHobi.value : null,
+      hobbiesInterests: _minatHobi.value.isNotEmpty ? _minatHobi.value : null,
     );
 
     _isLoading.value = false;

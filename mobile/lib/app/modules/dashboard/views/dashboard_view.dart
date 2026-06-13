@@ -303,6 +303,8 @@ class DashboardView extends GetView<DashboardController> {
                   ],
                 ),
               ),
+              const SizedBox(height: 16),
+              _buildAddHealthRecordButton(),
               const SizedBox(height: 32),
 
               // Health Metrics List
@@ -456,96 +458,46 @@ class DashboardView extends GetView<DashboardController> {
         ),
       ),
 
-      // Floating Action Button (+)
-      floatingActionButton: Container(
-        width: 56,
-        height: 56,
-        decoration: ShapeDecoration(
-          color: Colors.black,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          shadows: const [
-            BoxShadow(
-              color: Color(0x33000000),
-              blurRadius: 25,
-              offset: Offset(0, 10),
-              spreadRadius: 0,
-            ),
-          ],
-        ),
-        child: IconButton(
-          onPressed: () {
-            Get.toNamed(Routes.LOG_KESEHATAN, arguments: {
-              'elderly_id': controller.elderlyId,
-              'name': controller.patientName,
-            });
-          },
-          icon: const Icon(Icons.add, color: Colors.white),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-
-      // Custom Bottom Navigation Bar
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          margin: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          decoration: ShapeDecoration(
-            color: const Color(0xFF192126),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(32),
-            ),
-          ),
-          child: Obx(
-            () => Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItem(0, Icons.home_filled, "Home"),
-                _buildNavItem(1, Icons.calendar_today_outlined, "Calendar"),
-                _buildNavItem(2, Icons.medical_services_outlined, "medical"),
-                _buildNavItem(3, Icons.person_outline, "Person"),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, String label) {
-    bool isSelected = controller.currentIndex == index;
-    return GestureDetector(
-      onTap: () => controller.changePage(index),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        padding: EdgeInsets.symmetric(
-          horizontal: isSelected ? 16 : 12,
-          vertical: 10,
-        ),
+  Widget _buildAddHealthRecordButton() {
+    return InkWell(
+      onTap: () {
+        Get.toNamed(Routes.LOG_KESEHATAN, arguments: {
+          'elderly_id': controller.elderlyId,
+          'name': controller.patientName,
+        });
+      },
+      borderRadius: BorderRadius.circular(18),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFBBF246) : Colors.transparent,
-          borderRadius: BorderRadius.circular(43),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? const Color(0xFF192126) : Colors.white70,
-              size: 24,
+          color: const Color(0xFF192126),
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x1A000000),
+              blurRadius: 16,
+              offset: Offset(0, 6),
             ),
-            if (isSelected && label.isNotEmpty) ...[
-              const SizedBox(width: 4),
-              Text(
-                label,
-                style: const TextStyle(
-                  color: Color(0xFF192126),
-                  fontWeight: FontWeight.w500,
-                  fontFamily: 'Lato',
-                  fontSize: 13,
-                ),
+          ],
+        ),
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.add, color: Colors.white, size: 20),
+            SizedBox(width: 10),
+            Text(
+              'Tambah Data Kesehatan',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                fontFamily: 'Plus Jakarta Sans',
+                fontWeight: FontWeight.w700,
               ),
-            ],
+            ),
           ],
         ),
       ),
