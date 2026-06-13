@@ -11,6 +11,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timedelta, timezone
 from html import escape
+from secrets import compare_digest
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
@@ -19,6 +20,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.app.core.config import settings
+from src.app.core.rate_limiter import limiter
 from src.app.core.security import hash_password
 from src.app.services.resend_service import send_email
 from src.database.enums import ElderlyStatus, HealthStatus, NotificationChannel, NotificationPriority, NotificationType
@@ -72,7 +74,7 @@ async def verify_admin_api_key(request: Request) -> None:
         )
 
     provided = request.headers.get("X-API-Key")
-    if not provided or provided != api_key:
+    if not provided or not compare_digest(provided, api_key):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Invalid or missing admin API key",
@@ -111,7 +113,8 @@ async def get_target_users(db: AsyncSession, target: AnnouncementTarget) -> list
 
 
 @router.get("/operations", dependencies=[Depends(verify_admin_api_key)])
-async def get_operations_summary(db: AsyncSession = Depends(get_db)):
+@limiter.limit("30/minute")
+async def get_operations_summary(request: Request, db: AsyncSession = Depends(get_db)):
     now = datetime.now(timezone.utc)
     week_start = now - timedelta(days=7)
 
@@ -175,7 +178,9 @@ async def get_operations_summary(db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/announcements/preview", dependencies=[Depends(verify_admin_api_key)])
+@limiter.limit("20/minute")
 async def preview_announcement_recipients(
+    request: Request,
     payload: AnnouncementPreviewRequest,
     db: AsyncSession = Depends(get_db),
 ):
@@ -188,7 +193,9 @@ async def preview_announcement_recipients(
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(verify_admin_api_key)],
 )
+@limiter.limit("5/minute")
 async def create_announcement(
+    request: Request,
     payload: AnnouncementCreate,
     db: AsyncSession = Depends(get_db),
 ):
@@ -254,7 +261,9 @@ async def create_announcement(
 
 
 @router.get("/announcements", dependencies=[Depends(verify_admin_api_key)])
+@limiter.limit("30/minute")
 async def list_announcements(
+    request: Request,
     limit: int = Query(default=10, ge=1, le=50),
     db: AsyncSession = Depends(get_db),
 ):
@@ -286,7 +295,9 @@ async def list_announcements(
 
 
 @router.post("/caregivers", status_code=status.HTTP_201_CREATED, dependencies=[Depends(verify_admin_api_key)])
+@limiter.limit("5/minute")
 async def create_caregiver(
+    request: Request,
     payload: CaregiverCreate,
     db: AsyncSession = Depends(get_db),
 ):
@@ -322,7 +333,9 @@ async def create_caregiver(
 
 
 @router.get("/caregivers", dependencies=[Depends(verify_admin_api_key)])
+@limiter.limit("30/minute")
 async def list_caregivers(
+    request: Request,
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
     db: AsyncSession = Depends(get_db),
@@ -350,7 +363,9 @@ async def list_caregivers(
 
 
 @router.patch("/caregivers/{user_id}/status", dependencies=[Depends(verify_admin_api_key)])
+@limiter.limit("10/minute")
 async def update_caregiver_status(
+    request: Request,
     user_id: uuid.UUID,
     payload: CaregiverStatusUpdate,
     db: AsyncSession = Depends(get_db),
