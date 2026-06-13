@@ -1,19 +1,36 @@
 import 'dart:async';
-import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:http/http.dart' as http;
 
 import '../core/config.dart';
 import '../core/logger.dart';
 
 class ApiClient {
+  ApiClient()
+    : _dio = Dio(
+        BaseOptions(
+          baseUrl: AppConfig.baseUrl,
+          connectTimeout: AppConfig.requestTimeout,
+          receiveTimeout: AppConfig.requestTimeout,
+          sendTimeout: AppConfig.requestTimeout,
+          headers: const {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'ngrok-skip-browser-warning': 'true',
+          },
+          validateStatus: (_) => true,
+        ),
+      );
+
   static final GetStorage _storage = GetStorage();
   static const FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
   static const String _accessTokenKey = 'access_token';
   static const String _refreshTokenKey = 'refresh_token';
+
+  final Dio _dio;
 
   static String? _accessToken;
   static String? _refreshToken;
@@ -65,11 +82,7 @@ class ApiClient {
   // ---------------------------------------------------------------------------
 
   Map<String, String> _buildHeaders({bool authenticated = false}) {
-    final headers = <String, String>{
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'ngrok-skip-browser-warning': 'true',
-    };
+    final headers = <String, String>{};
 
     if (authenticated) {
       final token = getAccessToken();
@@ -81,8 +94,12 @@ class ApiClient {
     return headers;
   }
 
-  Uri _buildUri(String endpoint) {
-    return Uri.parse('${AppConfig.baseUrl}$endpoint');
+  Map<String, dynamic> _readBody(Response<dynamic> response) {
+    final data = response.data;
+    if (data is Map<String, dynamic>) return data;
+    if (data is Map) return Map<String, dynamic>.from(data);
+    if (data == null || data == '') return <String, dynamic>{};
+    return {'data': data};
   }
 
   /// Attempt to refresh the JWT token.
@@ -95,21 +112,13 @@ class ApiClient {
       final currentRefreshToken = getRefreshToken();
       if (currentRefreshToken == null) return false;
 
-      final uri = _buildUri('/auth/refresh');
-      final response = await http
-          .post(
-            uri,
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-              'ngrok-skip-browser-warning': 'true',
-            },
-            body: jsonEncode({'refresh_token': currentRefreshToken}),
-          )
-          .timeout(AppConfig.requestTimeout);
+      final response = await _dio.post<dynamic>(
+        '/auth/refresh',
+        data: {'refresh_token': currentRefreshToken},
+      );
 
       if (response.statusCode == 200) {
-        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        final body = _readBody(response);
         final newAccess = body['access_token'] as String?;
         final newRefresh = body['refresh_token'] as String?;
         if (newAccess != null && newRefresh != null) {
@@ -130,14 +139,13 @@ class ApiClient {
   }
 
   Future<Map<String, dynamic>> _processResponse(
-    http.Response response, {
+    Response<dynamic> response, {
     bool retried = false,
   }) async {
-    final body = response.body.isNotEmpty
-        ? jsonDecode(response.body) as Map<String, dynamic>
-        : <String, dynamic>{};
+    final statusCode = response.statusCode ?? 0;
+    final body = _readBody(response);
 
-    if (response.statusCode == 401 && !retried) {
+    if (statusCode == 401 && !retried) {
       // Try refresh before giving up
       final refreshed = await _tryRefreshToken();
       if (refreshed) {
@@ -157,28 +165,28 @@ class ApiClient {
       };
     }
 
-    if (response.statusCode >= 400) {
+    if (statusCode >= 400) {
       final message = body['detail'] ?? body['message'] ?? 'Permintaan gagal';
       log.api(
         '?',
-        response.request?.url.toString() ?? '',
-        response.statusCode,
+        response.requestOptions.uri.toString(),
+        statusCode,
         response: body,
       );
       return {
         'error': true,
-        'statusCode': response.statusCode,
+        'statusCode': statusCode,
         'message': message,
         'detail_body': body, // keep raw body for rich error display
       };
     }
 
-    return {'error': false, 'statusCode': response.statusCode, 'data': body};
+    return {'error': false, 'statusCode': statusCode, 'data': body};
   }
 
   /// Retry a request after token refresh by rebuilding headers.
   Future<Map<String, dynamic>> _retryAuthenticated(
-    Future<http.Response> Function(Map<String, String> headers) request,
+    Future<Response<dynamic>> Function(Map<String, String> headers) request,
   ) async {
     final newToken = getAccessToken();
     if (newToken == null) {
@@ -190,15 +198,10 @@ class ApiClient {
       };
     }
 
-    final headers = <String, String>{
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'ngrok-skip-browser-warning': 'true',
-      'Authorization': 'Bearer $newToken',
-    };
+    final headers = <String, String>{'Authorization': 'Bearer $newToken'};
 
     try {
-      final response = await request(headers).timeout(AppConfig.requestTimeout);
+      final response = await request(headers);
       return _processResponse(response, retried: true);
     } catch (e) {
       return {
@@ -207,6 +210,14 @@ class ApiClient {
         'message': 'Network error: ${e.toString()}',
       };
     }
+  }
+
+  Map<String, dynamic> _networkError(Object error) {
+    return {
+      'error': true,
+      'statusCode': 0,
+      'message': 'Network error: ${error.toString()}',
+    };
   }
 
   // ---------------------------------------------------------------------------
@@ -218,12 +229,12 @@ class ApiClient {
     bool authenticated = true,
   }) async {
     try {
-      final uri = _buildUri(endpoint);
       final headers = _buildHeaders(authenticated: authenticated);
       log.api('GET', endpoint, null);
-      final response = await http
-          .get(uri, headers: headers)
-          .timeout(AppConfig.requestTimeout);
+      final response = await _dio.get<dynamic>(
+        endpoint,
+        options: Options(headers: headers),
+      );
 
       final processed = await _processResponse(response);
       log.api('GET', endpoint, response.statusCode);
@@ -231,17 +242,16 @@ class ApiClient {
       // If token was refreshed, retry the original request
       if (processed['statusCode'] == 498 && authenticated) {
         return _retryAuthenticated(
-          (newHeaders) => http.get(uri, headers: newHeaders),
+          (newHeaders) => _dio.get<dynamic>(
+            endpoint,
+            options: Options(headers: newHeaders),
+          ),
         );
       }
 
       return processed;
     } catch (e) {
-      return {
-        'error': true,
-        'statusCode': 0,
-        'message': 'Network error: ${e.toString()}',
-      };
+      return _networkError(e);
     }
   }
 
@@ -251,37 +261,30 @@ class ApiClient {
     bool authenticated = false,
   }) async {
     try {
-      final uri = _buildUri(endpoint);
       final headers = _buildHeaders(authenticated: authenticated);
       log.api('POST', endpoint, null, request: body);
-      final response = await http
-          .post(
-            uri,
-            headers: headers,
-            body: body != null ? jsonEncode(body) : null,
-          )
-          .timeout(AppConfig.requestTimeout);
+      final response = await _dio.post<dynamic>(
+        endpoint,
+        data: body,
+        options: Options(headers: headers),
+      );
 
       final processed = await _processResponse(response);
       log.api('POST', endpoint, response.statusCode);
 
       if (processed['statusCode'] == 498 && authenticated) {
         return _retryAuthenticated(
-          (newHeaders) => http.post(
-            uri,
-            headers: newHeaders,
-            body: body != null ? jsonEncode(body) : null,
+          (newHeaders) => _dio.post<dynamic>(
+            endpoint,
+            data: body,
+            options: Options(headers: newHeaders),
           ),
         );
       }
 
       return processed;
     } catch (e) {
-      return {
-        'error': true,
-        'statusCode': 0,
-        'message': 'Network error: ${e.toString()}',
-      };
+      return _networkError(e);
     }
   }
 
@@ -291,37 +294,30 @@ class ApiClient {
     bool authenticated = true,
   }) async {
     try {
-      final uri = _buildUri(endpoint);
       final headers = _buildHeaders(authenticated: authenticated);
       log.api('PUT', endpoint, null, request: body);
-      final response = await http
-          .put(
-            uri,
-            headers: headers,
-            body: body != null ? jsonEncode(body) : null,
-          )
-          .timeout(AppConfig.requestTimeout);
+      final response = await _dio.put<dynamic>(
+        endpoint,
+        data: body,
+        options: Options(headers: headers),
+      );
 
       final processed = await _processResponse(response);
       log.api('PUT', endpoint, response.statusCode);
 
       if (processed['statusCode'] == 498 && authenticated) {
         return _retryAuthenticated(
-          (newHeaders) => http.put(
-            uri,
-            headers: newHeaders,
-            body: body != null ? jsonEncode(body) : null,
+          (newHeaders) => _dio.put<dynamic>(
+            endpoint,
+            data: body,
+            options: Options(headers: newHeaders),
           ),
         );
       }
 
       return processed;
     } catch (e) {
-      return {
-        'error': true,
-        'statusCode': 0,
-        'message': 'Network error: ${e.toString()}',
-      };
+      return _networkError(e);
     }
   }
 
@@ -331,37 +327,30 @@ class ApiClient {
     bool authenticated = true,
   }) async {
     try {
-      final uri = _buildUri(endpoint);
       final headers = _buildHeaders(authenticated: authenticated);
       log.api('PATCH', endpoint, null, request: body);
-      final response = await http
-          .patch(
-            uri,
-            headers: headers,
-            body: body != null ? jsonEncode(body) : null,
-          )
-          .timeout(AppConfig.requestTimeout);
+      final response = await _dio.patch<dynamic>(
+        endpoint,
+        data: body,
+        options: Options(headers: headers),
+      );
 
       final processed = await _processResponse(response);
       log.api('PATCH', endpoint, response.statusCode);
 
       if (processed['statusCode'] == 498 && authenticated) {
         return _retryAuthenticated(
-          (newHeaders) => http.patch(
-            uri,
-            headers: newHeaders,
-            body: body != null ? jsonEncode(body) : null,
+          (newHeaders) => _dio.patch<dynamic>(
+            endpoint,
+            data: body,
+            options: Options(headers: newHeaders),
           ),
         );
       }
 
       return processed;
     } catch (e) {
-      return {
-        'error': true,
-        'statusCode': 0,
-        'message': 'Network error: ${e.toString()}',
-      };
+      return _networkError(e);
     }
   }
 
@@ -370,29 +359,28 @@ class ApiClient {
     bool authenticated = true,
   }) async {
     try {
-      final uri = _buildUri(endpoint);
       final headers = _buildHeaders(authenticated: authenticated);
       log.api('DELETE', endpoint, null);
-      final response = await http
-          .delete(uri, headers: headers)
-          .timeout(AppConfig.requestTimeout);
+      final response = await _dio.delete<dynamic>(
+        endpoint,
+        options: Options(headers: headers),
+      );
 
       final processed = await _processResponse(response);
       log.api('DELETE', endpoint, response.statusCode);
 
       if (processed['statusCode'] == 498 && authenticated) {
         return _retryAuthenticated(
-          (newHeaders) => http.delete(uri, headers: newHeaders),
+          (newHeaders) => _dio.delete<dynamic>(
+            endpoint,
+            options: Options(headers: newHeaders),
+          ),
         );
       }
 
       return processed;
     } catch (e) {
-      return {
-        'error': true,
-        'statusCode': 0,
-        'message': 'Network error: ${e.toString()}',
-      };
+      return _networkError(e);
     }
   }
 }

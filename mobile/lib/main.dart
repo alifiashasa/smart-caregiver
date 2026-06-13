@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
+import 'app/bindings/initial_binding.dart';
 import 'app/core/fcm_service.dart';
 import 'app/data/api_client.dart';
 import 'app/routes/app_pages.dart';
@@ -34,6 +35,7 @@ void main() async {
   runApp(
     GetMaterialApp(
       title: "Application",
+      initialBinding: InitialBinding(),
       initialRoute: AppPages.INITIAL,
       getPages: AppPages.routes,
       debugShowCheckedModeBanner: false,
