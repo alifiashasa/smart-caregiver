@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../core/ui/app_feedback.dart';
 import '../../../data/models/notification_model.dart';
 import '../../../data/repositories/notification_repository.dart';
 
@@ -106,14 +106,9 @@ class NotifikasiController extends GetxController {
       }
       _notifications.refresh();
       _unreadCount.value = 0;
-      Get.snackbar(
+      AppFeedback.success(
         'Semua Dibaca',
         'Semua notifikasi telah ditandai sebagai dibaca',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFFBBF246),
-        colorText: const Color(0xFF192126),
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
       );
     }
   }

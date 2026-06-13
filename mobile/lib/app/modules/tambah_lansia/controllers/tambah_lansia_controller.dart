@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../core/ui/app_feedback.dart';
+import '../../../core/validators/app_validators.dart';
 import '../../../data/repositories/elderly_repository.dart';
 
 class TambahLansiaController extends GetxController {
@@ -52,23 +54,26 @@ class TambahLansiaController extends GetxController {
         _fotoProfilBytes.value = await image.readAsBytes();
       }
     } catch (e) {
-      Get.snackbar('Error', 'Gagal memilih gambar: $e');
+      AppFeedback.error('Error', 'Gagal memilih gambar: $e');
     }
   }
 
   Future<void> simpan() async {
     if (_isLoading.value) return;
 
-    if (_namaLengkap.value.isEmpty || _usia.value.isEmpty) {
-      Get.snackbar('Error', 'Nama dan Usia harus diisi');
+    final nameError = AppValidators.requiredText(_namaLengkap.value, 'Nama');
+    if (nameError != null) {
+      AppFeedback.error('Error', nameError);
       return;
     }
 
-    final usiaInt = int.tryParse(_usia.value);
-    if (usiaInt == null) {
-      Get.snackbar('Error', 'Usia harus berupa angka');
+    final ageError = AppValidators.positiveInt(_usia.value, 'Usia');
+    if (ageError != null) {
+      AppFeedback.error('Error', ageError);
       return;
     }
+
+    final usiaInt = int.parse(_usia.value.trim());
 
     _isLoading.value = true;
 
@@ -108,11 +113,11 @@ class TambahLansiaController extends GetxController {
     _isLoading.value = false;
 
     if (result['error'] == true) {
-      Get.snackbar('Error', result['message'] ?? 'Gagal menyimpan data');
+      AppFeedback.error('Error', result['message'] ?? 'Gagal menyimpan data');
       return;
     }
 
     Get.back(result: true);
-    Get.snackbar('Sukses', 'Data Lansia berhasil ditambahkan');
+    AppFeedback.success('Sukses', 'Data Lansia berhasil ditambahkan');
   }
 }

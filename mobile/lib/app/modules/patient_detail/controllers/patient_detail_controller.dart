@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import '../../../data/models/health_record_model.dart';
 import '../../../data/repositories/elderly_repository.dart';
 import '../../../data/repositories/health_repository.dart';
 import '../../patient_shell/controllers/patient_shell_controller.dart';
@@ -84,55 +85,52 @@ class PatientDetailController extends GetxController {
   Future<void> loadDetail(String id) async {
     _isLoading.value = true;
 
-    final result = await _elderlyRepository.getById(id);
+    final result = await _elderlyRepository.getProfile(id);
 
     _isLoading.value = false;
 
-    if (result['error'] == true) {
-      _patientName.value = _patientName.value.isNotEmpty
-          ? _patientName.value
-          : 'Budi Santoso';
-      return;
-    }
-
-    final data = result['data'] as Map<String, dynamic>?;
-    if (data != null) {
-      _patientName.value = data['full_name'] ?? _patientName.value;
-      _patientAge.value = data['age']?.toString() ?? '';
-      _patientGender.value = data['gender'] ?? '';
-      _patientPhotoUrl.value = data['photo_url'] ?? '';
-      _patientMobilityLevel.value = data['mobility_level'] ?? '';
-      _patientMedicalHistory.value = data['medical_history'] ?? '';
-      _patientPhysicalCondition.value = data['physical_condition'] ?? '';
-      _patientHobbiesInterests.value = data['hobbies_interests'] ?? '';
-      _patientStatus.value = data['status'] ?? '';
-    }
+    result.when(
+      success: (profile) {
+        _patientName.value = profile.fullName.isNotEmpty
+            ? profile.fullName
+            : _patientName.value;
+        _patientAge.value = profile.age.toString();
+        _patientGender.value = profile.gender ?? '';
+        _patientPhotoUrl.value = profile.photoUrl ?? '';
+        _patientMobilityLevel.value = profile.mobilityLevel;
+        _patientMedicalHistory.value = profile.medicalHistory ?? '';
+        _patientPhysicalCondition.value = profile.physicalCondition ?? '';
+        _patientHobbiesInterests.value = profile.hobbiesInterests ?? '';
+        _patientStatus.value = profile.status;
+      },
+      failure: (_) {
+        _patientName.value = _patientName.value.isNotEmpty
+            ? _patientName.value
+            : 'Budi Santoso';
+      },
+    );
   }
 
   Future<void> loadHealthRecords(String id) async {
     _isLoadingRecords.value = true;
 
-    final result = await _healthRepository.getRecords(id);
+    final result = await _healthRepository.getRecordItems(id);
 
     _isLoadingRecords.value = false;
 
-    if (result['error'] == true || result['data'] == null) return;
-
-    final data = result['data'] as Map<String, dynamic>;
-    final rawList = data['records'] as List<dynamic>?;
-    if (rawList == null || rawList.isEmpty) return;
-
-    _records.assignAll(
-      rawList.cast<Map<String, dynamic>>().map(_normalizeRecord),
+    result.when(
+      success: (records) => _records.assignAll(records.map(_normalizeRecord)),
+      failure: (_) {},
     );
   }
 
-  Map<String, dynamic> _normalizeRecord(Map<String, dynamic> rec) {
-    final isCritical = _isStatusCritical(rec['health_status'] as String?);
+  Map<String, dynamic> _normalizeRecord(HealthRecordModel record) {
+    final rec = record.toLegacyMap();
+    final isCritical = _isStatusCritical(record.healthStatus);
 
     String dateStr;
     try {
-      final dt = DateTime.parse(rec['recorded_at'] as String);
+      final dt = record.recordedAt;
       final months = [
         'Jan',
         'Feb',

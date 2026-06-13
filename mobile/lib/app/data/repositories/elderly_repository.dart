@@ -1,4 +1,6 @@
+import '../../core/api_result.dart';
 import '../elderly_api.dart';
+import '../models/elderly_profile_model.dart';
 
 class ElderlyRepository {
   final ElderlyApi _api;
@@ -8,6 +10,21 @@ class ElderlyRepository {
   Future<Map<String, dynamic>> getElderlyList() => _api.getAll();
 
   Future<Map<String, dynamic>> getById(String id) => _api.getById(id);
+
+  Future<ApiResult<ElderlyProfileModel>> getProfile(String id) async {
+    final response = await _api.getById(id);
+    final result = response.toApiResult();
+
+    return result.when(
+      success: (data) => ApiResult.success(ElderlyProfileModel.fromJson(data)),
+      failure: (failure) => ApiResult.failure(
+        failure.message,
+        statusCode: failure.statusCode,
+        sessionExpired: failure.sessionExpired,
+        detailBody: failure.detailBody,
+      ),
+    );
+  }
 
   Future<Map<String, dynamic>> create({
     required String fullName,

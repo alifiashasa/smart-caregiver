@@ -21,6 +21,7 @@ class HealthRecordModel {
     this.metabolicScore,
     this.infectionScore,
     this.fuzzyFinalScore,
+    this.fuzzyAnalysis,
   });
 
   factory HealthRecordModel.fromJson(Map<String, dynamic> json) {
@@ -46,6 +47,9 @@ class HealthRecordModel {
       metabolicScore: _readDouble(json['metabolic_score']),
       infectionScore: _readDouble(json['infection_score']),
       fuzzyFinalScore: _readDouble(json['fuzzy_final_score']),
+      fuzzyAnalysis: json['fuzzy_analysis'] is Map
+          ? Map<String, dynamic>.from(json['fuzzy_analysis'] as Map)
+          : null,
     );
   }
 
@@ -70,10 +74,38 @@ class HealthRecordModel {
   final double? metabolicScore;
   final double? infectionScore;
   final double? fuzzyFinalScore;
+  final Map<String, dynamic>? fuzzyAnalysis;
 
   bool get isCritical => healthStatus == 'critical';
   bool get needsAttention =>
       healthStatus == 'critical' || healthStatus == 'needs_attention';
+
+  Map<String, dynamic> toLegacyMap() {
+    return {
+      'id': id,
+      'elderly_id': elderlyId,
+      'recorded_by': recordedBy,
+      'recorded_at': recordedAt.toIso8601String(),
+      'created_at': createdAt?.toIso8601String(),
+      'systolic_bp': systolicBp,
+      'diastolic_bp': diastolicBp,
+      'blood_sugar': bloodSugar,
+      'heart_rate': heartRate,
+      'body_temperature': bodyTemperature,
+      'body_weight': bodyWeight,
+      'cholesterol': cholesterol,
+      'uric_acid': uricAcid,
+      'spo2_level': spo2Level,
+      'daily_notes': dailyNotes,
+      'complaints': complaints,
+      'health_status': healthStatus,
+      'cardio_score': cardioScore,
+      'metabolic_score': metabolicScore,
+      'infection_score': infectionScore,
+      'fuzzy_final_score': fuzzyFinalScore,
+      'fuzzy_analysis': fuzzyAnalysis,
+    };
+  }
 
   static double? _readDouble(Object? value) {
     if (value == null) return null;

@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mobile/app/core/ui/app_feedback.dart';
+import 'package:mobile/app/core/validators/app_validators.dart';
 import 'package:mobile/app/data/repositories/auth_repository.dart';
 import 'package:mobile/app/routes/app_pages.dart';
 
@@ -28,35 +29,27 @@ class LoginController extends GetxController {
       _isPasswordHidden.value = !_isPasswordHidden.value;
 
   bool _validate() {
-    if (_email.value.trim().isEmpty) {
-      _showError('Email harus diisi');
+    final emailError = AppValidators.email(_email.value);
+    if (emailError != null) {
+      _showError(emailError);
       return false;
     }
-    if (!GetUtils.isEmail(_email.value.trim())) {
-      _showError('Format email tidak valid');
+
+    final passwordError = AppValidators.minLength(
+      _password.value,
+      'Password',
+      6,
+    );
+    if (passwordError != null) {
+      _showError(passwordError);
       return false;
     }
-    if (_password.value.isEmpty) {
-      _showError('Password harus diisi');
-      return false;
-    }
-    if (_password.value.length < 6) {
-      _showError('Password minimal 6 karakter');
-      return false;
-    }
+
     return true;
   }
 
   void _showError(String message) {
-    Get.snackbar(
-      'Validasi',
-      message,
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.red.shade100,
-      colorText: const Color(0xFF192126),
-      margin: const EdgeInsets.all(16),
-      borderRadius: 12,
-    );
+    AppFeedback.error('Validasi', message);
   }
 
   Future<void> login() async {
@@ -71,14 +64,9 @@ class LoginController extends GetxController {
 
       if (result['error'] == true) {
         _isLoading.value = false;
-        Get.snackbar(
+        AppFeedback.error(
           'Gagal Masuk',
           result['message'] ?? 'Email atau password salah',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.shade100,
-          colorText: const Color(0xFF192126),
-          margin: const EdgeInsets.all(16),
-          borderRadius: 12,
         );
         return;
       }
@@ -86,15 +74,7 @@ class LoginController extends GetxController {
       await _checkFaceStatusAndNavigate();
     } catch (e) {
       _isLoading.value = false;
-      Get.snackbar(
-        'Error',
-        'Terjadi kesalahan jaringan. Coba lagi.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.shade100,
-        colorText: const Color(0xFF192126),
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
-      );
+      AppFeedback.error('Error', 'Terjadi kesalahan jaringan. Coba lagi.');
     }
   }
 

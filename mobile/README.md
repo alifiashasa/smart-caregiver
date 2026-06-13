@@ -16,7 +16,9 @@ Flutter application untuk caregiver dalam memonitor dan merawat lansia.
 - **Images**: `cached_network_image`, `image_picker`
 - **Typography**: Google Fonts
 - **Testing**: `flutter_test` + `mocktail`
-- **UI**: Material Design
+- **UI**: Material Design + centralized `AppTheme`
+- **Validation**: reusable `AppValidators`
+- **Feedback UI**: reusable `AppFeedback`
 
 ## Fitur App
 
@@ -44,9 +46,13 @@ lib/
     ├── bindings/
     │   └── initial_binding.dart      # Repository/global dependency
     ├── core/
+    │   ├── api_result.dart           # Typed success/failure result wrapper
     │   ├── config.dart               # API_BASE_URL/env config
     │   ├── fcm_service.dart          # Push notification service
-    │   └── logger.dart
+    │   ├── logger.dart
+    │   ├── theme/                    # Centralized app theme
+    │   ├── ui/                       # Feedback/snackbar helpers
+    │   └── validators/               # Reusable form validation
     ├── data/
     │   ├── api_client.dart           # Dio client + token refresh
     │   ├── *_api.dart                # Remote data source
@@ -87,7 +93,9 @@ Get.find<AuthRepository>()
 - API base URL dibaca dari `--dart-define=API_BASE_URL`, lalu fallback ke `assets/.env`, lalu fallback platform.
 - Access token dan refresh token disimpan di `flutter_secure_storage`.
 - GetStorage hanya dipakai untuk cache/preference non-sensitif.
-- `ApiClient` menggunakan Dio dengan timeout global dan token refresh retry.
+- `ApiClient` menggunakan Dio dengan timeout global, debug logging, auth interceptor, dan token refresh retry.
+- Repository baru mulai mengembalikan typed `ApiResult<T>` untuk flow yang sudah dimigrasikan.
+- Dashboard, schedule, notification, elderly profile, dan health record sudah memiliki typed model.
 
 ## Konfigurasi API Base URL
 
