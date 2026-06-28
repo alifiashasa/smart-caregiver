@@ -44,7 +44,9 @@ class TambahLansiaController extends GetxController {
   set riwayatMedis(String value) => _riwayatMedis.value = value;
   set minatHobi(String value) => _minatHobi.value = value;
 
-  final ImagePicker _picker = ImagePicker();
+  final ImagePicker _picker;
+
+  TambahLansiaController({ImagePicker? picker}) : _picker = picker ?? ImagePicker();
 
   Future<void> pickImage() async {
     try {
