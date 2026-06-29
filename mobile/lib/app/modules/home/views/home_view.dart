@@ -61,13 +61,17 @@ class HomeView extends GetView<HomeController> {
                 _buildStats(context),
                 const SizedBox(height: 20),
                 _buildSearchSurface(context),
+                const SizedBox(height: 16),
+                _buildFilterChips(context),
                 const SizedBox(height: 28),
                 _buildPatientHeader(context),
                 const SizedBox(height: 16),
                 if (controller.elderlyList.isEmpty)
                   _buildEmptyPatientState(context)
+                else if (controller.filteredElderlyList.isEmpty)
+                  _buildNoResultsState(context)
                 else
-                  ...controller.elderlyList.map((elderly) {
+                  ...controller.filteredElderlyList.map((elderly) {
                     return _buildPatientCard(
                       context: context,
                       name: elderly.fullName,
@@ -341,38 +345,124 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget _buildSearchSurface(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Semantics(
       label: 'Kolom pencarian pasien',
       child: Container(
-        width: double.infinity,
-        constraints: const BoxConstraints(minHeight: 54),
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
         decoration: AppTheme.cardDecoration(radius: 18, elevated: false),
-        child: Row(
-          children: [
-            const Icon(
-              Icons.search_rounded,
-              color: AppTheme.textTertiary,
-              size: 22,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                'Cari pasien berdasarkan nama',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(color: AppTheme.textTertiary),
+        clipBehavior: Clip.antiAlias,
+        child: Obx(() {
+          final hasText = controller.searchQuery.trim().isNotEmpty;
+
+          return TextField(
+            controller: controller.searchController,
+            onChanged: controller.onSearchChanged,
+            style: textTheme.bodyMedium,
+            textInputAction: TextInputAction.search,
+            decoration: InputDecoration(
+              hintText: 'Cari pasien berdasarkan nama',
+              hintStyle: textTheme.bodyMedium?.copyWith(
+                color: AppTheme.textTertiary,
               ),
+              prefixIcon: const Padding(
+                padding: EdgeInsets.only(left: 18, right: 8),
+                child: Icon(
+                  Icons.search_rounded,
+                  color: AppTheme.textTertiary,
+                  size: 22,
+                ),
+              ),
+              suffixIcon: hasText
+                  ? IconButton(
+                      icon: const Icon(
+                        Icons.close_rounded,
+                        color: AppTheme.textSecondary,
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        controller.clearFilters();
+                      },
+                    )
+                  : const Padding(
+                      padding: EdgeInsets.only(right: 18),
+                      child: Icon(
+                        Icons.search_rounded,
+                        color: AppTheme.textSecondary,
+                        size: 20,
+                      ),
+                    ),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(vertical: 14),
+              isDense: true,
             ),
-            const Icon(
-              Icons.tune_rounded,
-              color: AppTheme.textSecondary,
-              size: 20,
-            ),
-          ],
-        ),
+          );
+        }),
       ),
     );
+  }
+
+  Widget _buildFilterChips(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Obx(() {
+      final selected = controller.selectedStatusFilter;
+
+      return SizedBox(
+        height: 40,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          itemCount: HomeController.statusFilterOptions.length,
+          separatorBuilder: (_, _) => const SizedBox(width: 10),
+          itemBuilder: (context, index) {
+            final option = HomeController.statusFilterOptions[index];
+            final isSelected = selected == option.status;
+
+            return GestureDetector(
+              onTap: () => controller.onFilterChanged(option.status),
+              child: AnimatedContainer(
+                duration: AppTheme.motion,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: isSelected ? AppTheme.primary : AppTheme.surface,
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(
+                    color: isSelected ? AppTheme.primary : AppTheme.border,
+                  ),
+                  boxShadow:
+                      isSelected ? null : AppTheme.softShadow,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (option.status == 'critical')
+                      Padding(
+                        padding: const EdgeInsets.only(right: 6),
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: AppTheme.error,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                    Text(
+                      option.label,
+                      style: textTheme.labelMedium?.copyWith(
+                        color:
+                            isSelected ? Colors.white : AppTheme.textSecondary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    });
   }
 
   Widget _buildPatientHeader(BuildContext context) {
@@ -445,6 +535,47 @@ class HomeView extends GetView<HomeController> {
             onPressed: () => Get.toNamed(Routes.TAMBAH_LANSIA),
             icon: const Icon(Icons.person_add_alt_1_rounded, size: 18),
             label: const Text('Tambah Pasien'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNoResultsState(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+      decoration: AppTheme.cardDecoration(),
+      child: Column(
+        children: [
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceMuted,
+              borderRadius: BorderRadius.circular(22),
+            ),
+            child: const Icon(
+              Icons.search_off_rounded,
+              size: 34,
+              color: AppTheme.textTertiary,
+            ),
+          ),
+          const SizedBox(height: 18),
+          Text('Pasien tidak ditemukan', style: textTheme.titleMedium),
+          const SizedBox(height: 6),
+          Text(
+            'Tidak ada pasien yang sesuai dengan pencarian atau filter Anda.',
+            textAlign: TextAlign.center,
+            style: textTheme.bodyMedium?.copyWith(color: AppTheme.textTertiary),
+          ),
+          const SizedBox(height: 16),
+          OutlinedButton.icon(
+            onPressed: controller.clearFilters,
+            icon: const Icon(Icons.close_rounded, size: 18),
+            label: const Text('Hapus Filter'),
           ),
         ],
       ),

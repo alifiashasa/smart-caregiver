@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/formatters/app_formatters.dart';
 import '../../../core/logger.dart';
@@ -21,16 +22,86 @@ class HomeController extends GetxController {
   final _isLoading = false.obs;
   final _unreadCount = 0.obs;
 
+  // ── Search & filter state ──
+  final searchController = TextEditingController();
+  final _searchQuery = ''.obs;
+  final _selectedStatusFilter = Rxn<String>(null);
+
   // ── Public getters ──
   List<DashboardElderlyModel> get elderlyList => _elderlyList;
   bool get isLoading => _isLoading.value;
   int get unreadCount => _unreadCount.value;
+  String get searchQuery => _searchQuery.value;
+  String? get selectedStatusFilter => _selectedStatusFilter.value;
+
+  /// Has any filter active (search text or status chip)
+  bool get hasActiveFilters =>
+      _searchQuery.value.trim().isNotEmpty ||
+      _selectedStatusFilter.value != null;
+
+  /// Filtered list based on search query and status filter
+  List<DashboardElderlyModel> get filteredElderlyList {
+    var list = _elderlyList.toList();
+
+    final statusFilter = _selectedStatusFilter.value;
+    if (statusFilter != null) {
+      list = list.where((e) => e.latestHealthStatus == statusFilter).toList();
+    }
+
+    final query = _searchQuery.value.trim().toLowerCase();
+    if (query.isNotEmpty) {
+      list = list
+          .where((e) => e.fullName.toLowerCase().contains(query))
+          .toList();
+    }
+
+    return list;
+  }
+
+  /// Available status filter options
+  static const statusFilterOptions = <_StatusFilterOption>[
+    _StatusFilterOption(label: 'Semua', status: null),
+    _StatusFilterOption(label: 'Kritis', status: 'critical'),
+    _StatusFilterOption(label: 'Waspada', status: 'warning'),
+    _StatusFilterOption(label: 'Perhatian', status: 'needs_attention'),
+    _StatusFilterOption(label: 'Normal', status: 'normal'),
+  ];
 
   @override
   void onInit() {
     super.onInit();
     loadElderly();
     loadUnreadCount();
+
+    debounce(
+      _searchQuery,
+      (_) {},
+      time: const Duration(milliseconds: 300),
+    );
+  }
+
+  @override
+  void onClose() {
+    searchController.dispose();
+    super.onClose();
+  }
+
+  /// Call from search TextField's onChanged
+  void onSearchChanged(String value) {
+    _searchQuery.value = value;
+  }
+
+  /// Call from filter chip tap — toggles the status filter
+  void onFilterChanged(String? status) {
+    _selectedStatusFilter.value =
+        _selectedStatusFilter.value == status ? null : status;
+  }
+
+  /// Clear all active filters
+  void clearFilters() {
+    _searchQuery.value = '';
+    _selectedStatusFilter.value = null;
+    searchController.clear();
   }
 
   Future<void> loadElderly() async {
@@ -91,4 +162,14 @@ class HomeController extends GetxController {
   static bool isCritical(String? status) {
     return status == 'critical' || status == 'needs_attention';
   }
+}
+
+class _StatusFilterOption {
+  const _StatusFilterOption({
+    required this.label,
+    required this.status,
+  });
+
+  final String label;
+  final String? status;
 }

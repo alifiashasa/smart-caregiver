@@ -99,6 +99,18 @@ class AuthApi {
     };
   }
 
+  /// PUT /auth/me — requires authentication. Accepts optional fullName and phone.
+  Future<Map<String, dynamic>> updateProfile({
+    String? fullName,
+    String? phone,
+  }) async {
+    final body = <String, dynamic>{};
+    if (fullName != null) body['full_name'] = fullName;
+    if (phone != null) body['phone'] = phone;
+
+    return _client.put('/auth/me', body: body, authenticated: true);
+  }
+
   /// POST /auth/refresh — saves the new tokens on success.
   Future<Map<String, dynamic>> refreshToken() async {
     final currentRefreshToken = ApiClient.getRefreshToken();

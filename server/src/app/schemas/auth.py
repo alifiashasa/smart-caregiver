@@ -85,6 +85,11 @@ class UserMeResponse(BaseModel):
 
     model_config = {"from_attributes": True}
 
+class UserUpdateRequest(BaseModel):
+    """Update current user profile request."""
+    full_name: Optional[str] = Field(None, min_length=1, max_length=255)
+    phone: Optional[str] = Field(None, max_length=20)
+
 
 class MessageResponse(BaseModel):
     """Simple message response."""

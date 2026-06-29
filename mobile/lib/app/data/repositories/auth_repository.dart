@@ -44,6 +44,27 @@ class AuthRepository {
     );
   }
 
+  Future<ApiResult<UserModel>> updateProfile({
+    String? fullName,
+    String? phone,
+  }) async {
+    final response = await _authApi.updateProfile(
+      fullName: fullName,
+      phone: phone,
+    );
+    final result = response.toApiResult();
+
+    return result.when(
+      success: (data) => ApiResult.success(UserModel.fromJson(data)),
+      failure: (failure) => ApiResult.failure(
+        failure.message,
+        statusCode: failure.statusCode,
+        sessionExpired: failure.sessionExpired,
+        detailBody: failure.detailBody,
+      ),
+    );
+  }
+
   Future<Map<String, dynamic>> refreshToken() => _authApi.refreshToken();
 
   Future<Map<String, dynamic>> faceStatus() => _faceApi.faceStatus();

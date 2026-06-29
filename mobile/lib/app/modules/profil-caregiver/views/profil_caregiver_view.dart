@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../../routes/app_pages.dart';
 import '../controllers/profil_caregiver_controller.dart';
 
 class ProfilCaregiverView extends GetView<ProfilCaregiverController> {
@@ -129,7 +130,7 @@ class ProfilCaregiverView extends GetView<ProfilCaregiverController> {
             icon: Icons.edit_outlined,
             text: 'Edit Profil',
             subtitle: 'Perbarui informasi caregiver',
-            onTap: () {},
+            onTap: () => Get.toNamed(Routes.EDIT_PROFILE),
           ),
         ],
       ),

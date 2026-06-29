@@ -17,6 +17,8 @@ import '../modules/notifikasi/bindings/notifikasi_binding.dart';
 import '../modules/notifikasi/views/notifikasi_view.dart';
 import '../modules/profil-caregiver/bindings/profil_caregiver_binding.dart';
 import '../modules/profil-caregiver/views/profil_caregiver_view.dart';
+import '../modules/edit-profile/bindings/edit_profile_binding.dart';
+import '../modules/edit-profile/views/edit_profile_view.dart';
 import '../modules/rekomendasi_ai/bindings/rekomendasi_ai_binding.dart';
 import '../modules/rekomendasi_ai/views/rekomendasi_ai_view.dart';
 import '../modules/splash/bindings/splash_binding.dart';
@@ -100,6 +102,11 @@ class AppPages {
       name: _Paths.PROFIL_CAREGIVER,
       page: () => const ProfilCaregiverView(),
       binding: ProfilCaregiverBinding(),
+    ),
+    GetPage(
+      name: _Paths.EDIT_PROFILE,
+      page: () => const EditProfileView(),
+      binding: EditProfileBinding(),
     ),
     GetPage(
       name: _Paths.NOTIFIKASI,

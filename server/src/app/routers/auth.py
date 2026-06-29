@@ -24,6 +24,7 @@ from src.app.schemas.auth import (
     UserLoginRequest,
     UserMeResponse,
     UserRegisterRequest,
+    UserUpdateRequest,
     VerifyOtpRequest,
 )
 from src.app.services import auth_service
@@ -200,3 +201,20 @@ async def get_me(
 ) -> UserMeResponse:
     """Get current authenticated user profile."""
     return current_user
+
+
+@router.put(
+    "/me",
+    response_model=UserMeResponse,
+    summary="Update current user profile",
+    description="Update caregiver full_name and/or phone.",
+)
+async def update_me(
+    payload: UserUpdateRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> UserMeResponse:
+    """Update current authenticated user profile."""
+    return await auth_service.update_user_profile(
+        db=db, user=current_user, payload=payload
+    )

@@ -27,6 +27,7 @@ from src.app.schemas.auth import (
     TokenResponse,
     UserLoginRequest,
     UserRegisterRequest,
+    UserUpdateRequest,
     VerifyOtpRequest,
 )
 from src.app.services.resend_service import send_email_verification_otp
@@ -256,3 +257,18 @@ async def get_user_by_id(
     stmt = select(User).where(User.id == user_id)
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
+
+
+async def update_user_profile(
+    db: AsyncSession,
+    user: User,
+    payload: UserUpdateRequest,
+) -> User:
+    """Update caregiver profile fields (full_name, phone)."""
+    if payload.full_name is not None:
+        user.full_name = payload.full_name
+    if payload.phone is not None:
+        user.phone = payload.phone
+    await db.commit()
+    await db.refresh(user)
+    return user
