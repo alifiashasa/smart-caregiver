@@ -7,7 +7,6 @@ import 'package:mobile/app/modules/calendar/controllers/calendar_controller.dart
 
 void main() {
   late TemplateJadwalController controller;
-  late CalendarController calendarController;
 
   setUp(() {
     Get.testMode = true;
@@ -79,7 +78,7 @@ void main() {
       // saveTemplateSchedule calls Get.snackbar then Get.back — errors expected in test mode
       runZonedGuarded(() {
         ctrl.saveTemplateSchedule();
-      }, (_, __) {});
+      }, (_, _) {});
     });
 
     test('should save enabled templates when calendar controller exists', () {
@@ -93,7 +92,7 @@ void main() {
       // saveTemplateSchedule calls Get.snackbar then Get.back — errors expected
       runZonedGuarded(() {
         controller.saveTemplateSchedule();
-      }, (_, __) {});
+      }, (_, _) {});
 
       // Should have added schedule(s)
       expect(calCtrl.mockSchedules.length, greaterThan(initialScheduleCount));
@@ -114,7 +113,7 @@ void main() {
       // saveTemplateSchedule calls Get.snackbar then Get.back — errors expected
       runZonedGuarded(() {
         controller.saveTemplateSchedule();
-      }, (_, __) {});
+      }, (_, _) {});
       
       expect(calCtrl.mockSchedules.length, initialCount + 1);
       // Find the added schedule by title (should be last in sorted result)

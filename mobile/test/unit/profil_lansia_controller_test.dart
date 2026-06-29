@@ -58,7 +58,7 @@ void main() {
       // saveChanges calls Get.snackbar which errors in test mode without overlay
       runZonedGuarded(() {
         controller.saveChanges();
-      }, (_, __) {});
+      }, (_, _) {});
     });
   });
 }

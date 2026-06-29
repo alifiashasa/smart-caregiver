@@ -47,7 +47,7 @@ void main() {
       // Get.snackbar error is expected in test mode without overlay
       runZonedGuarded(() {
         controller.login();
-      }, (_, __) {});
+      }, (_, _) {});
       expect(controller.email.value, '');
     });
 
@@ -55,14 +55,14 @@ void main() {
       controller.email.value = 'test@test.com';
       runZonedGuarded(() {
         controller.login();
-      }, (_, __) {});
+      }, (_, _) {});
       expect(controller.password.value, '');
     });
 
     test('should not navigate when both fields are empty', () {
       runZonedGuarded(() {
         controller.login();
-      }, (_, __) {});
+      }, (_, _) {});
       expect(controller.email.value, '');
       expect(controller.password.value, '');
     });

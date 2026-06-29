@@ -147,6 +147,34 @@ flutter test
 
 ### Build APK
 
-```bash
-flutter build apk --release --dart-define=API_BASE_URL=https://api.smartcaregiver.com
 ```
+```
+
+## 📂 Struktur Folder
+
+```
+lib/
+├── main.dart                    # Entry point
+└── app/
+    ├── routes/
+    │   ├── app_routes.dart      # Route definitions
+    │   └── app_pages.dart       # Page configurations
+    └── modules/
+        ├── splash/
+        │   ├── controllers/
+        │   ├── views/
+        │   └── bindings/
+        ├── home/
+        │   ├── controllers/
+        │   ├── views/
+        │   └── bindings/
+        └── patient_detail/
+            ├── controllers/
+            ├── views/
+            └── bindings/
+```
+
+## 📝 Catatan
+
+App ini merupakan capstone project yang menggunakan **mock data lokal** untuk seluruh fitur.
+Tidak ada service API layer yang terintegrasi — semua data dummy sudah disediakan di masing-masing controller.

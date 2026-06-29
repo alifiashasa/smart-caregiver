@@ -60,7 +60,7 @@ void main() {
       // Get.snackbar error is expected in test mode without overlay
       runZonedGuarded(() {
         controller.register();
-      }, (_, __) {});
+      }, (_, _) {});
       expect(controller.name.value, '');
     });
 
@@ -71,7 +71,7 @@ void main() {
 
       runZonedGuarded(() {
         controller.register();
-      }, (_, __) {});
+      }, (_, _) {});
       expect(controller.email.value, '');
     });
 
@@ -82,7 +82,7 @@ void main() {
 
       runZonedGuarded(() {
         controller.register();
-      }, (_, __) {});
+      }, (_, _) {});
       expect(controller.password.value, '');
     });
 
@@ -95,7 +95,7 @@ void main() {
       // Should show "Password tidak cocok" snackbar
       runZonedGuarded(() {
         controller.register();
-      }, (_, __) {});
+      }, (_, _) {});
 
       // Values remain unchanged
       expect(controller.password.value, 'password123');
@@ -112,7 +112,7 @@ void main() {
       // Snackbar error expected in test mode without overlay
       runZonedGuarded(() {
         controller.register();
-      }, (_, __) {});
+      }, (_, _) {});
 
       // Fields should still have values
       expect(controller.name.value, 'Test User');

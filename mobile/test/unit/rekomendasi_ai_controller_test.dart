@@ -80,7 +80,7 @@ void main() {
       // approveRecommendation calls Get.snackbar — errors expected in test mode
       runZonedGuarded(() {
         ctrl.approveRecommendation(rec);
-      }, (_, __) {});
+      }, (_, _) {});
     });
 
     test('should add schedule when calendar controller exists', () async {
@@ -95,7 +95,7 @@ void main() {
       // approveRecommendation calls Get.snackbar — errors expected in test mode
       runZonedGuarded(() {
         controller.approveRecommendation(rec);
-      }, (_, __) {});
+      }, (_, _) {});
       
       expect(calCtrl.mockSchedules.length, initialCount + 1);
       // Find the added schedule by title (not .last, because sort order may vary)

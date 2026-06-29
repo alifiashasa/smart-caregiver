@@ -37,7 +37,7 @@ void main() {
       // Get.snackbar error is expected in test mode without overlay
       runZonedGuarded(() {
         controller.simpan();
-      }, (_, __) {});
+      }, (_, _) {});
       expect(controller.namaLengkap.value, '');
     });
 
@@ -45,14 +45,14 @@ void main() {
       controller.namaLengkap.value = 'Test Name';
       runZonedGuarded(() {
         controller.simpan();
-      }, (_, __) {});
+      }, (_, _) {});
       expect(controller.usia.value, '');
     });
 
     test('should reject when both fields are empty', () {
       runZonedGuarded(() {
         controller.simpan();
-      }, (_, __) {});
+      }, (_, _) {});
       expect(controller.namaLengkap.value, '');
       expect(controller.usia.value, '');
     });
@@ -65,7 +65,7 @@ void main() {
       // Snackbar error expected in test mode without overlay
       runZonedGuarded(() {
         controller.simpan();
-      }, (_, __) {});
+      }, (_, _) {});
     });
   });
 

@@ -99,7 +99,7 @@ void main() {
       // Snackbar errors are expected in test mode without overlay
       runZonedGuarded(() {
         registerCtrl.register();
-      }, (_, __) {});
+      }, (_, _) {});
 
       expect(registerCtrl.name.value, 'Test Caregiver');
       expect(registerCtrl.email.value, 'test@caregiver.com');
@@ -165,7 +165,7 @@ void main() {
       // approveRecommendation calls Get.snackbar — errors expected in test mode
       runZonedGuarded(() {
         recCtrl.approveRecommendation(rec);
-      }, (_, __) {});
+      }, (_, _) {});
 
       // The schedule should still have been added before the snackbar
       expect(calCtrl.mockSchedules.length, initialCount + 1);
