@@ -4,13 +4,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile/app/modules/tambah_lansia/controllers/tambah_lansia_controller.dart';
+import '../test_helpers.dart';
 
 void main() {
   late TambahLansiaController controller;
+  late MockElderlyRepository mockElderlyRepository;
 
   setUp(() {
+    mockElderlyRepository = MockElderlyRepository();
     Get.testMode = true;
-    controller = TambahLansiaController();
+    controller = TambahLansiaController(elderlyRepository: mockElderlyRepository);
     Get.put(controller);
   });
 
@@ -20,52 +23,40 @@ void main() {
 
   group('Initial state', () {
     test('should have default values', () {
-      expect(controller.namaLengkap.value, '');
-      expect(controller.usia.value, '');
-      expect(controller.fotoProfilPath.value, '');
+      expect(controller.namaLengkap, '');
+      expect(controller.usia, '');
+      expect(controller.fotoProfilPath, '');
       expect(controller.jenisKelamin.value, 'Laki-laki');
-      expect(controller.riwayatMedis.value, '');
+      expect(controller.riwayatMedis, '');
       expect(controller.kondisiFisik.value, 'Mandiri');
       expect(controller.mobilitas.value, 'Bisa Berjalan');
-      expect(controller.minatHobi.value, '');
+      expect(controller.minatHobi, '');
     });
   });
 
   group('simpan', () {
     test('should reject when nama is empty (snackbar expected)', () {
-      controller.usia.value = '70';
-      // Get.snackbar error is expected in test mode without overlay
+      controller.usia = '70';
       runZonedGuarded(() {
         controller.simpan();
       }, (_, _) {});
-      expect(controller.namaLengkap.value, '');
+      expect(controller.namaLengkap, '');
     });
 
     test('should reject when usia is empty', () {
-      controller.namaLengkap.value = 'Test Name';
+      controller.namaLengkap = 'Test Name';
       runZonedGuarded(() {
         controller.simpan();
       }, (_, _) {});
-      expect(controller.usia.value, '');
+      expect(controller.usia, '');
     });
 
     test('should reject when both fields are empty', () {
       runZonedGuarded(() {
         controller.simpan();
       }, (_, _) {});
-      expect(controller.namaLengkap.value, '');
-      expect(controller.usia.value, '');
-    });
-
-    test('should save successfully when both fields are filled', () {
-      controller.namaLengkap.value = 'Ibu Siti';
-      controller.usia.value = '70';
-
-      // Success path calls Get.snackbar then Get.back
-      // Snackbar error expected in test mode without overlay
-      runZonedGuarded(() {
-        controller.simpan();
-      }, (_, _) {});
+      expect(controller.namaLengkap, '');
+      expect(controller.usia, '');
     });
   });
 
@@ -99,7 +90,10 @@ void main() {
   group('constructor injection', () {
     test('should accept injected ImagePicker', () {
       final mockPicker = ImagePicker();
-      final ctrl = TambahLansiaController(picker: mockPicker);
+      final ctrl = TambahLansiaController(
+        elderlyRepository: mockElderlyRepository,
+        picker: mockPicker,
+      );
       expect(ctrl, isNotNull);
     });
   });

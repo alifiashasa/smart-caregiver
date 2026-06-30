@@ -3,9 +3,10 @@ import 'package:get/get.dart';
 import 'package:mobile/app/modules/register/views/register_view.dart';
 import 'package:mobile/app/modules/register/controllers/register_controller.dart';
 import 'package:flutter/material.dart';
+import '../test_helpers.dart';
 
 Widget createTestWidget() {
-  Get.put(RegisterController());
+  Get.put(RegisterController(authRepository: MockAuthRepository()));
   return const MaterialApp(
     home: RegisterView(),
   );

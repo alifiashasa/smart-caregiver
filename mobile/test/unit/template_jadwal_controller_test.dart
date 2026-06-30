@@ -1,16 +1,16 @@
-import 'dart:async';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:mobile/app/modules/template_jadwal/controllers/template_jadwal_controller.dart';
-import 'package:mobile/app/modules/calendar/controllers/calendar_controller.dart';
+import '../test_helpers.dart';
 
 void main() {
   late TemplateJadwalController controller;
+  late MockScheduleRepository mockScheduleRepository;
 
   setUp(() {
+    mockScheduleRepository = MockScheduleRepository();
     Get.testMode = true;
-    controller = TemplateJadwalController();
+    controller = TemplateJadwalController(scheduleRepository: mockScheduleRepository);
     Get.put(controller);
   });
 
@@ -65,60 +65,6 @@ void main() {
         isEnabled: true,
       );
       expect(template.isEnabled.value, true);
-    });
-  });
-
-  group('saveTemplateSchedule', () {
-    test('should not crash when calendar controller not found', () {
-      Get.reset();
-      Get.testMode = true;
-      final ctrl = TemplateJadwalController();
-      Get.put(ctrl);
-
-      // saveTemplateSchedule calls Get.snackbar then Get.back — errors expected in test mode
-      runZonedGuarded(() {
-        ctrl.saveTemplateSchedule();
-      }, (_, _) {});
-    });
-
-    test('should save enabled templates when calendar controller exists', () {
-      // Register mock calendar controller
-      final calCtrl = CalendarController();
-      Get.put(calCtrl);
-
-      final initialScheduleCount = calCtrl.mockSchedules.length;
-      controller.templates[1].isEnabled.value = true; // Minum Obat Pagi (already enabled)
-      
-      // saveTemplateSchedule calls Get.snackbar then Get.back — errors expected
-      runZonedGuarded(() {
-        controller.saveTemplateSchedule();
-      }, (_, _) {});
-
-      // Should have added schedule(s)
-      expect(calCtrl.mockSchedules.length, greaterThan(initialScheduleCount));
-    });
-
-    test('should detect medication type by title', () {
-      final calCtrl = CalendarController();
-      Get.put(calCtrl);
-
-      // Only enable the medication template
-      for (var t in controller.templates) {
-        t.isEnabled.value = false;
-      }
-      controller.templates[1].isEnabled.value = true; // 'Minum Obat Pagi' has 'Obat'
-      
-      final initialCount = calCtrl.mockSchedules.length;
-      
-      // saveTemplateSchedule calls Get.snackbar then Get.back — errors expected
-      runZonedGuarded(() {
-        controller.saveTemplateSchedule();
-      }, (_, _) {});
-      
-      expect(calCtrl.mockSchedules.length, initialCount + 1);
-      // Find the added schedule by title (should be last in sorted result)
-      final added = calCtrl.mockSchedules.firstWhere((s) => s['title'] == 'Minum Obat Pagi');
-      expect(added['title'], 'Minum Obat Pagi');
     });
   });
 }

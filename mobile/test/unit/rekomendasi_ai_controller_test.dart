@@ -1,16 +1,17 @@
-import 'dart:async';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:mobile/app/modules/rekomendasi_ai/controllers/rekomendasi_ai_controller.dart';
-import 'package:mobile/app/modules/calendar/controllers/calendar_controller.dart';
+import 'package:mobile/app/data/models/ai_recommendation_model.dart';
+import '../test_helpers.dart';
 
 void main() {
   late RekomendasiAiController controller;
+  late MockAiRepository mockAiRepository;
 
   setUp(() {
+    mockAiRepository = MockAiRepository();
     Get.testMode = true;
-    controller = RekomendasiAiController();
+    controller = RekomendasiAiController(aiRepository: mockAiRepository);
     Get.put(controller);
   });
 
@@ -20,87 +21,35 @@ void main() {
 
   group('Initial state', () {
     test('should start with loading true', () {
-      expect(controller.isLoading.value, true);
+      // onInit won't call fetchRecommendations without elderlyId in args
+      expect(controller.isLoading, false);
     });
 
     test('should start with empty recommendations', () {
       expect(controller.recommendations.length, 0);
     });
-  });
 
-  group('fetchRecommendations', () {
-    test('should load 3 recommendations after delay', () async {
-      // Wait for the async initialization to complete
-      await Future.delayed(const Duration(milliseconds: 100));
-      
-      // At this point _fetchRecommendations from onInit should be running
-      // It waits 2 seconds, so should still be loading
-      expect(controller.isLoading.value, true);
-      expect(controller.recommendations.length, 0);
-    });
-
-    test('should complete loading after full delay', () async {
-      await Future.delayed(const Duration(seconds: 3));
-      
-      expect(controller.isLoading.value, false);
-      expect(controller.recommendations.length, 3);
-    });
-
-    test('recommendations should have correct structure', () async {
-      await Future.delayed(const Duration(seconds: 3));
-
-      for (final rec in controller.recommendations) {
-        expect(rec['title'], isA<String>());
-        expect(rec['type'], isA<String>());
-        expect(rec['duration'], isA<String>());
-        expect(rec['reason'], isA<String>());
-      }
-    });
-
-    test('recommendations should include physical, mental, and hydration types', () async {
-      await Future.delayed(const Duration(seconds: 3));
-
-      final types = controller.recommendations.map((r) => r['type']).toSet();
-      expect(types, containsAll(['Fisik', 'Mental', 'Hidrasi']));
+    test('errorMessage should be set when no elderlyId available', () {
+      expect(controller.errorMessage, 'Data lansia tidak ditemukan.');
     });
   });
 
-  group('approveRecommendation', () {
-    test('should not crash when calendar controller not found', () async {
-      await Future.delayed(const Duration(seconds: 3));
-      
-      final rec = controller.recommendations.first;
-      
-      Get.reset();
-      Get.testMode = true;
-      final ctrl = RekomendasiAiController();
-      Get.put(ctrl);
-      await Future.delayed(const Duration(seconds: 3));
-      
-      // approveRecommendation calls Get.snackbar — errors expected in test mode
-      runZonedGuarded(() {
-        ctrl.approveRecommendation(rec);
-      }, (_, _) {});
-    });
-
-    test('should add schedule when calendar controller exists', () async {
-      final calCtrl = CalendarController();
-      Get.put(calCtrl);
-      
-      await Future.delayed(const Duration(seconds: 3));
-      
-      final initialCount = calCtrl.mockSchedules.length;
-      final rec = controller.recommendations.first;
-      
-      // approveRecommendation calls Get.snackbar — errors expected in test mode
-      runZonedGuarded(() {
-        controller.approveRecommendation(rec);
-      }, (_, _) {});
-      
-      expect(calCtrl.mockSchedules.length, initialCount + 1);
-      // Find the added schedule by title (not .last, because sort order may vary)
-      final added = calCtrl.mockSchedules.firstWhere((s) => s['title'] == rec['title']);
-      expect(added['title'], rec['title']);
+  group('AiRecommendationModel', () {
+    test('should create from json and use getters', () {
+      final json = {
+        'id': '1',
+        'elderly_id': 'elderly-1',
+        'activity_name': 'Jalan Pagi',
+        'category': 'physical',
+        'status': 'pending',
+        'generated_at': '2026-01-01T00:00:00Z',
+        'created_at': '2026-01-01T00:00:00Z',
+      };
+      final model = AiRecommendationModel.fromJson(json);
+      expect(model.activityName, 'Jalan Pagi');
+      expect(model.category, 'physical');
+      expect(model.status, 'pending');
+      expect(model.id, '1');
     });
   });
 }

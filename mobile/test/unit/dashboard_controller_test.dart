@@ -1,13 +1,24 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:mobile/app/modules/dashboard/controllers/dashboard_controller.dart';
+import 'package:mobile/app/modules/patient_shell/controllers/patient_shell_controller.dart';
+import '../test_helpers.dart';
 
 void main() {
   late DashboardController controller;
+  late MockDashboardRepository mockDashboardRepository;
 
   setUp(() {
+    mockDashboardRepository = MockDashboardRepository();
     Get.testMode = true;
-    controller = DashboardController();
+    // PatientShellController reads from Get.arguments — set shell data directly
+    final shell = PatientShellController();
+    shell.patientName.value = 'Ibu Siti';
+    shell.patientAge.value = '55 Tahun';
+    shell.patientGender.value = 'Perempuan';
+    shell.patientImage.value = 'assets/images/patient_ibu_siti.png';
+    Get.put(shell);
+    controller = DashboardController(dashboardRepository: mockDashboardRepository);
     Get.put(controller);
   });
 
@@ -17,18 +28,14 @@ void main() {
 
   group('Initial state', () {
     test('should have default patient data', () {
-      expect(controller.patientName.value, 'Ibu Siti');
-      expect(controller.patientAge.value, '55 Tahun');
-      expect(controller.patientGender.value, 'Perempuan');
-      expect(controller.patientImage.value, 'assets/images/patient_ibu_siti.png');
-    });
-
-    test('should start at index 0', () {
-      expect(controller.currentIndex.value, 0);
+      expect(controller.patientName, 'Ibu Siti');
+      expect(controller.patientAge, '55 Tahun');
+      expect(controller.patientGender, 'Perempuan');
+      expect(controller.patientImage, 'assets/images/patient_ibu_siti.png');
     });
 
     test('should have 7 Hari as default trend filter', () {
-      expect(controller.selectedTrendFilter.value, '7 Hari');
+      expect(controller.selectedTrendFilter, '7 Hari');
     });
 
     test('should have 8 health metrics', () {
@@ -52,7 +59,7 @@ void main() {
     test('should not update when new value is empty', () {
       controller.updateHealthMetric('cholesterol', '');
       final metric = controller.healthMetrics.firstWhere((m) => m['id'] == 'cholesterol');
-      expect(metric['value'], '180');
+      expect(metric['value'], '-');
     });
 
     test('should not crash with non-existent metric', () {
@@ -81,28 +88,10 @@ void main() {
     });
   });
 
-  group('changePage', () {
-    test('should not navigate when index is same as current', () {
-      controller.currentIndex.value = 0;
-      controller.changePage(0);
-      expect(controller.currentIndex.value, 0);
-    });
-
-    test('should update index when navigating to different page', () {
-      controller.changePage(1);
-      expect(controller.currentIndex.value, 1);
-    });
-
-    test('should update index when navigating to page 3', () {
-      controller.changePage(3);
-      expect(controller.currentIndex.value, 3);
-    });
-  });
-
   group('selectedTrendFilter', () {
     test('should update trend filter value', () {
-      controller.selectedTrendFilter.value = '30 Hari';
-      expect(controller.selectedTrendFilter.value, '30 Hari');
+      controller.selectedTrendFilter = '30 Hari';
+      expect(controller.selectedTrendFilter, '30 Hari');
     });
   });
 }

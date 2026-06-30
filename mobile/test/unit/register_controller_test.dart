@@ -3,13 +3,16 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:mobile/app/modules/register/controllers/register_controller.dart';
+import '../test_helpers.dart';
 
 void main() {
   late RegisterController controller;
+  late MockAuthRepository mockAuthRepository;
 
   setUp(() {
+    mockAuthRepository = MockAuthRepository();
     Get.testMode = true;
-    controller = RegisterController();
+    controller = RegisterController(authRepository: mockAuthRepository);
     Get.put(controller);
   });
 
@@ -19,104 +22,99 @@ void main() {
 
   group('Initial state', () {
     test('all fields should be empty', () {
-      expect(controller.name.value, '');
-      expect(controller.email.value, '');
-      expect(controller.password.value, '');
-      expect(controller.confirmPassword.value, '');
+      expect(controller.name, '');
+      expect(controller.email, '');
+      expect(controller.password, '');
+      expect(controller.confirmPassword, '');
     });
 
     test('passwords should be obscured by default', () {
-      expect(controller.obscurePassword.value, true);
-      expect(controller.obscureConfirmPassword.value, true);
+      expect(controller.obscurePassword, true);
+      expect(controller.obscureConfirmPassword, true);
     });
   });
 
   group('togglePasswordVisibility', () {
     test('should toggle password visibility', () {
       controller.togglePasswordVisibility();
-      expect(controller.obscurePassword.value, false);
+      expect(controller.obscurePassword, false);
 
       controller.togglePasswordVisibility();
-      expect(controller.obscurePassword.value, true);
+      expect(controller.obscurePassword, true);
     });
   });
 
   group('toggleConfirmPasswordVisibility', () {
     test('should toggle confirm password visibility', () {
       controller.toggleConfirmPasswordVisibility();
-      expect(controller.obscureConfirmPassword.value, false);
+      expect(controller.obscureConfirmPassword, false);
 
       controller.toggleConfirmPasswordVisibility();
-      expect(controller.obscureConfirmPassword.value, true);
+      expect(controller.obscureConfirmPassword, true);
     });
   });
 
   group('register', () {
     test('should reject when name is empty (snackbar expected)', () {
-      controller.email.value = 'test@test.com';
-      controller.password.value = 'password123';
-      controller.confirmPassword.value = 'password123';
+      controller.email = 'test@test.com';
+      controller.password = 'password123';
+      controller.confirmPassword = 'password123';
 
       // Get.snackbar error is expected in test mode without overlay
       runZonedGuarded(() {
         controller.register();
       }, (_, _) {});
-      expect(controller.name.value, '');
+      expect(controller.name, '');
     });
 
     test('should reject when email is empty', () {
-      controller.name.value = 'Test User';
-      controller.password.value = 'password123';
-      controller.confirmPassword.value = 'password123';
+      controller.name = 'Test User';
+      controller.password = 'password123';
+      controller.confirmPassword = 'password123';
 
       runZonedGuarded(() {
         controller.register();
       }, (_, _) {});
-      expect(controller.email.value, '');
+      expect(controller.email, '');
     });
 
     test('should reject when password is empty', () {
-      controller.name.value = 'Test User';
-      controller.email.value = 'test@test.com';
-      controller.confirmPassword.value = 'password123';
+      controller.name = 'Test User';
+      controller.email = 'test@test.com';
+      controller.confirmPassword = 'password123';
 
       runZonedGuarded(() {
         controller.register();
       }, (_, _) {});
-      expect(controller.password.value, '');
+      expect(controller.password, '');
     });
 
     test('should reject when password and confirm password do not match', () {
-      controller.name.value = 'Test User';
-      controller.email.value = 'test@test.com';
-      controller.password.value = 'password123';
-      controller.confirmPassword.value = 'different_password';
+      controller.name = 'Test User';
+      controller.email = 'test@test.com';
+      controller.password = 'password123';
+      controller.confirmPassword = 'different_password';
 
-      // Should show "Password tidak cocok" snackbar
       runZonedGuarded(() {
         controller.register();
       }, (_, _) {});
 
-      // Values remain unchanged
-      expect(controller.password.value, 'password123');
-      expect(controller.confirmPassword.value, 'different_password');
+      expect(controller.password, 'password123');
+      expect(controller.confirmPassword, 'different_password');
     });
 
     test('should register successfully when all fields are valid', () {
-      controller.name.value = 'Test User';
-      controller.email.value = 'test@test.com';
-      controller.password.value = 'password123';
-      controller.confirmPassword.value = 'password123';
+      controller.name = 'Test User';
+      controller.email = 'test@test.com';
+      controller.password = 'password123';
+      controller.confirmPassword = 'password123';
 
-      // Success path: Get.snackbar("Success", ...) then Get.offAllNamed
-      // Snackbar error expected in test mode without overlay
       runZonedGuarded(() {
         controller.register();
       }, (_, _) {});
 
-      // Fields should still have values
-      expect(controller.name.value, 'Test User');
-      expect(controller.email.value, 'test@test.com');
+      expect(controller.name, 'Test User');
+      expect(controller.email, 'test@test.com');
     });
   });
 }

@@ -3,9 +3,10 @@ import 'package:get/get.dart';
 import 'package:mobile/app/modules/login/views/login_view.dart';
 import 'package:mobile/app/modules/login/controllers/login_controller.dart';
 import 'package:flutter/material.dart';
+import '../test_helpers.dart';
 
 Widget createTestWidget() {
-  Get.put(LoginController());
+  Get.put(LoginController(authRepository: MockAuthRepository()));
   return const MaterialApp(
     home: LoginView(),
   );

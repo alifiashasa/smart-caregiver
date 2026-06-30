@@ -7,11 +7,13 @@ import '../../../data/repositories/elderly_repository.dart';
 
 class TambahLansiaController extends GetxController {
   final ElderlyRepository _elderlyRepository;
+  final ImagePicker _picker;
 
-  TambahLansiaController({required ElderlyRepository elderlyRepository})
-    : _elderlyRepository = elderlyRepository;
-
-  // ── Reactive state ──
+  TambahLansiaController({
+    required ElderlyRepository elderlyRepository,
+    ImagePicker? picker,
+  })  : _elderlyRepository = elderlyRepository,
+        _picker = picker ?? ImagePicker();
   final _namaLengkap = ''.obs;
   final _usia = ''.obs;
   final _fotoProfilPath = ''.obs;
@@ -43,10 +45,6 @@ class TambahLansiaController extends GetxController {
   set usia(String value) => _usia.value = value;
   set riwayatMedis(String value) => _riwayatMedis.value = value;
   set minatHobi(String value) => _minatHobi.value = value;
-
-  final ImagePicker _picker;
-
-  TambahLansiaController({ImagePicker? picker}) : _picker = picker ?? ImagePicker();
 
   Future<void> pickImage() async {
     try {

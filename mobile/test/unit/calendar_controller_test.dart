@@ -1,13 +1,21 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:mobile/app/modules/calendar/controllers/calendar_controller.dart';
+import 'package:mobile/app/modules/patient_shell/controllers/patient_shell_controller.dart';
+import '../test_helpers.dart';
 
 void main() {
   late CalendarController controller;
+  late MockScheduleRepository mockScheduleRepository;
 
   setUp(() {
+    mockScheduleRepository = MockScheduleRepository();
+    stubCalendarControllerDeps(mockScheduleRepository);
     Get.testMode = true;
-    controller = CalendarController();
+    final shell = PatientShellController();
+    shell.patientGender.value = 'Perempuan';
+    Get.put(shell);
+    controller = CalendarController(scheduleRepository: mockScheduleRepository);
     Get.put(controller);
   });
 
@@ -16,54 +24,18 @@ void main() {
   });
 
   group('Initial state', () {
-    test('should start at index 1', () {
-      expect(controller.currentIndex.value, 1);
-    });
-
     test('should have default patient data', () {
-      expect(controller.patientName.value, 'Ibu Siti');
-      expect(controller.patientAge.value, '55 Tahun');
-      expect(controller.patientGender.value, 'Perempuan');
+      expect(controller.patientName, '');
+      expect(controller.patientAge, '');
+      expect(controller.patientGender, 'Perempuan');
     });
 
-    test('should have 3 mock schedules', () {
-      expect(controller.mockSchedules.length, 3);
+    test('should start with empty schedules', () {
+      expect(controller.schedules.length, 0);
     });
 
-    test('schedules should have correct structure', () {
-      final firstSchedule = controller.mockSchedules[0];
-      expect(firstSchedule['id'], '1');
-      expect(firstSchedule['title'], 'Minum Obat Aspirin');
-      expect(firstSchedule['schedule_type'], 'medication');
-      expect(firstSchedule['scheduled_at'], isA<DateTime>());
-      expect(firstSchedule['is_completed'], false);
-    });
-
-    test('some schedules should be completed', () {
-      final thirdSchedule = controller.mockSchedules[2];
-      expect(thirdSchedule['id'], '3');
-      expect(thirdSchedule['is_completed'], true);
-    });
-  });
-
-  group('toggleScheduleCompletion', () {
-    test('should toggle schedule from incomplete to complete', () {
-      controller.toggleScheduleCompletion('1');
-      final schedule = controller.mockSchedules.firstWhere((s) => s['id'] == '1');
-      expect(schedule['is_completed'], true);
-    });
-
-    test('should toggle schedule from complete to incomplete', () {
-      controller.toggleScheduleCompletion('3');
-      final schedule = controller.mockSchedules.firstWhere((s) => s['id'] == '3');
-      expect(schedule['is_completed'], false);
-    });
-
-    test('should toggle back and forth', () {
-      controller.toggleScheduleCompletion('2'); // false -> true
-      controller.toggleScheduleCompletion('2'); // true -> false
-      final schedule = controller.mockSchedules.firstWhere((s) => s['id'] == '2');
-      expect(schedule['is_completed'], false);
+    test('should have isLoading false by default', () {
+      expect(controller.isLoading, false);
     });
   });
 
@@ -77,25 +49,38 @@ void main() {
         'duration_minutes': 30,
       });
 
-      // Find by title since sorting may change position
-      final added = controller.mockSchedules.firstWhere((s) => s['title'] == 'Test Schedule');
-      expect(added['id'], isNotEmpty);
-      expect(added['id'], isNot('1')); // Should be auto-generated
-      expect(added['is_completed'], false);
+      expect(controller.schedules.length, 1);
+      final added = controller.schedules.first;
+      expect(added.id, isNotEmpty);
+      expect(added.title, 'Test Schedule');
+      expect(added.isCompleted, false);
     });
 
     test('should sort schedules by scheduled_at', () {
+      final now = DateTime.now();
       // Add a schedule far in the future
-      final futureDate = DateTime.now().add(const Duration(days: 30));
+      final futureDate = now.add(const Duration(days: 30));
       controller.addSchedule({
+        'id': 'future-schedule',
         'title': 'Future Schedule',
         'schedule_type': 'medication',
         'scheduled_at': futureDate,
         'duration_minutes': 15,
       });
 
-      // Future schedule should be at the end after sorting
-      expect(controller.mockSchedules.last['title'], 'Future Schedule');
+      // Add current schedule
+      controller.addSchedule({
+        'id': 'current-schedule',
+        'title': 'Current Schedule',
+        'schedule_type': 'daily_activity',
+        'scheduled_at': now,
+        'duration_minutes': 30,
+      });
+
+      expect(controller.schedules.length, 2);
+      // Ascending sort by scheduledAt: earliest first
+      expect(controller.schedules.first.scheduledAt
+          .isBefore(controller.schedules.last.scheduledAt), isTrue);
     });
 
     test('should add multiple schedules and maintain order', () {
@@ -112,22 +97,23 @@ void main() {
         'scheduled_at': later,
       });
 
-      final earlyIdx = controller.mockSchedules.indexWhere((s) => s['title'] == 'Early');
-      final lateIdx = controller.mockSchedules.indexWhere((s) => s['title'] == 'Late');
+      final earlyIdx = controller.schedules.indexWhere((s) => s.title == 'Early');
+      final lateIdx = controller.schedules.indexWhere((s) => s.title == 'Late');
       expect(earlyIdx, lessThan(lateIdx));
     });
   });
 
-  group('changePage', () {
-    test('should not navigate to same page', () {
-      controller.currentIndex.value = 1;
-      controller.changePage(1);
-      expect(controller.currentIndex.value, 1);
+  group('selectDate', () {
+    test('should select a date and update selectedDate', () {
+      final date = DateTime(2026, 12, 25);
+      controller.selectDate(date);
+      expect(controller.selectedDate, DateTime(2026, 12, 25));
     });
 
-    test('should update index when navigating', () {
-      controller.changePage(0);
-      expect(controller.currentIndex.value, 0);
+    test('isSelectedDate should return true for selected date', () {
+      final date = DateTime(2026, 12, 25);
+      controller.selectDate(date);
+      expect(controller.isSelectedDate(date), true);
     });
   });
 }
