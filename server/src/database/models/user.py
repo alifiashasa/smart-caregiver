@@ -53,9 +53,6 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     avatar_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
 
-    # ── Face recognition (PRD REQ-001)
-    # Pickled list[float] 512-dim InsightFace embedding.
-    face_embedding: Mapped[Optional[bytes]] = mapped_column(LargeBinary, nullable=True)
 
     # ── Timestamps 
     last_login_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)

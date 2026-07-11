@@ -1,15 +1,11 @@
-import 'dart:typed_data';
 import '../../core/api_result.dart';
 import '../api_client.dart';
 import '../auth_api.dart';
-import '../auth_face_api.dart';
 import '../models/user_model.dart';
 
 class AuthRepository {
   final AuthApi _authApi;
-  final AuthFaceApi _faceApi;
-
-  AuthRepository() : _authApi = AuthApi(), _faceApi = AuthFaceApi();
+  AuthRepository() : _authApi = AuthApi();
 
   Future<Map<String, dynamic>> login({
     required String email,
@@ -66,14 +62,6 @@ class AuthRepository {
   }
 
   Future<Map<String, dynamic>> refreshToken() => _authApi.refreshToken();
-
-  Future<Map<String, dynamic>> faceStatus() => _faceApi.faceStatus();
-
-  Future<Map<String, dynamic>> registerFace({required Uint8List imageBytes}) =>
-      _faceApi.registerFace(imageBytes: imageBytes);
-
-  Future<Map<String, dynamic>> verifyFace({required Uint8List imageBytes}) =>
-      _faceApi.verifyFace(imageBytes: imageBytes);
 
   bool get isLoggedIn => ApiClient.getAccessToken() != null;
 

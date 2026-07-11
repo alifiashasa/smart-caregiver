@@ -31,10 +31,6 @@ import '../modules/template_jadwal/bindings/template_jadwal_binding.dart';
 import '../modules/template_jadwal/views/template_jadwal_view.dart';
 import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
-import '../modules/face_register/bindings/face_register_binding.dart';
-import '../modules/face_register/views/face_register_view.dart';
-import '../modules/face_verify/bindings/face_verify_binding.dart';
-import '../modules/face_verify/views/face_verify_view.dart';
 
 part 'app_routes.dart';
 
@@ -137,16 +133,6 @@ class AppPages {
       name: _Paths.REGISTER,
       page: () => const RegisterView(),
       binding: RegisterBinding(),
-    ),
-    GetPage(
-      name: _Paths.FACE_REGISTER,
-      page: () => const FaceRegisterView(),
-      binding: FaceRegisterBinding(),
-    ),
-    GetPage(
-      name: _Paths.FACE_VERIFY,
-      page: () => const FaceVerifyView(),
-      binding: FaceVerifyBinding(),
     ),
   ];
 }

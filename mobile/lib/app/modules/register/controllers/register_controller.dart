@@ -162,15 +162,15 @@ class RegisterController extends GetxController {
     }
 
     Get.snackbar(
-      'Akun Aktif',
-      'Silakan daftarkan wajah untuk verifikasi login',
+      'Selamat Datang',
+      'Akun berhasil diaktifkan',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: const Color(0xFFBBF246),
       colorText: const Color(0xFF192126),
       margin: const EdgeInsets.all(16),
       borderRadius: 12,
     );
+    Get.offAllNamed(Routes.HOME);
 
-    Get.offNamed(Routes.FACE_REGISTER);
   }
 }

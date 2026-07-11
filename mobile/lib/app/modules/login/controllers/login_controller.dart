@@ -75,7 +75,7 @@ class LoginController extends GetxController {
       }
 
       await _registerPushTokenBestEffort();
-      await _checkFaceStatusAndNavigate();
+      Get.offAllNamed(Routes.HOME);
     } catch (e) {
       _isLoading.value = false;
       AppFeedback.error('Error', 'Terjadi kesalahan jaringan. Coba lagi.');
@@ -92,19 +92,4 @@ class LoginController extends GetxController {
     }
   }
 
-  Future<void> _checkFaceStatusAndNavigate() async {
-    try {
-      final statusResult = await _authRepository.faceStatus();
-      final faceRegistered = statusResult['data']?['face_registered'] == true;
-      _isLoading.value = false;
-      if (faceRegistered) {
-        Get.offNamed(Routes.FACE_VERIFY);
-      } else {
-        Get.offAllNamed(Routes.HOME);
-      }
-    } catch (_) {
-      _isLoading.value = false;
-      Get.offAllNamed(Routes.HOME);
-    }
-  }
 }
