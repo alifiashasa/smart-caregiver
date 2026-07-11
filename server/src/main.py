@@ -48,16 +48,18 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# ── CORS
-# Explicit local origins — auth uses Bearer token, not cookies
-origins = settings.ALLOWED_ORIGINS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+ 
+ # ── CORS ───────────────────────────────────────────────────────────
+ # Allow all origins for dev — mobile apps don't need CORS but Flutter
+ # Web dev server does. Production should restrict this.
+ origins = ["*"]
+ app.add_middleware(
+     CORSMiddleware,
+     allow_origins=origins,
+     allow_credentials=False,
+     allow_methods=["*"],
+     allow_headers=["*"],
+ )
 
 # ── Logging 
 setup_logging(debug=settings.DEBUG)
