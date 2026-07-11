@@ -272,10 +272,10 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget _buildStats(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final cards = [
-          _buildStatCard(
+    return Row(
+      children: [
+        Expanded(
+          child: _buildStatCard(
             context: context,
             icon: Icons.groups_2_outlined,
             iconColor: AppTheme.primary,
@@ -283,7 +283,10 @@ class HomeView extends GetView<HomeController> {
             value: '${controller.elderlyList.length}',
             label: 'Total Pasien',
           ),
-          _buildStatCard(
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildStatCard(
             context: context,
             icon: Icons.priority_high_rounded,
             iconColor: AppTheme.warning,
@@ -291,22 +294,8 @@ class HomeView extends GetView<HomeController> {
             value: '${controller.needsAttentionCount}',
             label: 'Perlu Perhatian',
           ),
-        ];
-
-        if (constraints.maxWidth < 360) {
-          return Column(
-            children: [cards.first, const SizedBox(height: 12), cards.last],
-          );
-        }
-
-        return Row(
-          children: [
-            Expanded(child: cards.first),
-            const SizedBox(width: 12),
-            Expanded(child: cards.last),
-          ],
-        );
-      },
+        ),
+      ],
     );
   }
 
@@ -436,8 +425,7 @@ class HomeView extends GetView<HomeController> {
                   border: Border.all(
                     color: isSelected ? AppTheme.primary : AppTheme.border,
                   ),
-                  boxShadow:
-                      isSelected ? null : AppTheme.softShadow,
+                  boxShadow: isSelected ? null : AppTheme.softShadow,
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -457,8 +445,9 @@ class HomeView extends GetView<HomeController> {
                     Text(
                       option.label,
                       style: textTheme.labelMedium?.copyWith(
-                        color:
-                            isSelected ? Colors.white : AppTheme.textSecondary,
+                        color: isSelected
+                            ? Colors.white
+                            : AppTheme.textSecondary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),

@@ -155,11 +155,23 @@ class SuccessLogKesehatanView extends GetView<SuccessLogKesehatanController> {
             ),
           ),
           const SizedBox(height: 20),
-          _analysisCard(context, 'Kardiovaskular', controller.fuzzyCardioScore),
+          _analysisCard(
+            context,
+            'Kesehatan Jantung',
+            controller.fuzzyCardioScore,
+          ),
           const SizedBox(height: 10),
-          _analysisCard(context, 'Metabolik', controller.fuzzyMetabolicScore),
+          _analysisCard(
+            context,
+            'Kondisi Tubuh',
+            controller.fuzzyMetabolicScore,
+          ),
           const SizedBox(height: 10),
-          _analysisCard(context, 'Infeksi', controller.fuzzyInfectionScore),
+          _analysisCard(
+            context,
+            'Tanda Infeksi',
+            controller.fuzzyInfectionScore,
+          ),
         ],
       ),
     );

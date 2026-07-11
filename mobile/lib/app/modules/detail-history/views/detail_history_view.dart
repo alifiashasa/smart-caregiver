@@ -644,7 +644,7 @@ class DetailHistoryView extends GetView<DetailHistoryController> {
 
               if (cardio != null)
                 _buildModuleScore(
-                  'Kardiovaskular',
+                  'Kesehatan Jantung',
                   cardio['score'],
                   cardio['status'],
                   Icons.favorite,
@@ -653,7 +653,7 @@ class DetailHistoryView extends GetView<DetailHistoryController> {
                 ),
               if (metabolic != null)
                 _buildModuleScore(
-                  'Metabolik',
+                  'Kondisi Tubuh',
                   metabolic['score'],
                   metabolic['status'],
                   Icons.science,
@@ -662,7 +662,7 @@ class DetailHistoryView extends GetView<DetailHistoryController> {
                 ),
               if (infection != null)
                 _buildModuleScore(
-                  'Infeksi',
+                  'Tanda Infeksi',
                   infection['score'],
                   infection['status'],
                   Icons.thermostat,

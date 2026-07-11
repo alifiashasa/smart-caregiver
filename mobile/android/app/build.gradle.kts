@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "com.smartcaregiver.app"
+    namespace = "com.hn.smartcaregiver"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -24,7 +24,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.smartcaregiver.app"
+        applicationId = "com.hn.smartcaregiver"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -43,7 +43,7 @@ android {
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 }
