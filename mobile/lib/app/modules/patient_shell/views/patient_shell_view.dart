@@ -48,10 +48,10 @@ class PatientShellView extends GetView<PatientShellController> {
           child: Obx(
             () => Row(
               children: [
-                _buildNavItem(0, Icons.dashboard_rounded, 'Home'),
-                _buildNavItem(1, Icons.calendar_today_rounded, 'Jadwal'),
-                _buildNavItem(2, Icons.monitor_heart_rounded, 'Riwayat'),
-                _buildNavItem(3, Icons.person_rounded, 'Profil'),
+                _buildNavItem(0, Icons.dashboard_rounded, 'Home', key: const Key('nav_home')),
+                _buildNavItem(1, Icons.calendar_today_rounded, 'Jadwal', key: const Key('nav_jadwal')),
+                _buildNavItem(2, Icons.monitor_heart_rounded, 'Riwayat', key: const Key('nav_riwayat')),
+                _buildNavItem(3, Icons.person_rounded, 'Profil', key: const Key('nav_profil')),
               ],
             ),
           ),
@@ -60,10 +60,11 @@ class PatientShellView extends GetView<PatientShellController> {
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, String label) {
+  Widget _buildNavItem(int index, IconData icon, String label, {Key? key}) {
     final isSelected = controller.currentIndex == index;
 
     return Expanded(
+      key: key,
       child: Semantics(
         button: true,
         selected: isSelected,

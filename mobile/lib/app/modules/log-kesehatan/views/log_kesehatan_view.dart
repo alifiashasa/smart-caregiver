@@ -12,6 +12,7 @@ class LogKesehatanView extends GetView<LogKesehatanController> {
     final pagePadding = AppTheme.pagePadding(context);
 
     return Scaffold(
+      key: const Key('log_kesehatan_scaffold'),
       backgroundColor: AppTheme.background,
       appBar: AppBar(
         title: const Text('Isi Data Kesehatan'),
@@ -319,6 +320,7 @@ class LogKesehatanView extends GetView<LogKesehatanController> {
           SizedBox(
             width: 92,
             child: TextField(
+              key: Key('vital_${title.toLowerCase().replaceAll(" ", "_")}'),
               controller: textController,
               textAlign: TextAlign.right,
               keyboardType: keyboardType,
@@ -388,6 +390,7 @@ class LogKesehatanView extends GetView<LogKesehatanController> {
           ),
           const SizedBox(height: 16),
           TextFormField(
+            key: const Key('complaints_field'),
             controller: controller.complaintsController,
             maxLines: 3,
             decoration: AppTheme.inputDecoration(
@@ -398,6 +401,7 @@ class LogKesehatanView extends GetView<LogKesehatanController> {
           ),
           const SizedBox(height: 14),
           TextFormField(
+            key: const Key('notes_field'),
             controller: controller.notesController,
             maxLines: 4,
             decoration: AppTheme.inputDecoration(
@@ -414,6 +418,7 @@ class LogKesehatanView extends GetView<LogKesehatanController> {
   Widget _buildSubmitButton() {
     return Obx(
       () => ElevatedButton(
+        key: const Key('submit_health_button'),
         onPressed: controller.isLoading ? null : controller.submitHealthRecord,
         child: AnimatedSwitcher(
           duration: AppTheme.motionFast,

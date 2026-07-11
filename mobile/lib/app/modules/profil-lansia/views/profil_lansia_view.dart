@@ -12,6 +12,7 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
     final pagePadding = AppTheme.pagePadding(context);
 
     return Scaffold(
+      key: const Key('profil_lansia_scaffold'),
       backgroundColor: AppTheme.background,
       appBar: AppBar(
         title: const Text('Profil Lansia'),
@@ -161,6 +162,7 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
+          key: Key('tab_${label.toLowerCase().replaceAll(' ', '_')}'),
           borderRadius: BorderRadius.circular(999),
           onTap: () => controller.changeProfileTab(index),
           child: AnimatedContainer(
@@ -318,6 +320,7 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
         ),
         const SizedBox(height: 8),
         TextField(
+          key: Key('profile_field_${label.toLowerCase().replaceAll(' ', '_')}'),
           controller: controller,
           keyboardType: keyboardType,
           textInputAction: textInputAction,
@@ -359,6 +362,7 @@ class ProfilLansiaView extends GetView<ProfilLansiaController> {
   Widget _buildSaveButton() {
     return Obx(
       () => ElevatedButton(
+        key: const Key('save_profile_button'),
         onPressed: controller.isLoading ? null : controller.saveChanges,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppTheme.primary,

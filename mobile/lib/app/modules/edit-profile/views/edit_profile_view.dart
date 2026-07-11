@@ -12,6 +12,7 @@ class EditProfileView extends GetView<EditProfileController> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
+      key: const Key('edit_profile_scaffold'),
       backgroundColor: AppTheme.background,
       appBar: AppBar(
         title: const Text('Edit Profil'),
@@ -41,6 +42,7 @@ class EditProfileView extends GetView<EditProfileController> {
                     Text('Informasi Profil', style: textTheme.titleMedium),
                     const SizedBox(height: 24),
                     TextField(
+                      key: const Key('edit_name_field'),
                       controller: controller.nameController,
                       decoration: AppTheme.inputDecoration(
                         hintText: 'Nama lengkap',
@@ -52,6 +54,7 @@ class EditProfileView extends GetView<EditProfileController> {
                     ),
                     const SizedBox(height: 20),
                     TextField(
+                      key: const Key('edit_phone_field'),
                       controller: controller.phoneController,
                       decoration: AppTheme.inputDecoration(
                         hintText: 'Nomor telepon',
@@ -67,6 +70,7 @@ class EditProfileView extends GetView<EditProfileController> {
               ),
               const SizedBox(height: 24),
               Obx(() => FilledButton.icon(
+                key: const Key('edit_save_button'),
                 onPressed: controller.isSaving || !controller.hasChanges
                     ? null
                     : controller.save,

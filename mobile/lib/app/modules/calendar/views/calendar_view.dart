@@ -14,6 +14,7 @@ class CalendarView extends GetView<CalendarController> {
     final pagePadding = AppTheme.pagePadding(context);
 
     return Scaffold(
+      key: const Key('calendar_scaffold'),
       backgroundColor: AppTheme.background,
       appBar: AppBar(
         title: const Text('Jadwal Perawatan'),
@@ -128,6 +129,7 @@ class CalendarView extends GetView<CalendarController> {
     const days = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 
     return Padding(
+      key: Key('date_chip_${date.day}_${date.month}'),
       padding: const EdgeInsets.only(right: 8),
       child: Semantics(
         button: true,
@@ -183,6 +185,7 @@ class CalendarView extends GetView<CalendarController> {
 
   Widget _buildAddScheduleButton(BuildContext context) {
     return ElevatedButton.icon(
+      key: const Key('add_schedule_button'),
       onPressed: _showCreateBottomSheet,
       icon: const Icon(Icons.add_rounded, size: 18),
       label: const Text('Tambah Kegiatan'),
@@ -247,6 +250,7 @@ class CalendarView extends GetView<CalendarController> {
           ),
           const SizedBox(height: 16),
           FilledButton.icon(
+            key: const Key('empty_add_schedule_button'),
             onPressed: _showCreateBottomSheet,
             icon: const Icon(Icons.add_rounded, size: 16),
             label: const Text('Tambah Kegiatan'),

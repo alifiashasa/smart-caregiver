@@ -13,6 +13,7 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
     final pagePadding = AppTheme.pagePadding(context);
 
     return Scaffold(
+      key: const Key('rekomendasi_ai_scaffold'),
       backgroundColor: AppTheme.background,
       appBar: AppBar(
         title: const Text('Rekomendasi AI'),
@@ -112,6 +113,7 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
           const SizedBox(height: 18),
           Obx(
             () => ElevatedButton.icon(
+              key: const Key('generate_recommendation_button'),
               onPressed: controller.isGenerating
                   ? null
                   : () => controller.generateRecommendation(),
@@ -215,6 +217,7 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
               ),
               const SizedBox(height: 22),
               ElevatedButton.icon(
+                key: const Key('retry_button'),
                 onPressed: controller.fetchRecommendations,
                 icon: const Icon(Icons.refresh_rounded, size: 18),
                 label: const Text('Coba Lagi'),
@@ -341,6 +344,7 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
                 children: [
                   Expanded(
                     child: TextButton.icon(
+                      key: const Key('approve_button'),
                       onPressed: () => controller.approveRecommendation(rec),
                       icon: const Icon(Icons.add_task_rounded, size: 18),
                       label: const Text('Tambahkan'),
@@ -352,6 +356,7 @@ class RekomendasiAiView extends GetView<RekomendasiAiController> {
                   Container(width: 1, height: 28, color: AppTheme.border),
                   Expanded(
                     child: TextButton.icon(
+                      key: const Key('reject_button'),
                       onPressed: () => controller.rejectRecommendation(rec),
                       icon: const Icon(Icons.close_rounded, size: 18),
                       label: const Text('Tolak'),

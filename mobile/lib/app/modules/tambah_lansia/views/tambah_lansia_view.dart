@@ -12,6 +12,7 @@ class TambahLansiaView extends GetView<TambahLansiaController> {
     final pagePadding = AppTheme.pagePadding(context);
 
     return Scaffold(
+      key: const Key('tambah_lansia_scaffold'),
       backgroundColor: AppTheme.background,
       appBar: AppBar(
         title: const Text('Tambah Lansia Baru'),
@@ -67,6 +68,7 @@ class TambahLansiaView extends GetView<TambahLansiaController> {
         _buildPhotoPicker(context),
         const SizedBox(height: 22),
         TextFormField(
+          key: const Key('patient_name_field'),
           onChanged: (value) => controller.namaLengkap = value,
           textInputAction: TextInputAction.next,
           autofillHints: const [AutofillHints.name],
@@ -78,6 +80,7 @@ class TambahLansiaView extends GetView<TambahLansiaController> {
         ),
         const SizedBox(height: 14),
         TextFormField(
+          key: const Key('patient_age_field'),
           onChanged: (value) => controller.usia = value,
           keyboardType: TextInputType.number,
           textInputAction: TextInputAction.next,
@@ -99,6 +102,7 @@ class TambahLansiaView extends GetView<TambahLansiaController> {
                 selectedColor: AppTheme.primary,
                 selectedTextColor: Colors.white,
                 centerText: true,
+                key: const Key('gender_male_chip'),
               ),
             ),
             const SizedBox(width: 10),
@@ -109,6 +113,7 @@ class TambahLansiaView extends GetView<TambahLansiaController> {
                 selectedColor: AppTheme.primary,
                 selectedTextColor: Colors.white,
                 centerText: true,
+                key: const Key('gender_female_chip'),
               ),
             ),
           ],
@@ -128,6 +133,7 @@ class TambahLansiaView extends GetView<TambahLansiaController> {
           color: Colors.transparent,
           shape: const CircleBorder(),
           child: InkWell(
+            key: const Key('photo_picker'),
             customBorder: const CircleBorder(),
             onTap: controller.pickImage,
             child: Column(
@@ -375,6 +381,7 @@ class TambahLansiaView extends GetView<TambahLansiaController> {
     required Color selectedColor,
     required Color selectedTextColor,
     bool centerText = false,
+    Key? key,
   }) {
     return Obx(() {
       final isSelected = groupValue.value == title;
@@ -415,7 +422,7 @@ class TambahLansiaView extends GetView<TambahLansiaController> {
           ),
         ),
       );
-    });
+    }, key: key);
   }
 
   Widget _buildFooterActions() {
@@ -424,6 +431,7 @@ class TambahLansiaView extends GetView<TambahLansiaController> {
       children: [
         Obx(
           () => ElevatedButton(
+            key: const Key('save_patient_button'),
             onPressed: controller.isLoading ? null : controller.simpan,
             child: AnimatedSwitcher(
               duration: AppTheme.motionFast,
@@ -442,7 +450,11 @@ class TambahLansiaView extends GetView<TambahLansiaController> {
           ),
         ),
         const SizedBox(height: 10),
-        TextButton(onPressed: () => Get.back(), child: const Text('Batal')),
+        TextButton(
+          key: const Key('cancel_button'),
+          onPressed: () => Get.back(),
+          child: const Text('Batal'),
+        ),
       ],
     );
   }

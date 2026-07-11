@@ -45,6 +45,7 @@ class SuccessLogKesehatanView extends GetView<SuccessLogKesehatanController> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
+      key: const Key('success_log_scaffold'),
       backgroundColor: AppTheme.background,
       body: SafeArea(
         child: ListView(
@@ -91,6 +92,7 @@ class SuccessLogKesehatanView extends GetView<SuccessLogKesehatanController> {
             }),
             const SizedBox(height: 28),
             ElevatedButton(
+              key: const Key('done_button'),
               onPressed: controller.goToDashboard,
               child: const Text('Selesai'),
             ),

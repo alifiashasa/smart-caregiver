@@ -12,6 +12,7 @@ class TemplateJadwalView extends GetView<TemplateJadwalController> {
     final pagePadding = AppTheme.pagePadding(context);
 
     return Scaffold(
+      key: const Key('template_jadwal_scaffold'),
       backgroundColor: AppTheme.background,
       appBar: AppBar(
         title: const Text('Pilih Template'),
@@ -32,7 +33,8 @@ class TemplateJadwalView extends GetView<TemplateJadwalController> {
                   _buildHeader(context),
                   const SizedBox(height: 22),
                   Obx(
-                    () => Column(
+                  () => Column(
+                    key: const Key('template_list_column'),
                       children: controller.templates
                           .map(
                             (template) => _buildTemplateCard(context, template),
@@ -160,6 +162,7 @@ class TemplateJadwalView extends GetView<TemplateJadwalController> {
       ),
       child: Obx(
         () => ElevatedButton(
+          key: const Key('add_template_button'),
           onPressed: controller.isLoading
               ? null
               : controller.saveTemplateSchedule,

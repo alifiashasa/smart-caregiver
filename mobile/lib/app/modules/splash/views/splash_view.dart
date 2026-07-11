@@ -15,6 +15,7 @@ class SplashView extends GetView<SplashController> {
     final headerHeight = size.height * 0.58;
 
     return Scaffold(
+      key: const Key('splash_scaffold'),
       backgroundColor: AppTheme.surface,
       body: Column(
         children: [
@@ -125,6 +126,7 @@ class SplashView extends GetView<SplashController> {
           const Spacer(),
           Obx(
             () => ElevatedButton(
+              key: const Key('start_button'),
               onPressed: controller.isLoading ? null : controller.start,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.accent,

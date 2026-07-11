@@ -14,6 +14,7 @@ class RegisterView extends GetView<RegisterController> {
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
 
     return Scaffold(
+      key: const Key('register_scaffold'),
       backgroundColor: AppTheme.surface,
       body: Obx(() {
         final isOtpStep = controller.showOtpField;
@@ -157,6 +158,7 @@ class RegisterView extends GetView<RegisterController> {
                 ),
                 const SizedBox(height: 28),
                 TextFormField(
+                  key: const Key('register_name_field'),
                   onChanged: (value) => controller.name = value,
                   autofillHints: const [AutofillHints.name],
                   textInputAction: TextInputAction.next,
@@ -168,6 +170,7 @@ class RegisterView extends GetView<RegisterController> {
                 ),
                 const SizedBox(height: 14),
                 TextFormField(
+                  key: const Key('register_email_field'),
                   onChanged: (value) => controller.email = value,
                   autocorrect: false,
                   enableSuggestions: false,
@@ -184,6 +187,7 @@ class RegisterView extends GetView<RegisterController> {
                 const SizedBox(height: 14),
                 Obx(
                   () => TextFormField(
+                    key: const Key('register_password_field'),
                     onChanged: (value) => controller.password = value,
                     obscureText: controller.obscurePassword,
                     autofillHints: const [AutofillHints.newPassword],
@@ -209,6 +213,7 @@ class RegisterView extends GetView<RegisterController> {
                 const SizedBox(height: 14),
                 Obx(
                   () => TextFormField(
+                    key: const Key('register_confirm_password_field'),
                     onChanged: (value) => controller.confirmPassword = value,
                     obscureText: controller.obscureConfirmPassword,
                     autofillHints: const [AutofillHints.newPassword],
@@ -234,6 +239,7 @@ class RegisterView extends GetView<RegisterController> {
                 ),
                 const SizedBox(height: 24),
                 _buildActionButton(
+                  key: const Key('register_button'),
                   label: 'Daftar',
                   onPressed: controller.register,
                 ),
@@ -278,6 +284,7 @@ class RegisterView extends GetView<RegisterController> {
               ),
               const SizedBox(height: 28),
               TextFormField(
+                key: const Key('otp_field'),
                 onChanged: (value) => controller.otp = value,
                 keyboardType: TextInputType.number,
                 autofillHints: const [AutofillHints.oneTimeCode],
@@ -294,11 +301,13 @@ class RegisterView extends GetView<RegisterController> {
               ),
               const SizedBox(height: 24),
               _buildActionButton(
+                key: const Key('verify_button'),
                 label: 'Verifikasi',
                 onPressed: controller.verifyOtp,
               ),
               const SizedBox(height: 12),
               TextButton(
+                key: const Key('use_other_email_button'),
                 onPressed: () => controller.showOtpField = false,
                 child: const Text('Gunakan email lain'),
               ),
@@ -339,11 +348,13 @@ class RegisterView extends GetView<RegisterController> {
   }
 
   Widget _buildActionButton({
+    Key? key,
     required String label,
     required VoidCallback onPressed,
   }) {
     return Obx(
       () => ElevatedButton(
+        key: key,
         onPressed: controller.isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppTheme.accent,

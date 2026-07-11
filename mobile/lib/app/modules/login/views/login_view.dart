@@ -15,6 +15,7 @@ class LoginView extends GetView<LoginController> {
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
 
     return Scaffold(
+      key: const Key('login_scaffold'),
       backgroundColor: AppTheme.surface,
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -128,6 +129,7 @@ class LoginView extends GetView<LoginController> {
                       ),
                     ),
                     GestureDetector(
+                      key: const Key('register_link'),
                       onTap: () => Get.toNamed(Routes.REGISTER),
                       child: Text(
                         'Daftar',
@@ -155,6 +157,7 @@ class LoginView extends GetView<LoginController> {
 
   Widget _buildEmailField() {
     return TextFormField(
+      key: const Key('login_email_field'),
       onChanged: (value) => controller.email = value,
       autocorrect: false,
       enableSuggestions: false,
@@ -173,6 +176,7 @@ class LoginView extends GetView<LoginController> {
   Widget _buildPasswordField() {
     return Obx(
       () => TextFormField(
+        key: const Key('login_password_field'),
         onChanged: (value) => controller.password = value,
         autocorrect: false,
         enableSuggestions: false,
@@ -233,6 +237,7 @@ class LoginView extends GetView<LoginController> {
   Widget _buildLoginButton() {
     return Obx(
       () => ElevatedButton(
+        key: const Key('login_button'),
         onPressed: controller.isLoading ? null : controller.login,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppTheme.accent,

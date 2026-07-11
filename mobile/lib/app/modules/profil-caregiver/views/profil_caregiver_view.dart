@@ -13,6 +13,7 @@ class ProfilCaregiverView extends GetView<ProfilCaregiverController> {
     final pagePadding = AppTheme.pagePadding(context);
 
     return Scaffold(
+      key: const Key('profil_caregiver_scaffold'),
       backgroundColor: AppTheme.background,
       appBar: AppBar(
         title: const Text('Profil Caregiver'),
@@ -139,6 +140,7 @@ class ProfilCaregiverView extends GetView<ProfilCaregiverController> {
 
   Widget _buildLogoutButton() {
     return OutlinedButton.icon(
+      key: const Key('logout_button'),
       onPressed: controller.logout,
       style: OutlinedButton.styleFrom(
         foregroundColor: AppTheme.error,
@@ -158,6 +160,7 @@ class ProfilCaregiverView extends GetView<ProfilCaregiverController> {
     return Material(
       color: Colors.transparent,
       child: InkWell(
+        key: const Key('edit_profile_menu_item'),
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(16),

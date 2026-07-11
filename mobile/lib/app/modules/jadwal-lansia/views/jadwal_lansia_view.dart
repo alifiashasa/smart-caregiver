@@ -12,6 +12,7 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
     final pagePadding = AppTheme.pagePadding(context);
 
     return Scaffold(
+      key: const Key('jadwal_lansia_scaffold'),
       backgroundColor: AppTheme.background,
       appBar: AppBar(
         title: const Text('Jadwal Caregiver'),
@@ -61,6 +62,7 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TextFormField(
+            key: const Key('schedule_title_field'),
             controller: controller.titleController,
             textInputAction: TextInputAction.next,
             decoration: AppTheme.inputDecoration(
@@ -71,6 +73,7 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
           ),
           const SizedBox(height: 14),
           TextFormField(
+            key: const Key('schedule_description_field'),
             controller: controller.descriptionController,
             maxLines: 3,
             decoration: AppTheme.inputDecoration(
@@ -300,6 +303,7 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
                   ),
                 ),
                 Switch.adaptive(
+                  key: const Key('alarm_switch'),
                   value: controller.alarmEnabled,
                   onChanged: controller.toggleAlarm,
                 ),
@@ -314,6 +318,7 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
   Widget _buildSaveButton() {
     return Obx(
       () => ElevatedButton(
+        key: const Key('save_schedule_button'),
         onPressed: controller.isLoading ? null : controller.saveSchedule,
         child: AnimatedSwitcher(
           duration: AppTheme.motionFast,

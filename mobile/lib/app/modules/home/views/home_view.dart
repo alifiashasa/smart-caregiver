@@ -14,8 +14,10 @@ class HomeView extends GetView<HomeController> {
     final pagePadding = AppTheme.pagePadding(context);
 
     return Scaffold(
+      key: const Key('home_scaffold'),
       backgroundColor: AppTheme.background,
       floatingActionButton: FloatingActionButton.extended(
+        key: const Key('add_patient_fab'),
         onPressed: () async {
           final result = await Get.toNamed(Routes.TAMBAH_LANSIA);
           if (result == true) {
@@ -49,6 +51,7 @@ class HomeView extends GetView<HomeController> {
               await controller.loadUnreadCount();
             },
             child: ListView(
+              key: const Key('patient_list'),
               physics: const AlwaysScrollableScrollPhysics(
                 parent: BouncingScrollPhysics(),
               ),
@@ -101,6 +104,7 @@ class HomeView extends GetView<HomeController> {
             color: Colors.transparent,
             shape: const CircleBorder(),
             child: InkWell(
+              key: const Key('profile_button'),
               customBorder: const CircleBorder(),
               onTap: () => Get.toNamed(Routes.PROFIL_CAREGIVER),
               child: Ink(
@@ -151,6 +155,7 @@ class HomeView extends GetView<HomeController> {
             color: Colors.transparent,
             shape: const CircleBorder(),
             child: InkWell(
+              key: const Key('notification_button'),
               customBorder: const CircleBorder(),
               onTap: () async {
                 await Get.toNamed(Routes.NOTIFIKASI);
@@ -356,6 +361,7 @@ class HomeView extends GetView<HomeController> {
           final hasText = controller.searchQuery.trim().isNotEmpty;
 
           return TextField(
+            key: const Key('search_field'),
             controller: controller.searchController,
             onChanged: controller.onSearchChanged,
             style: textTheme.bodyMedium,
@@ -411,6 +417,7 @@ class HomeView extends GetView<HomeController> {
       return SizedBox(
         height: 40,
         child: ListView.separated(
+          key: const Key('filter_chips_list'),
           scrollDirection: Axis.horizontal,
           itemCount: HomeController.statusFilterOptions.length,
           separatorBuilder: (_, _) => const SizedBox(width: 10),
@@ -532,6 +539,7 @@ class HomeView extends GetView<HomeController> {
           ),
           const SizedBox(height: 20),
           FilledButton.icon(
+            key: const Key('empty_add_patient_button'),
             onPressed: () => Get.toNamed(Routes.TAMBAH_LANSIA),
             icon: const Icon(Icons.person_add_alt_1_rounded, size: 18),
             label: const Text('Tambah Pasien'),
@@ -573,6 +581,7 @@ class HomeView extends GetView<HomeController> {
           ),
           const SizedBox(height: 16),
           OutlinedButton.icon(
+            key: const Key('clear_filter_button'),
             onPressed: controller.clearFilters,
             icon: const Icon(Icons.close_rounded, size: 18),
             label: const Text('Hapus Filter'),

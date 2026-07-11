@@ -11,6 +11,7 @@ class NotifikasiView extends GetView<NotifikasiController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: const Key('notifikasi_scaffold'),
       backgroundColor: AppTheme.backgroundAlt,
       appBar: AppBar(
         backgroundColor: AppTheme.backgroundAlt,

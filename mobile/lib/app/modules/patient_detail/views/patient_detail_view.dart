@@ -13,10 +13,12 @@ class PatientDetailView extends GetView<PatientDetailController> {
     final pagePadding = AppTheme.pagePadding(context);
 
     return Scaffold(
+      key: const Key('patient_detail_scaffold'),
       backgroundColor: AppTheme.background,
       appBar: AppBar(
         title: const Text('Riwayat Kesehatan'),
         leading: IconButton(
+          key: const Key('detail_history_back_button'),
           tooltip: 'Kembali',
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => Get.back(),

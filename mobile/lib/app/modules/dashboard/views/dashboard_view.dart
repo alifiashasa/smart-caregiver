@@ -14,11 +14,13 @@ class DashboardView extends GetView<DashboardController> {
     final pagePadding = AppTheme.pagePadding(context);
 
     return Scaffold(
+      key: const Key('dashboard_scaffold'),
       backgroundColor: AppTheme.background,
       appBar: AppBar(
         title: const Text('Data Kesehatan'),
         backgroundColor: AppTheme.background,
         leading: IconButton(
+          key: const Key('dashboard_back_button'),
           tooltip: 'Kembali',
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => Get.back(),
@@ -115,6 +117,7 @@ class DashboardView extends GetView<DashboardController> {
             ),
             const SizedBox(width: 12),
             Container(
+              key: const Key('health_status_badge'),
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: AppTheme.accentSoft,
@@ -340,6 +343,7 @@ class DashboardView extends GetView<DashboardController> {
 
   Widget _buildAddHealthRecordButton(BuildContext context) {
     return ElevatedButton.icon(
+      key: const Key('add_health_record_button'),
       onPressed: () {
         Get.toNamed(
           Routes.LOG_KESEHATAN,

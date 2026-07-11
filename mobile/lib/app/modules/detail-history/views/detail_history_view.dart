@@ -9,6 +9,7 @@ class DetailHistoryView extends GetView<DetailHistoryController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: const Key('detail_history_scaffold'),
       backgroundColor: const Color(0xFFFDF8F8),
       appBar: AppBar(
         backgroundColor: Colors.white.withValues(alpha: 0.80),
@@ -17,6 +18,7 @@ class DetailHistoryView extends GetView<DetailHistoryController> {
           bottom: BorderSide(color: Color(0xFFF5F5F4), width: 1),
         ),
         leading: IconButton(
+          key: const Key('detail_history_back_button'),
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Get.back(),
         ),
