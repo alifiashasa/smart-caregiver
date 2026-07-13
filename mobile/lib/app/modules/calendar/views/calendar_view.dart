@@ -218,6 +218,7 @@ class CalendarView extends GetView<CalendarController> {
     final textTheme = Theme.of(context).textTheme;
 
     return Container(
+      key: const Key('empty_schedule_state'),
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 24),
       decoration: AppTheme.cardDecoration(),
@@ -411,6 +412,7 @@ class CalendarView extends GetView<CalendarController> {
     final amPm = time.hour >= 12 ? 'PM' : 'AM';
 
     return AnimatedOpacity(
+      key: ValueKey('schedule_card_${schedule.id}'),
       duration: AppTheme.motionFast,
       opacity: isCompleted ? 0.55 : 1,
       child: Padding(

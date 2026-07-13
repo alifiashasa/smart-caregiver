@@ -187,6 +187,7 @@ class TambahLansiaView extends GetView<TambahLansiaController> {
       subtitle: 'Kondisi umum untuk kebutuhan perawatan harian.',
       children: [
         TextFormField(
+          key: const Key('medical_history_field'),
           onChanged: (value) => controller.riwayatMedis = value,
           maxLines: 3,
           decoration: AppTheme.inputDecoration(
@@ -207,6 +208,7 @@ class TambahLansiaView extends GetView<TambahLansiaController> {
               selectedColor: AppTheme.accent,
               selectedTextColor: AppTheme.primary,
               centerText: true,
+              key: const Key('kondisi_fisik_mandiri'),
             ),
             const SizedBox(height: 8),
             _buildChoiceChip(
@@ -215,6 +217,7 @@ class TambahLansiaView extends GetView<TambahLansiaController> {
               selectedColor: AppTheme.accent,
               selectedTextColor: AppTheme.primary,
               centerText: true,
+              key: const Key('kondisi_fisik_sebagian'),
             ),
             const SizedBox(height: 8),
             _buildChoiceChip(
@@ -223,6 +226,7 @@ class TambahLansiaView extends GetView<TambahLansiaController> {
               selectedColor: AppTheme.accent,
               selectedTextColor: AppTheme.primary,
               centerText: true,
+              key: const Key('kondisi_fisik_penuh'),
             ),
           ],
         ),
@@ -238,24 +242,28 @@ class TambahLansiaView extends GetView<TambahLansiaController> {
               groupValue: controller.mobilitas,
               selectedColor: AppTheme.accent,
               selectedTextColor: AppTheme.primary,
+              key: const Key('mobilitas_berjalan'),
             ),
             _buildChoiceChip(
               title: 'Alat Bantu',
               groupValue: controller.mobilitas,
               selectedColor: AppTheme.accent,
               selectedTextColor: AppTheme.primary,
+              key: const Key('mobilitas_alat_bantu'),
             ),
             _buildChoiceChip(
               title: 'Kursi Roda',
               groupValue: controller.mobilitas,
               selectedColor: AppTheme.accent,
               selectedTextColor: AppTheme.primary,
+              key: const Key('mobilitas_kursi_roda'),
             ),
             _buildChoiceChip(
               title: 'Berbaring',
               groupValue: controller.mobilitas,
               selectedColor: AppTheme.accent,
               selectedTextColor: AppTheme.primary,
+              key: const Key('mobilitas_berbaring'),
             ),
           ],
         ),
@@ -273,6 +281,7 @@ class TambahLansiaView extends GetView<TambahLansiaController> {
       subtitle: 'Preferensi yang membantu rekomendasi aktivitas.',
       children: [
         TextFormField(
+          key: const Key('hobbies_field'),
           onChanged: (value) => controller.minatHobi = value,
           maxLines: 3,
           decoration: AppTheme.inputDecoration(

@@ -47,8 +47,11 @@ class PatientDetailView extends GetView<PatientDetailController> {
                 if (controller.records.isEmpty)
                   _buildEmptyState(context)
                 else
-                  ...controller.records.map(
-                    (record) => TimelineCard(record: record),
+                  ...controller.records.asMap().entries.map(
+                    (entry) => TimelineCard(
+                      key: ValueKey('timeline_card_${entry.key}'),
+                      record: entry.value,
+                    ),
                   ),
               ],
             ),
@@ -62,6 +65,7 @@ class PatientDetailView extends GetView<PatientDetailController> {
     final textTheme = Theme.of(context).textTheme;
 
     return Container(
+      key: const Key('patient_detail_empty_state'),
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 42, horizontal: 24),
       decoration: AppTheme.cardDecoration(),
@@ -280,6 +284,7 @@ class _TimelineCardState extends State<TimelineCard> {
           color: AppTheme.surfaceMuted,
           borderRadius: BorderRadius.circular(18),
           child: InkWell(
+            key: const Key('detail_history_link'),
             borderRadius: BorderRadius.circular(18),
             onTap: () {
               final ctrl = Get.find<PatientDetailController>();

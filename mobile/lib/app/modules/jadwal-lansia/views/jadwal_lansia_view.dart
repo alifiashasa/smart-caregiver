@@ -99,6 +99,7 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
                   icon: icon,
                   isSelected: isSelected,
                   onTap: () => controller.selectType(value, label),
+                  key: ValueKey('type_chip_$value'),
                 );
               }).toList(),
             ),
@@ -154,11 +155,13 @@ class JadwalLansiaView extends GetView<JadwalLansiaController> {
     required IconData icon,
     required bool isSelected,
     required VoidCallback onTap,
+    Key? key,
   }) {
     return Semantics(
       button: true,
       selected: isSelected,
       child: Material(
+        key: key,
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(999),
         child: InkWell(

@@ -220,6 +220,7 @@ class DashboardView extends GetView<DashboardController> {
         children: items.map((item) {
           final selected = item == value;
           return Material(
+            key: ValueKey('trend_segment_${item.toLowerCase().replaceAll(" ", "_")}'),
             color: Colors.transparent,
             child: InkWell(
               borderRadius: BorderRadius.circular(999),
@@ -269,6 +270,7 @@ class DashboardView extends GetView<DashboardController> {
           return Padding(
             padding: const EdgeInsets.only(right: 8),
             child: Material(
+              key: ValueKey('trend_param_segment_${item.replaceAll(" ", "_")}'),
               color: Colors.transparent,
               child: InkWell(
                 borderRadius: BorderRadius.circular(999),
@@ -430,6 +432,7 @@ class DashboardView extends GetView<DashboardController> {
     final unit = metric['unit']?.toString() ?? '';
 
     return Container(
+      key: Key('metric_card_${metric['id'] ?? metric['title']}'),
       padding: const EdgeInsets.all(14),
       decoration: AppTheme.cardDecoration(radius: 20),
       child: Column(

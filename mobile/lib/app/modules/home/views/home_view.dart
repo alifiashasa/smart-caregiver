@@ -77,6 +77,7 @@ class HomeView extends GetView<HomeController> {
                   ...controller.filteredElderlyList.map((elderly) {
                     return _buildPatientCard(
                       context: context,
+                      id: elderly.elderlyId,
                       name: elderly.fullName,
                       age: elderly.ageLabel,
                       status: HomeController.statusLabel(
@@ -228,6 +229,7 @@ class HomeView extends GetView<HomeController> {
     final textTheme = Theme.of(context).textTheme;
 
     return Container(
+      key: const Key('greeting_card'),
       width: double.infinity,
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
@@ -277,6 +279,7 @@ class HomeView extends GetView<HomeController> {
         Expanded(
           child: _buildStatCard(
             context: context,
+            key: const Key('stat_total_pasien'),
             icon: Icons.groups_2_outlined,
             iconColor: AppTheme.primary,
             iconBgColor: AppTheme.surfaceMuted,
@@ -288,6 +291,7 @@ class HomeView extends GetView<HomeController> {
         Expanded(
           child: _buildStatCard(
             context: context,
+            key: const Key('stat_perlu_perhatian'),
             icon: Icons.priority_high_rounded,
             iconColor: AppTheme.warning,
             iconBgColor: AppTheme.warningSoft,
@@ -301,6 +305,7 @@ class HomeView extends GetView<HomeController> {
 
   Widget _buildStatCard({
     required BuildContext context,
+    Key? key,
     required IconData icon,
     required Color iconColor,
     required Color iconBgColor,
@@ -310,6 +315,7 @@ class HomeView extends GetView<HomeController> {
     final textTheme = Theme.of(context).textTheme;
 
     return Container(
+      key: key,
       padding: const EdgeInsets.all(18),
       decoration: AppTheme.cardDecoration(radius: 22),
       child: Column(
@@ -413,8 +419,8 @@ class HomeView extends GetView<HomeController> {
           itemBuilder: (context, index) {
             final option = HomeController.statusFilterOptions[index];
             final isSelected = selected == option.status;
-
             return GestureDetector(
+              key: ValueKey('filter_chip_${option.status ?? "all"}'),
               onTap: () => controller.onFilterChanged(option.status),
               child: AnimatedContainer(
                 duration: AppTheme.motion,
@@ -465,6 +471,7 @@ class HomeView extends GetView<HomeController> {
     final textTheme = Theme.of(context).textTheme;
 
     return Row(
+      key: const Key('patient_header'),
       children: [
         Expanded(
           child: Column(
@@ -582,6 +589,7 @@ class HomeView extends GetView<HomeController> {
 
   Widget _buildPatientCard({
     required BuildContext context,
+    required String id,
     required String name,
     required String age,
     required String status,
@@ -593,8 +601,8 @@ class HomeView extends GetView<HomeController> {
     final badgeTextColor = isCritical ? AppTheme.warning : AppTheme.primary;
     final avatarBackground = isCritical ? 'f59e0b' : 'BBF246';
     final avatarText = isCritical ? 'fff' : '192126';
-
     return Padding(
+      key: ValueKey('patient_card_$id'),
       padding: const EdgeInsets.only(bottom: 14),
       child: Material(
         color: Colors.transparent,
