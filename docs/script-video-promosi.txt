@@ -1,0 +1,79 @@
+SCRIPT VIDEO PROMOSI — SMART CAREGIVER
+Format: Reels Instagram (~50 detik)
+Buka dengan bumper prodi (wajib, 3 detik)
+
+---
+
+[0:03–0:08]
+VISUAL: Caregiver kewalahan / teks masalah
+NARASI:
+Pernah lihat orang yang merawat kakek-nenek sendirian? Catat obat, cek tekanan darah, ingat jadwal dokter — semuanya manual. Gampang lupa, kan?
+
+---
+
+[0:08–0:13]
+VISUAL: Logo app + screenshot dashboard
+NARASI:
+Nah, tim kami bikin Smart Caregiver — aplikasi yang bantu caregiver pantau kesehatan lansia dari satu tempat.
+
+---
+
+[0:13–0:22]
+VISUAL: Screen record — input kesehatan + status + notifikasi
+NARASI:
+Tinggal catat tekanan darah, gula darah, dan lainnya. Aplikasinya langsung kasih tahu: kondisi normal atau perlu diperhatikan. Ada alarm kalau ada yang bahaya.
+
+---
+
+[0:22–0:30]
+VISUAL: Screen record — jadwal obat + rekomendasi AI
+NARASI:
+Jadwal minum obat? Ada pengingatnya. Mau ide aktivitas buat lansia? AI-nya kasih saran sesuai kondisi dan hobinya masing-masing.
+
+---
+
+[0:30–0:36]
+VISUAL: Screen record — login wajah + grafik tren
+NARASI:
+Login-nya pakai verifikasi wajah biar datanya aman. Grafik trennya juga bikin gampang lihat perkembangan kesehatan dari waktu ke waktu.
+
+---
+
+[0:36–0:42]
+VISUAL: Foto tim / behind the scenes
+NARASI:
+Dibangun berdua selama Capstone Project — dari nol sampai jadi app yang beneran jalan. Backend, mobile, sampai AI-nya kami garap sendiri.
+
+---
+
+[0:42–0:48]
+VISUAL: Montage fitur
+NARASI:
+Pakai Flutter buat tampilannya, FastAPI buat servernya, plus AI buat rekomendasi aktivitas.
+
+---
+
+[0:48–0:55]
+VISUAL: End card — logo app + tim
+NARASI:
+Kamu juga bisa bikin hal kayak gini di sini. Teknik Informatika bukan cuma ngetik kode — tapi bikin solusi yang beneran berguna.
+
+---
+
+NARASI LENGKAP (baca terus tanpa jeda):
+
+Pernah lihat orang yang merawat kakek-nenek sendirian? Catat obat, cek tekanan darah, ingat jadwal dokter — semuanya manual. Gampang lupa, kan?
+
+Nah, tim kami bikin Smart Caregiver — aplikasi yang bantu caregiver pantau kesehatan lansia dari satu tempat.
+
+Tinggal catat tekanan darah, gula darah, dan lainnya. Aplikasinya langsung kasih tahu: kondisi normal atau perlu diperhatikan. Ada alarm kalau ada yang bahaya.
+
+Jadwal minum obat? Ada pengingatnya. Mau ide aktivitas buat lansia? AI-nya kasih saran sesuai kondisi dan hobinya masing-masing.
+
+Login-nya pakai verifikasi wajah biar datanya aman. Grafik trennya juga bikin gampang lihat perkembangan kesehatan dari waktu ke waktu.
+
+Dibangun berdua selama Capstone Project — dari nol sampai jadi app yang beneran jalan.
+
+Pakai Flutter buat tampilannya, FastAPI buat servernya, plus AI buat rekomendasi aktivitas.
+
+Kamu juga bisa bikin hal kayak gini di sini. Teknik Informatika bukan cuma ngetik kode — tapi bikin solusi yang beneran berguna.
